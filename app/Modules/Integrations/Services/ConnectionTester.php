@@ -288,16 +288,36 @@ class ConnectionTester
         if (empty($key)) {
             return ['ok' => false, 'message' => 'API Key is required.'];
         }
+
+        // Try Legacy Places API
         $resp = HttpFacade::timeout(10)->get('https://maps.googleapis.com/maps/api/place/textsearch/json', [
             'query' => 'restaurants in New York',
             'key' => $key,
-            'maxResultCount' => 1,
         ]);
         $status = $resp->json()['status'] ?? '';
+        $errMsg = $resp->json()['error_message'] ?? '';
 
-        return in_array($status, ['OK', 'ZERO_RESULTS'])
-            ? ['ok' => true,  'message' => 'Google Places API connected.']
-            : ['ok' => false, 'message' => $resp->json()['error_message'] ?? 'Places API error: '.$status];
+        if (in_array($status, ['OK', 'ZERO_RESULTS'])) {
+            return ['ok' => true, 'message' => 'Google Places API connected.'];
+        }
+
+        // Try Places API (New) endpoint
+        $newResp = HttpFacade::timeout(10)
+            ->withHeaders([
+                'X-Goog-Api-Key' => $key,
+                'X-Goog-FieldMask' => 'places.id,places.displayName',
+            ])
+            ->post('https://places.googleapis.com/v1/places:searchText', [
+                'textQuery' => 'restaurants in New York',
+            ]);
+
+        if ($newResp->successful()) {
+            return ['ok' => true, 'message' => 'Google Places API (New) connected successfully.'];
+        }
+
+        $newError = $newResp->json()['error']['message'] ?? null;
+
+        return ['ok' => false, 'message' => $errMsg ?: ($newError ?? 'Places API error: '.$status)];
     }
 
     private function testGoogleWorkspace(IntegrationConfig $config): array

@@ -66,23 +66,35 @@ class GooglePlacesScraper
             // asking per place would repeat that work up to 60 times.
             $stage = $this->pipeline->firstStage((int) $job->workspace_id);
 
-            do {
-                $params = ['query' => $query, 'key' => $apiKey];
-                if ($pageToken) {
-                    $params['pagetoken'] = $pageToken;
-                }
+            try {
+                do {
+                    $params = ['query' => $query, 'key' => $apiKey];
+                    if ($pageToken) {
+                        $params['pagetoken'] = $pageToken;
+                    }
 
-                $res = $this->places($params, $pageToken !== null);
-                $places = $res['results'] ?? [];
+                    $res = $this->places($params, $pageToken !== null);
+                    $places = $res['results'] ?? [];
 
-                foreach ($places as $place) {
+                    foreach ($places as $place) {
+                        $seen++;
+                        $created += $this->upsertPlace($job->workspace_id, $place, $apiKey, $stage);
+                    }
+
+                    $pageToken = $res['next_page_token'] ?? null;
+                    $page++;
+                } while ($pageToken && $page < self::MAX_PAGES);
+            } catch (\Throwable $legacyErr) {
+                // Fallback for Projects with Places API (New) enabled
+                $newPlaces = $this->placesNew($query, $apiKey);
+                foreach ($newPlaces as $p) {
                     $seen++;
-                    $created += $this->upsertPlace($job->workspace_id, $place, $apiKey, $stage);
+                    $created += $this->upsertPlaceNew($job->workspace_id, $p, $stage);
                 }
-
-                $pageToken = $res['next_page_token'] ?? null;
-                $page++;
-            } while ($pageToken && $page < self::MAX_PAGES);
+                if (empty($newPlaces) && $seen === 0) {
+                    throw $legacyErr;
+                }
+            }
 
             $job->update([
                 'status' => 'done',
@@ -273,5 +285,62 @@ class GooglePlacesScraper
 
             return [];
         }
+    }
+
+    private function placesNew(string $query, string $apiKey): array
+    {
+        try {
+            $res = $this->http()
+                ->withHeaders([
+                    'X-Goog-Api-Key' => $apiKey,
+                    'X-Goog-FieldMask' => 'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount',
+                ])
+                ->post('https://places.googleapis.com/v1/places:searchText', [
+                    'textQuery' => $query,
+                ])
+                ->json();
+
+            return $res['places'] ?? [];
+        } catch (\Throwable $e) {
+            Log::warning('GooglePlacesScraper Places API (New) lookup failed: '.$this->redactKey($e->getMessage(), $apiKey));
+            return [];
+        }
+    }
+
+    private function upsertPlaceNew(int $workspaceId, array $p, ?LeadPipelineStage $stage): int
+    {
+        $placeId = $p['id'] ?? null;
+        if (! $placeId) {
+            return 0;
+        }
+
+        $name = $p['displayName']['text'] ?? null;
+        $lead = Lead::updateOrCreate(
+            ['workspace_id' => $workspaceId, 'google_place_id' => $placeId],
+            [
+                'name' => $name,
+                'phone' => $p['nationalPhoneNumber'] ?? null,
+                'website' => $p['websiteUri'] ?? null,
+                'address' => $p['formattedAddress'] ?? null,
+                'rating' => $p['rating'] ?? null,
+                'review_count' => $p['userRatingCount'] ?? 0,
+            ]
+        );
+
+        if ($lead->wasRecentlyCreated) {
+            if ($stage) {
+                $lead->update([
+                    'stage_id' => $stage->id,
+                    'stage_changed_at' => now(),
+                    'board_position' => (int) Lead::where('workspace_id', $workspaceId)
+                        ->where('stage_id', $stage->id)->max('board_position') + 1,
+                ]);
+            }
+            $this->activity->created($lead, 'google_places');
+        }
+
+        $this->pipeline->rescore($lead);
+
+        return $lead->wasRecentlyCreated ? 1 : 0;
     }
 }
