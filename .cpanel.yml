@@ -3,4 +3,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/gghmvqpi/public_html
+    - /bin/rm -rf $DEPLOYPATH/public/build
     - /bin/cp -R * $DEPLOYPATH
+
