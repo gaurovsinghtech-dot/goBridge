@@ -1,0 +1,1 @@
+import{u as r}from"./vendor-framework-Cc7f0RCK.js";function l(){const{branding:o}=r().props;return{appName:o?.app_name||"",tagline:o?.app_tagline||"",supportEmail:o?.support_email||"",primaryColor:o?.primary_color||"",secondaryColor:o?.secondary_color||"",fontFamily:o?.font_family||"",logoUrl:o?.logo_url||null,faviconUrl:o?.favicon_url||null}}export{l as u};
