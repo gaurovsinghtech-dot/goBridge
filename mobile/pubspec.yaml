@@ -1,0 +1,23 @@
+name: growbridge_connect
+description: "Growbridge Connect — WhatsApp Chat + Business Calling Mobile Application"
+publish_to: 'none'
+version: 1.0.0+100
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+  lucide_icons: ^0.257.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

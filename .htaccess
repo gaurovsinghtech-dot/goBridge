@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Growbridge Connect · cPanel Root Directory .htaccess
+# ─────────────────────────────────────────────────────────────────────────────
+# If your cPanel host allows pointing the primary domain DocumentRoot to
+# /public (Recommended), this root file is bypassed.
+#
+# If your cPanel host restricts DocumentRoot to public_html/ and you placed
+# the entire project inside public_html/, this file redirects traffic to
+# /public while strictly protecting all backend code and environment secrets.
+# ─────────────────────────────────────────────────────────────────────────────
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    Options -Indexes
+
+    # Block direct browser access to sensitive files and core directories
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan) - [F,L,NC]
+    RewriteRule ^(app|bootstrap|config|database|resources|storage/logs|vendor) - [F,L,NC]
+
+    # Force HTTPS (uncomment if SSL is active and your host doesn't auto-redirect)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Rewrite all front-facing traffic to /public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Block access to hidden dot-files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to database backups, environment, and log files
+<FilesMatch "\.(env|log|sql|sqlite|sh|bak|config)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
