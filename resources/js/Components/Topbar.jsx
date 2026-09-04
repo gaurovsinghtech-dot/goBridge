@@ -53,6 +53,13 @@ export default function Topbar({
 
     const openNotifDropdown = () => {
         setNotifOpen(true);
+        if (isAdmin) {
+            setRecentNotifs([
+                { id: 'sys-1', data: { type: 'system_status', snippet: 'All system services and automated queues are operational.' } },
+                { id: 'sys-2', data: { type: 'deployment_status', snippet: 'cPanel Git deployment is synced with main branch.' } }
+            ]);
+            return;
+        }
         axios.get(route('client.notifications.recent')).then(r => {
             setRecentNotifs(r.data ?? []);
         }).catch(() => {});

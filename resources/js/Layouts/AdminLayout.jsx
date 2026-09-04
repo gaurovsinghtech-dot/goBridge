@@ -1,5 +1,5 @@
 import { Link, usePage, router } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import CommandPalette from '@/Components/CommandPalette';
@@ -56,6 +56,17 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
     const [searchOpen, setSearchOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const notifRef = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setNotifOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
 
     const toggleTheme = () => {
         setTheme(isDark ? 'light' : 'dark');
@@ -399,7 +410,7 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
                         </button>
 
                         {/* Notification Bell Button */}
-                        <div className="relative">
+                        <div className="relative" ref={notifRef}>
                             <button
                                 type="button"
                                 onClick={() => setNotifOpen(!notifOpen)}

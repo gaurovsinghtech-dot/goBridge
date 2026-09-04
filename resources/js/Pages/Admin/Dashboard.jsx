@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/context/ThemeContext';
 import {
     Users,
     CreditCard,
@@ -188,21 +189,31 @@ function AutomationDonut() {
 
 export default function Dashboard() {
     const { t } = useTranslation();
+    const { theme, setTheme } = useTheme();
+    const isDark = theme === 'dark';
+
     const [rangeDropdownOpen, setRangeDropdownOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
-    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+    const rangeRef = useRef(null);
+    const notifRef = useRef(null);
 
     const toggleTheme = () => {
-        const next = !isDark;
-        setIsDark(next);
-        if (next) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
+        setTheme(isDark ? 'light' : 'dark');
     };
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (rangeRef.current && !rangeRef.current.contains(e.target)) {
+                setRangeDropdownOpen(false);
+            }
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setNotificationsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <AdminLayout
@@ -225,7 +236,7 @@ export default function Dashboard() {
 
                     <div className="flex items-center gap-3">
                         {/* Date Range Picker */}
-                        <div className="relative">
+                        <div className="relative" ref={rangeRef}>
                             <button
                                 type="button"
                                 onClick={() => setRangeDropdownOpen(!rangeDropdownOpen)}
@@ -252,7 +263,7 @@ export default function Dashboard() {
                         </div>
 
                         {/* Notification Bell */}
-                        <div className="relative">
+                        <div className="relative" ref={notifRef}>
                             <button
                                 type="button"
                                 onClick={() => setNotificationsOpen(!notificationsOpen)}

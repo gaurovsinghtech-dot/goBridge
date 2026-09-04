@@ -93,19 +93,6 @@ export default function Dashboard({
     const { auth } = usePage().props;
     const user = auth?.user;
     const [rangeDropdownOpen, setRangeDropdownOpen] = useState(false);
-    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
-
-    const toggleTheme = () => {
-        const next = !isDark;
-        setIsDark(next);
-        if (next) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    };
 
     const s = stats || {
         contacts_total: 12540,
