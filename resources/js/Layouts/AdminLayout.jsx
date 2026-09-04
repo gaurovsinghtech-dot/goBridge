@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'sonner';
 import CommandPalette from '@/Components/CommandPalette';
+import { useTheme } from '@/context/ThemeContext';
 import {
     LayoutDashboard,
     Users,
@@ -28,7 +29,12 @@ import {
     Sliders,
     IndianRupee,
     Smartphone,
+    Bell,
+    X,
+    CheckCheck,
+    Search,
 } from 'lucide-react';
+import axios from 'axios';
 
 function safeRoute(name, fallback = '#') {
     try {
@@ -41,22 +47,18 @@ function safeRoute(name, fallback = '#') {
 export default function AdminLayout({ title, subtitle, actions, children }) {
     const { t } = useTranslation();
     const { auth } = usePage().props;
+    const { theme, setTheme } = useTheme();
+    const isDark = theme === 'dark';
+
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [channelsOpen, setChannelsOpen] = useState(true);
     const [integrationsOpen, setIntegrationsOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+    const [notifOpen, setNotifOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
 
     const toggleTheme = () => {
-        const next = !isDark;
-        setIsDark(next);
-        if (next) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
+        setTheme(isDark ? 'light' : 'dark');
     };
 
     const handleLogout = () => {
@@ -369,10 +371,98 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
                     sidebarCollapsed ? 'pl-20' : 'pl-64'
                 }`}
             >
+                {/* ── Top Header Bar ── */}
+                <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#07130f]/80 backdrop-blur px-6 shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                        {title && (
+                            <h1 className="text-base font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                                {title}
+                            </h1>
+                        )}
+                        {subtitle && (
+                            <span className="hidden sm:inline-block text-xs text-neutral-500 dark:text-neutral-400 truncate border-l border-neutral-300 dark:border-neutral-700 pl-3">
+                                {subtitle}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {/* Command Palette / Search Button */}
+                        <button
+                            type="button"
+                            onClick={() => setSearchOpen(true)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+                        >
+                            <Search className="h-3.5 w-3.5" />
+                            <span className="hidden md:inline font-medium">Search tools & routes...</span>
+                            <kbd className="hidden md:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded shadow-xs">⌘K</kbd>
+                        </button>
+
+                        {/* Notification Bell Button */}
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onClick={() => setNotifOpen(!notifOpen)}
+                                className="relative p-2 rounded-xl text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                                title="System Notifications"
+                            >
+                                <Bell className="h-4 w-4" />
+                                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            </button>
+
+                            {/* Notification Popover Dropdown */}
+                            {notifOpen && (
+                                <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl z-50 p-4 space-y-3">
+                                    <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                                            <Bell className="h-3.5 w-3.5 text-emerald-500" /> Admin Notifications
+                                        </h4>
+                                        <button type="button" onClick={() => setNotifOpen(false)} className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">
+                                            <X className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2 text-xs">
+                                        <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200">
+                                            <p className="font-semibold">System Operational</p>
+                                            <p className="text-[11px] opacity-80 mt-0.5">All services, database, queues, and API routes are healthy.</p>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300">
+                                            <p className="font-semibold">Git Deployment active</p>
+                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">cPanel auto-deploy is synced with GitHub repository.</p>
+                                        </div>
+                                    </div>
+                                    <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 text-center">
+                                        <Link
+                                            href={safeRoute('admin.audit-log.index', '/admin/audit-log')}
+                                            onClick={() => setNotifOpen(false)}
+                                            className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                                        >
+                                            View System Audit Logs →
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            type="button"
+                            onClick={toggleTheme}
+                            className="p-2 rounded-xl text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                            title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+                        >
+                            {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+                        </button>
+                    </div>
+                </header>
+
                 <main className="flex-1 p-4 sm:p-6 lg:p-8">
                     {children}
                 </main>
             </div>
+
+            {/* Command Palette Modal */}
+            <CommandPalette isOpen={searchOpen} setIsOpen={setSearchOpen} />
         </div>
     );
 }

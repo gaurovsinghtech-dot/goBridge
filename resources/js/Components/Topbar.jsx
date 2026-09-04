@@ -157,8 +157,8 @@ export default function Topbar({
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
-                {/* Notification bell (client users only) */}
-                {user && !page.props.auth?.adminUser && (
+                {/* Notification bell */}
+                {(user || adminUser) && (
                     <div className="relative" ref={notifRef}>
                         <button
                             type="button"
