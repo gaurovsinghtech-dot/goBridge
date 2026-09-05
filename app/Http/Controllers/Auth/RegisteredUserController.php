@@ -62,16 +62,19 @@ class RegisteredUserController extends Controller
 
             // Create primary workspace first so User booted sync hooks link to it
             $workspaceName = $request->business_name ?: ($request->company_name ?: ($request->name . "'s Workspace"));
-            $workspace = \App\Models\Workspace::create([
+            $workspaceData = [
                 'client_id' => $client->id,
                 'name' => $workspaceName,
                 'industry' => $request->industry ?: 'general',
                 'default_locale' => 'en',
                 'currency_code' => null,
                 'timezone' => $timezone,
-                'service_type' => 'whatsapp_only',
                 'onboarding_completed' => false,
-            ]);
+            ];
+            if (\Illuminate\Support\Facades\Schema::hasColumn('workspaces', 'service_type')) {
+                $workspaceData['service_type'] = 'whatsapp_only';
+            }
+            $workspace = \App\Models\Workspace::create($workspaceData);
 
             $newUser = User::create([
                 'name' => $request->name,

@@ -765,7 +765,7 @@ class OnboardingController extends Controller
         $workspace = $this->resolveWorkspace($user);
         $serviceType = $request->input('service_type');
 
-        if ($workspace) {
+        if ($workspace && \Illuminate\Support\Facades\Schema::hasColumn('workspaces', 'service_type')) {
             $workspace->update(['service_type' => $serviceType]);
         }
 
