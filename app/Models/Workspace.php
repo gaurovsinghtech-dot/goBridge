@@ -62,7 +62,6 @@ class Workspace extends Model
 
     protected $attributes = [
         'default_locale' => 'en',
-        'service_type' => 'whatsapp_only',
     ];
 
     public function owner(): BelongsTo
