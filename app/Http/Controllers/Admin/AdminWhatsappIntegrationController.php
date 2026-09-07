@@ -81,7 +81,7 @@ class AdminWhatsappIntegrationController extends Controller
             ->orWhere('action', 'like', '%meta%')
             ->latest('id')
             ->take(20)
-            ->get(['id', 'action', 'description', 'ip_address', 'created_at']);
+            ->get(['id', 'action', 'ip', 'url', 'created_at']);
 
         return Inertia::render('Admin/Integrations/Whatsapp', [
             'metaConfig' => [
