@@ -15,7 +15,7 @@
 
     # Block direct browser access to sensitive files and core directories
     RewriteRule ^(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan) - [F,L,NC]
-    RewriteRule ^(app|bootstrap|config|database|resources|storage/logs|vendor) - [F,L,NC]
+    RewriteRule ^(bootstrap|config|database|resources|storage/logs|vendor) - [F,L,NC]
 
     # Force HTTPS (uncomment if SSL is active and your host doesn't auto-redirect)
     # RewriteCond %{HTTPS} off
