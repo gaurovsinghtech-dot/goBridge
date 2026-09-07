@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,10 +30,21 @@ class InboxSetupController extends Controller
             ->with('phoneNumbers')
             ->get();
 
-        $whatsappChannelAccounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('channel', 'whatsapp')
-            ->whereNotNull('phone_number_id')
-            ->get(['id', 'phone_number_id', 'display_name', 'status', 'meta_json', 'business_account_id']);
+        $getChannelAccounts = function (string $channel = null, bool $mustHavePhone = false) use ($workspaceId) {
+            if (! Schema::hasTable('channel_accounts')) {
+                return collect();
+            }
+            $query = ChannelAccount::where('workspace_id', $workspaceId);
+            if ($channel && Schema::hasColumn('channel_accounts', 'channel')) {
+                $query->where('channel', $channel);
+            }
+            if ($mustHavePhone && Schema::hasColumn('channel_accounts', 'phone_number_id')) {
+                $query->whereNotNull('phone_number_id');
+            }
+            return $query->get();
+        };
+
+        $whatsappChannelAccounts = $getChannelAccounts('whatsapp', true);
 
         $webhookTokensByWaba = [];
         $channelAccountPhoneIdsByWaba = [];
@@ -40,26 +52,22 @@ class InboxSetupController extends Controller
         foreach ($wabas as $waba) {
             $webhookTokensByWaba[$waba->id] = $waba->makeVisible('webhook_verify_token')->webhook_verify_token;
             $accounts = $whatsappChannelAccounts->where('business_account_id', $waba->waba_id)->values();
-            $channelAccountPhoneIdsByWaba[$waba->id] = $accounts->pluck('phone_number_id')->all();
+            $channelAccountPhoneIdsByWaba[$waba->id] = $accounts->pluck('phone_number_id')->filter()->all();
             $channelAccountsByWaba[$waba->id] = $accounts->map(fn ($a) => [
                 'id' => $a->id,
-                'phone_number_id' => $a->phone_number_id,
-                'display_name' => $a->display_name,
-                'status' => $a->status,
+                'phone_number_id' => $a->phone_number_id ?? null,
+                'display_name' => $a->display_name ?? 'WhatsApp',
+                'status' => $a->status ?? 'active',
                 'ai_chatbot_id' => $a->meta_json['ai_chatbot_id'] ?? null,
             ])->all();
         }
 
         // Instagram / Messenger
-        $instagramAccounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('channel', 'instagram')
-            ->get(['id', 'display_name', 'status', 'meta_json', 'created_at'])
-            ->map(fn ($a) => array_merge($a->toArray(), ['ai_chatbot_id' => $a->meta_json['ai_chatbot_id'] ?? null]));
+        $instagramAccounts = $getChannelAccounts('instagram')
+            ->map(fn ($a) => array_merge($a->toArray(), ['display_name' => $a->display_name ?? 'Instagram', 'ai_chatbot_id' => $a->meta_json['ai_chatbot_id'] ?? null]));
 
-        $messengerAccounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('channel', 'messenger')
-            ->get(['id', 'display_name', 'status', 'meta_json', 'created_at'])
-            ->map(fn ($a) => array_merge($a->toArray(), ['ai_chatbot_id' => $a->meta_json['ai_chatbot_id'] ?? null]));
+        $messengerAccounts = $getChannelAccounts('messenger')
+            ->map(fn ($a) => array_merge($a->toArray(), ['display_name' => $a->display_name ?? 'Messenger', 'ai_chatbot_id' => $a->meta_json['ai_chatbot_id'] ?? null]));
 
         $chatbots = AiChatbot::where('workspace_id', $workspaceId)
             ->where('enabled', true)

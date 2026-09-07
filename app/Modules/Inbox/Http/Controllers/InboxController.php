@@ -28,6 +28,7 @@ use App\Support\Demo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -94,11 +95,7 @@ class InboxController extends Controller
         $conversations = $query->paginate(30)->withQueryString();
 
         $labels = InboxLabel::where('workspace_id', $workspaceId)->orderBy('name')->get(['id', 'name', 'color']);
-        $channelAccounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('status', 'active')
-            ->orderBy('channel')
-            ->orderBy('display_name')
-            ->get(['id', 'channel', 'display_name', 'phone_number_id']);
+        $channelAccounts = $this->getActiveChannelAccounts((int) $workspaceId);
 
         $counts = [
             'all' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
@@ -203,11 +200,7 @@ class InboxController extends Controller
             ->paginate(30)
             ->withQueryString();
 
-        $channelAccounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('status', 'active')
-            ->orderBy('channel')
-            ->orderBy('display_name')
-            ->get(['id', 'channel', 'display_name', 'phone_number_id']);
+        $channelAccounts = $this->getActiveChannelAccounts((int) $workspaceId);
 
         // Fetch associated Voice & Phone calls for this customer
         $voiceCalls = collect();
@@ -980,9 +973,7 @@ class InboxController extends Controller
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
 
-        $accounts = ChannelAccount::where('workspace_id', $workspaceId)
-            ->where('status', 'active')
-            ->get(['id', 'channel', 'display_name', 'phone_number_id']);
+        $accounts = $this->getActiveChannelAccounts((int) $workspaceId);
 
         return response()->json($accounts);
     }
@@ -1060,5 +1051,38 @@ class InboxController extends Controller
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
         abort_unless((int) $conversation->workspace_id === (int) $workspaceId, 403);
+    }
+
+    /**
+     * Safely fetch active channel accounts for workspace checking table and column existence.
+     */
+    private function getActiveChannelAccounts(int $workspaceId)
+    {
+        if (! Schema::hasTable('channel_accounts')) {
+            return collect();
+        }
+
+        $query = ChannelAccount::where('workspace_id', $workspaceId);
+
+        if (Schema::hasColumn('channel_accounts', 'status')) {
+            $query->where('status', 'active');
+        }
+
+        if (Schema::hasColumn('channel_accounts', 'channel')) {
+            $query->orderBy('channel');
+        }
+
+        if (Schema::hasColumn('channel_accounts', 'display_name')) {
+            $query->orderBy('display_name');
+        }
+
+        $select = ['id'];
+        foreach (['channel', 'display_name', 'phone_number_id'] as $col) {
+            if (Schema::hasColumn('channel_accounts', $col)) {
+                $select[] = $col;
+            }
+        }
+
+        return $query->get($select);
     }
 }

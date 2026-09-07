@@ -30,11 +30,26 @@ class MobileInboxController extends WorkspaceScopedController
             ->orderBy('shortcut')
             ->get(['id', 'shortcut', 'body']);
 
-        $channelAccounts = ChannelAccount::where('workspace_id', $wsId)
-            ->where('status', 'active')
-            ->orderBy('channel')
-            ->orderBy('display_name')
-            ->get(['id', 'channel', 'display_name', 'phone_number_id']);
+        $channelAccounts = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('channel_accounts')) {
+            $caQuery = ChannelAccount::where('workspace_id', $wsId);
+            if (\Illuminate\Support\Facades\Schema::hasColumn('channel_accounts', 'status')) {
+                $caQuery->where('status', 'active');
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('channel_accounts', 'channel')) {
+                $caQuery->orderBy('channel');
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('channel_accounts', 'display_name')) {
+                $caQuery->orderBy('display_name');
+            }
+            $selectCols = ['id'];
+            foreach (['channel', 'display_name', 'phone_number_id'] as $col) {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('channel_accounts', $col)) {
+                    $selectCols[] = $col;
+                }
+            }
+            $channelAccounts = $caQuery->get($selectCols);
+        }
 
         $teamMembers = User::where('workspace_id', $wsId)
             ->orderBy('name')
@@ -45,9 +60,9 @@ class MobileInboxController extends WorkspaceScopedController
             'canned_replies' => $cannedReplies,
             'channel_accounts' => $channelAccounts->map(fn ($ca) => [
                 'id' => $ca->id,
-                'channel' => $ca->channel,
-                'display_name' => $ca->display_name,
-                'phone_number_id' => $ca->phone_number_id,
+                'channel' => $ca->channel ?? null,
+                'display_name' => $ca->display_name ?? 'Channel Account',
+                'phone_number_id' => $ca->phone_number_id ?? null,
             ]),
             'team_members' => $teamMembers->map(fn ($u) => [
                 'id' => $u->id,
