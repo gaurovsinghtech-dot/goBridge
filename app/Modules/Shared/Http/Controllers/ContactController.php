@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -44,8 +45,8 @@ class ContactController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        $tags = ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get();
-        $segments = Segment::where('workspace_id', $workspaceId)->where('type', 'static')->orderBy('name')->get(['id', 'name']);
+        $tags = Schema::hasTable('contact_tags') ? ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get() : collect();
+        $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->where('type', 'static')->orderBy('name')->get(['id', 'name']) : collect();
 
         return Inertia::render('Contacts/Index', [
             'contacts' => $contacts,
@@ -68,11 +69,10 @@ class ContactController extends Controller
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
 
         return [
-            'tags' => ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get(),
-            'segments' => Segment::where('workspace_id', $workspaceId)
-                ->where('type', 'static')
-                ->orderBy('name')
-                ->get(['id', 'name']),
+            'tags' => Schema::hasTable('contact_tags') ? ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get() : collect(),
+            'segments' => Schema::hasTable('segments')
+                ? Segment::where('workspace_id', $workspaceId)->where('type', 'static')->orderBy('name')->get(['id', 'name'])
+                : collect(),
         ];
     }
 

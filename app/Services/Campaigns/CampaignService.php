@@ -21,6 +21,7 @@ use App\Modules\Whatsapp\Services\CloudApiClient;
 use App\Services\Mail\MailService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class CampaignService
@@ -113,8 +114,8 @@ class CampaignService
             ->exists();
 
         // Email / SMTP
-        $hasEmail = WorkspaceSmtpConfig::where('workspace_id', $workspaceId)->exists()
-            || SmtpConfiguration::where('workspace_id', $workspaceId)->exists()
+        $hasEmail = (Schema::hasTable('workspace_smtp_configs') && WorkspaceSmtpConfig::where('workspace_id', $workspaceId)->exists())
+            || (Schema::hasTable('smtp_configurations') && SmtpConfiguration::where('is_active', true)->exists())
             || ! empty(config('mail.mailers.smtp.host'));
 
         return [
