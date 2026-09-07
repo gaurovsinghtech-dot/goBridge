@@ -18,8 +18,8 @@ class ProviderLedgerService
     public function getFinancialOverview(): array
     {
         // 1. Subscription Revenue (from paid subscriptions & transactions)
-        $subscriptionRevenueCents = (int) PaymentTransaction::where('status', 'successful')
-            ->sum('amount');
+        $subscriptionRevenueCents = (int) PaymentTransaction::whereIn('status', ['successful', 'succeeded'])
+            ->sum('amount_cents');
         if ($subscriptionRevenueCents === 0) {
             // Fallback to active subscriptions annualized/monthly sum
             $subscriptionRevenueCents = 84500000; // default platform seed ₹8,45,000
