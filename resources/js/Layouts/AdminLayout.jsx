@@ -184,21 +184,21 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
                         {channelsOpen && !sidebarCollapsed && (
                             <div className="pl-6 pr-1 py-1 space-y-1 text-xs">
                                 <Link
-                                    href={safeRoute('admin.integrations.index', '/admin/integrations')}
+                                    href={safeRoute('admin.integrations.whatsapp.index', '/admin/integrations/whatsapp')}
                                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-emerald-400 hover:bg-white/5 font-medium transition"
                                 >
                                     <MessageSquare className="h-3.5 w-3.5 text-emerald-400" />
                                     <span>WhatsApp</span>
                                 </Link>
                                 <Link
-                                    href={safeRoute('admin.integrations.index', '/admin/integrations')}
+                                    href={safeRoute('admin.integrations.edit', '/admin/integrations/meta_app', { provider: 'meta_app' })}
                                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-pink-400 hover:bg-white/5 font-medium transition"
                                 >
                                     <Sparkles className="h-3.5 w-3.5 text-pink-400" />
                                     <span>Instagram</span>
                                 </Link>
                                 <Link
-                                    href={safeRoute('admin.integrations.index', '/admin/integrations')}
+                                    href={safeRoute('admin.integrations.edit', '/admin/integrations/meta_app', { provider: 'meta_app' })}
                                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-neutral-300 hover:text-blue-400 hover:bg-white/5 font-medium transition"
                                 >
                                     <MessageSquare className="h-3.5 w-3.5 text-blue-400" />
