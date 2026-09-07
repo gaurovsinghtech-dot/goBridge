@@ -4,7 +4,7 @@ import NewConversationModal from '@/Components/Inbox/NewConversationModal';
 import {
     MessageSquare, Inbox, CheckCircle, Clock, User,
     Search, Plus, Bot, PhoneCall, Mail,
-    Sparkles, Check, CheckCheck, Tag, Filter, X
+    Sparkles, Check, CheckCheck, Tag, Filter, X, Settings
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -181,6 +181,13 @@ export default function InboxIndex({
                                 <p className="text-[10px] text-neutral-400">Unified Hub</p>
                             </div>
                         </div>
+                        <Link
+                            href={route('client.inbox.setup')}
+                            title="Channel & Integration Setup"
+                            className="p-1.5 rounded-lg text-neutral-500 hover:text-brand-600 dark:text-neutral-400 dark:hover:text-brand-400 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition"
+                        >
+                            <Settings className="w-4 h-4" />
+                        </Link>
                     </div>
 
                     {/* Views Section */}
@@ -216,7 +223,15 @@ export default function InboxIndex({
 
                     {/* Channels Section */}
                     <div className="p-2 space-y-0.5 border-b border-neutral-200 dark:border-neutral-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-2 py-1">Channels</p>
+                        <div className="flex items-center justify-between px-2 py-1">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Channels</p>
+                            <Link
+                                href={route('client.inbox.setup')}
+                                className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-0.5"
+                            >
+                                <Settings className="w-3 h-3" /> Setup
+                            </Link>
+                        </div>
                         {CHANNELS.map(ch => {
                             const isSelected = activeChannel === ch.key;
                             const count = counts[ch.countKey] ?? 0;
@@ -307,7 +322,13 @@ export default function InboxIndex({
                             <div className="p-8 text-center">
                                 <MessageSquare className="w-8 h-8 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
                                 <p className="text-xs font-medium text-neutral-700 dark:text-neutral-300">No conversations found</p>
-                                <p className="text-[11px] text-neutral-400 mt-0.5">Try selecting another channel or starting a new thread.</p>
+                                <p className="text-[11px] text-neutral-400 mt-0.5 mb-3">Try selecting another channel or starting a new thread.</p>
+                                <Link
+                                    href={route('client.inbox.setup')}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 hover:bg-brand-100 text-xs font-semibold transition"
+                                >
+                                    <Settings className="w-3.5 h-3.5" /> Connect Channels & Setup
+                                </Link>
                             </div>
                         ) : (
                             convList.map(conv => (
@@ -331,12 +352,20 @@ export default function InboxIndex({
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mt-1">
                         Select any conversation from the list to view customer details, message stream, phone call audio transcripts, AI/Human toggles, and send responses.
                     </p>
-                    <button
-                        onClick={() => setShowNewModal(true)}
-                        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm transition"
-                    >
-                        <Plus className="w-4 h-4" /> Start New Conversation
-                    </button>
+                    <div className="mt-4 flex items-center justify-center gap-2.5">
+                        <button
+                            onClick={() => setShowNewModal(true)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm transition"
+                        >
+                            <Plus className="w-4 h-4" /> Start New Conversation
+                        </button>
+                        <Link
+                            href={route('client.inbox.setup')}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-xs font-bold shadow-sm transition"
+                        >
+                            <Settings className="w-4 h-4" /> Channel Setup
+                        </Link>
+                    </div>
                 </div>
             </div>
 
