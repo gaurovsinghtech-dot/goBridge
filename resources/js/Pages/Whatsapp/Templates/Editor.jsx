@@ -604,7 +604,8 @@ export default function WhatsappTemplateEditor({ template, phoneNumbers = [] }) 
 
         try {
             if (isEdit) {
-                await axios.put(route('client.whatsapp.templates.update', template.id), payload);
+                const updateUrl = route('client.whatsapp.templates.update', { template: template.id ?? template });
+                await axios.post(updateUrl, { ...payload, _method: 'PUT' });
             } else {
                 await axios.post(route('client.whatsapp.templates.store'), payload);
             }

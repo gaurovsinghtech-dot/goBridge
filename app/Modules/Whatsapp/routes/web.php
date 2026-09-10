@@ -30,7 +30,7 @@ Route::middleware(['web', 'client-app'])->prefix('app/whatsapp')->name('client.w
     Route::post('/templates/sync', [WhatsappTemplateController::class, 'sync'])->name('templates.sync');
     Route::post('/templates/upload-media', [WhatsappTemplateController::class, 'uploadMedia'])->name('templates.upload-media');
     Route::get('/templates/{template}/edit', [WhatsappTemplateController::class, 'edit'])->name('templates.edit');
-    Route::put('/templates/{template}', [WhatsappTemplateController::class, 'update'])->name('templates.update');
+    Route::match(['put', 'post'], '/templates/{template}', [WhatsappTemplateController::class, 'update'])->name('templates.update');
     Route::delete('/templates/{template}', [WhatsappTemplateController::class, 'destroy'])->name('templates.destroy');
 
     // Auto-replies
