@@ -42,6 +42,7 @@ return new class extends Migration
             $table->timestamp('sent_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
             $table->timestamp('read_at')->nullable();
+            $table->timestamp('replied_at')->nullable();
             $table->timestamp('clicked_at')->nullable();
             $table->timestamp('opted_out_at')->nullable();
             $table->string('failed_reason', 512)->nullable();

@@ -100,22 +100,21 @@ class Campaign extends Model
             ->toArray();
 
         // Count clicks independently
-        $clicked = $this->recipients()
-            ->whereNotNull('clicked_at')
-            ->count();
+        $clicked = \Illuminate\Support\Facades\Schema::hasColumn('campaign_recipients', 'clicked_at')
+            ? $this->recipients()->whereNotNull('clicked_at')->count()
+            : 0;
 
         // Count replies independently
-        $replied = $this->recipients()
-            ->whereNotNull('replied_at')
-            ->count();
+        $replied = \Illuminate\Support\Facades\Schema::hasColumn('campaign_recipients', 'replied_at')
+            ? $this->recipients()->whereNotNull('replied_at')->count()
+            : 0;
 
         // Count unsubscribes independently
-        $unsubscribed = $this->recipients()
-            ->whereNotNull('opted_out_at')
-            ->count();
+        $unsubscribed = \Illuminate\Support\Facades\Schema::hasColumn('campaign_recipients', 'opted_out_at')
+            ? $this->recipients()->whereNotNull('opted_out_at')->count()
+            : 0;
 
-        $this->update([
-            'replied_count' => $replied,
+        $updateData = [
             'totals_json' => [
                 'total'        => array_sum($counts),
                 'queued'       => $counts['queued'] ?? 0,
@@ -127,6 +126,12 @@ class Campaign extends Model
                 'clicked'      => $clicked,
                 'unsubscribed' => $unsubscribed,
             ],
-        ]);
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('campaigns', 'replied_count')) {
+            $updateData['replied_count'] = $replied;
+        }
+
+        $this->update($updateData);
     }
 }

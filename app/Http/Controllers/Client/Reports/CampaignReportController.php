@@ -35,12 +35,12 @@ class CampaignReportController extends Controller
         $failed = CampaignRecipient::where('campaign_id', $campaign->id)
             ->where('status', 'failed')
             ->count();
-        $clicked = CampaignRecipient::where('campaign_id', $campaign->id)
-            ->whereNotNull('clicked_at')
-            ->count();
-        $optedOut = CampaignRecipient::where('campaign_id', $campaign->id)
-            ->whereNotNull('opted_out_at')
-            ->count();
+        $clicked = \Illuminate\Support\Facades\Schema::hasColumn('campaign_recipients', 'clicked_at')
+            ? CampaignRecipient::where('campaign_id', $campaign->id)->whereNotNull('clicked_at')->count()
+            : 0;
+        $optedOut = \Illuminate\Support\Facades\Schema::hasColumn('campaign_recipients', 'opted_out_at')
+            ? CampaignRecipient::where('campaign_id', $campaign->id)->whereNotNull('opted_out_at')->count()
+            : 0;
 
         $kpis = [
             'total' => $total,
