@@ -88,7 +88,7 @@ class OnboardingController extends Controller
 
         $crmConnections = $workspace ? \App\Models\CrmConnection::where('workspace_id', $workspace->id)->where('status', 'active')->get() : collect();
 
-        return Inertia::render('Client/Onboarding/Wizard', [
+        return Inertia::render('client/Onboarding/Wizard', [
             'progress' => $progress,
             'provisionedNumbers' => $provisionedNumbers,
             'wabas' => $wabas,
