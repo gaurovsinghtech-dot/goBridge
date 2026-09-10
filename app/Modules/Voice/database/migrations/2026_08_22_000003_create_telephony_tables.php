@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('phone_number', 32);
             $table->enum('provider', ['heyo', 'exotel', 'twilio', 'plivo', 'custom'])->default('heyo');
             $table->enum('status', ['connected', 'disconnected', 'pending', 'error'])->default('connected');
+            $table->boolean('voice_enabled')->default(true);
+            $table->boolean('sms_enabled')->default(true);
             $table->unsignedBigInteger('assigned_voice_agent_id')->nullable();
             $table->enum('direction', ['inbound', 'outbound', 'both'])->default('both');
             $table->boolean('is_default')->default(false);

@@ -59,9 +59,11 @@ class OnboardingController extends Controller
 
         $progress = $this->onboarding->getProgress($user);
 
-        $provisionedNumbers = $workspace ? TelephonyPhoneNumber::where('workspace_id', $workspace->id)
-            ->latest()
-            ->get(['id', 'phone_number', 'provider', 'status', 'voice_enabled', 'is_default']) : collect();
+        $provisionedNumbers = $workspace && Schema::hasTable('telephony_phone_numbers')
+            ? (Schema::hasColumn('telephony_phone_numbers', 'voice_enabled')
+                ? TelephonyPhoneNumber::where('workspace_id', $workspace->id)->latest()->get(['id', 'phone_number', 'provider', 'status', 'voice_enabled', 'is_default'])
+                : TelephonyPhoneNumber::where('workspace_id', $workspace->id)->latest()->get(['id', 'phone_number', 'provider', 'status', 'is_default']))
+            : collect();
 
         $wabas = $workspace && Schema::hasTable('whatsapp_business_accounts')
             ? WhatsappBusinessAccount::where('workspace_id', $workspace->id)->get()

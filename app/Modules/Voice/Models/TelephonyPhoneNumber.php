@@ -29,6 +29,8 @@ class TelephonyPhoneNumber extends Model
         'phone_number',
         'provider',
         'status',
+        'voice_enabled',
+        'sms_enabled',
         'assigned_voice_agent_id',
         'direction',
         'is_default',
@@ -38,6 +40,8 @@ class TelephonyPhoneNumber extends Model
     protected function casts(): array
     {
         return [
+            'voice_enabled' => 'boolean',
+            'sms_enabled' => 'boolean',
             'is_default' => 'boolean',
             'config_json' => 'array',
         ];
