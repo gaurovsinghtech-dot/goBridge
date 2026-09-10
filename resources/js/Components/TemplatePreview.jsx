@@ -37,9 +37,13 @@ function HeaderPreview({ comp }) {
     const format = comp.format ?? 'TEXT';
 
     if (format === 'TEXT') {
-        const text = substitute(comp.text ?? '', comp.example?.header_text?.[0] ?? []);
-        if (!text) return null;
-        return <p className="font-semibold text-[13px] text-neutral-900 dark:text-neutral-100 mb-1">{text}</p>;
+        const rawText = comp.text ?? '';
+        const text = substitute(rawText, comp.example?.header_text?.[0] ?? []);
+        return (
+            <p className="font-semibold text-[13px] text-neutral-900 dark:text-neutral-100 mb-1">
+                {text || <span className="italic font-normal text-neutral-400">Header text...</span>}
+            </p>
+        );
     }
 
     // Media header — show the uploaded preview if present, else a typed placeholder tile.
@@ -81,8 +85,10 @@ export default function TemplatePreview({ components = [], className = '' }) {
                     isEmpty && <p className="text-[13px] italic text-neutral-400">{t('whatsapp.templates_preview_placeholder')}</p>
                 )}
 
-                {footer?.text && (
-                    <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{footer.text}</p>
+                {footer && (
+                    <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                        {footer.text || <span className="italic text-neutral-400">Footer text...</span>}
+                    </p>
                 )}
 
                 <span className="mt-0.5 block text-right text-[10px] text-neutral-400">12:00</span>

@@ -98,6 +98,7 @@ class WhatsappTemplateController extends Controller
         $validated = $request->validate($this->templateRules());
 
         $this->assertComponentMultiplicity($validated['components']);
+        $this->assertComponentValidity($validated['components']);
 
         $metaPayload = $this->buildMetaPayload($validated);
 
@@ -173,6 +174,7 @@ class WhatsappTemplateController extends Controller
         $validated['language'] = $template->language;
 
         $this->assertComponentMultiplicity($validated['components']);
+        $this->assertComponentValidity($validated['components']);
 
         $metaPayload = $this->buildMetaPayload($validated);
 
@@ -396,6 +398,49 @@ class WhatsappTemplateController extends Controller
     }
 
     /**
+     * Validate component contents (Header text <=60, Footer text <=60, required fields).
+     */
+    private function assertComponentValidity(array $components): void
+    {
+        $errors = [];
+        foreach ($components as $idx => $comp) {
+            $type = $comp['type'] ?? '';
+            if ($type === 'HEADER') {
+                $format = $comp['format'] ?? 'TEXT';
+                if ($format === 'TEXT') {
+                    $text = trim($comp['text'] ?? '');
+                    if (empty($text)) {
+                        $errors['header'] = 'Header text is required when Header section is enabled.';
+                    } elseif (mb_strlen($text) > 60) {
+                        $errors['header'] = 'Header text cannot exceed 60 characters.';
+                    }
+                } else {
+                    $handles = $comp['example']['header_handle'] ?? [];
+                    if (empty($handles)) {
+                        $errors['header'] = 'Please upload a sample media file for your header.';
+                    }
+                }
+            } elseif ($type === 'FOOTER') {
+                $text = trim($comp['text'] ?? '');
+                if (empty($text)) {
+                    $errors['footer'] = 'Footer text is required when Footer section is enabled.';
+                } elseif (mb_strlen($text) > 60) {
+                    $errors['footer'] = 'Footer text cannot exceed 60 characters.';
+                }
+            } elseif ($type === 'BODY') {
+                $text = trim($comp['text'] ?? '');
+                if (empty($text)) {
+                    $errors['body'] = 'Body text is required.';
+                }
+            }
+        }
+
+        if (! empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
+    /**
      * Transform the validated component array into the exact shape Meta's API expects,
      * stripping null/empty fields that would cause a validation error on their end.
      */
@@ -409,7 +454,11 @@ class WhatsappTemplateController extends Controller
             if ($type === 'BUTTONS') {
                 $buttons = [];
                 foreach ($comp['buttons'] ?? [] as $btn) {
-                    $b = ['type' => $btn['type'], 'text' => $btn['text']];
+                    $bText = trim($btn['text'] ?? '');
+                    if ($bText === '') {
+                        continue;
+                    }
+                    $b = ['type' => $btn['type'], 'text' => $bText];
                     if ($btn['type'] === 'URL') {
                         $b['url'] = $btn['url'] ?? '';
                         if (! empty($btn['example'])) {
@@ -434,7 +483,11 @@ class WhatsappTemplateController extends Controller
                 $built['format'] = $format;
 
                 if ($format === 'TEXT') {
-                    $built['text'] = $comp['text'] ?? '';
+                    $text = trim($comp['text'] ?? '');
+                    if ($text === '') {
+                        continue;
+                    }
+                    $built['text'] = $text;
                     $headerExamples = $comp['example']['header_text'] ?? [];
                     if (! empty($headerExamples)) {
                         $built['example'] = ['header_text' => array_values($headerExamples)];
@@ -447,13 +500,17 @@ class WhatsappTemplateController extends Controller
                     }
                 }
             } elseif ($type === 'BODY') {
-                $built['text'] = $comp['text'] ?? '';
+                $built['text'] = trim($comp['text'] ?? '');
                 $bodyExamples = $comp['example']['body_text'] ?? [];
                 if (! empty($bodyExamples)) {
                     $built['example'] = ['body_text' => $bodyExamples];
                 }
             } elseif ($type === 'FOOTER') {
-                $built['text'] = $comp['text'] ?? '';
+                $text = trim($comp['text'] ?? '');
+                if ($text === '') {
+                    continue;
+                }
+                $built['text'] = $text;
             }
 
             $components[] = $built;

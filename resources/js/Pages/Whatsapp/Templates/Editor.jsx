@@ -73,12 +73,13 @@ function hydrateComponents(components) {
             phs.forEach((ph, i) => { map[ph] = row[i] ?? ''; });
             return { ...comp, example: { ...comp.example, body_text_map: map } };
         }
-        if (comp.type === 'HEADER' && (comp.format ?? 'TEXT') === 'TEXT') {
-            const phs = extractPlaceholders(comp.text ?? '');
+        if (comp.type === 'HEADER') {
+            const format = comp.format ?? 'TEXT';
+            const phs = format === 'TEXT' ? extractPlaceholders(comp.text ?? '') : [];
             const row = comp.example?.header_text?.[0] ?? [];
             const map = {};
             phs.forEach((ph, i) => { map[ph] = row[i] ?? ''; });
-            return { ...comp, example: { ...comp.example, header_text_map: map } };
+            return { ...comp, format, example: { ...comp.example, header_text_map: map } };
         }
         return comp;
     });
@@ -128,7 +129,7 @@ function ExampleInputs({ label, placeholders, values, onChange }) {
 
 /* ─── HEADER Component ───────────────────────────────────────────────────── */
 
-function HeaderBlock({ comp, onChange, onRemove }) {
+function HeaderBlock({ comp, onChange, onRemove, error }) {
     const { t } = useTranslation();
     const fileInputRef = useRef(null);
     const [uploading, setUploading] = useState(false);
@@ -204,7 +205,9 @@ function HeaderBlock({ comp, onChange, onRemove }) {
                         onChange={e => onChange({ ...comp, text: e.target.value })}
                         placeholder={t('whatsapp.templates_header_text_placeholder')}
                         maxLength={60}
-                        className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm"
+                        className={`w-full rounded-lg border bg-white dark:bg-neutral-800 px-3 py-2 text-sm ${
+                            error ? 'border-red-500 focus:ring-red-500' : 'border-neutral-300 dark:border-neutral-600'
+                        }`}
                     />
                     <ExampleInputs
                         label={t('whatsapp.templates_section_header')}
@@ -264,13 +267,14 @@ function HeaderBlock({ comp, onChange, onRemove }) {
                     {uploadError && <p className="text-xs text-red-500">{uploadError}</p>}
                 </div>
             )}
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </SectionCard>
     );
 }
 
 /* ─── BODY Component ─────────────────────────────────────────────────────── */
 
-function BodyBlock({ comp, onChange }) {
+function BodyBlock({ comp, onChange, error }) {
     const { t } = useTranslation();
     const phs = extractPlaceholders(comp.text ?? '');
     const exampleMap = comp.example?.body_text_map ?? {};
@@ -288,8 +292,11 @@ function BodyBlock({ comp, onChange }) {
                 onChange={e => onChange({ ...comp, text: e.target.value })}
                 rows={4}
                 placeholder={t('whatsapp.templates_body_placeholder', { p1: '{{1}}', p2: '{{2}}' })}
-                className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm resize-none"
+                className={`w-full rounded-lg border bg-white dark:bg-neutral-800 px-3 py-2 text-sm resize-none ${
+                    error ? 'border-red-500 focus:ring-red-500' : 'border-neutral-300 dark:border-neutral-600'
+                }`}
             />
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             {phs.length > 0 && (
                 <div className="flex items-start gap-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
                     <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -308,7 +315,7 @@ function BodyBlock({ comp, onChange }) {
 
 /* ─── FOOTER Component ───────────────────────────────────────────────────── */
 
-function FooterBlock({ comp, onChange, onRemove }) {
+function FooterBlock({ comp, onChange, onRemove, error }) {
     const { t } = useTranslation();
     return (
         <SectionCard title={t('whatsapp.templates_section_footer')} onRemove={onRemove}>
@@ -318,8 +325,11 @@ function FooterBlock({ comp, onChange, onRemove }) {
                 onChange={e => onChange({ ...comp, text: e.target.value })}
                 placeholder={t('whatsapp.templates_footer_text_placeholder')}
                 maxLength={60}
-                className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm"
+                className={`w-full rounded-lg border bg-white dark:bg-neutral-800 px-3 py-2 text-sm ${
+                    error ? 'border-red-500 focus:ring-red-500' : 'border-neutral-300 dark:border-neutral-600'
+                }`}
             />
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </SectionCard>
     );
 }
@@ -537,6 +547,40 @@ export default function WhatsappTemplateEditor({ template, phoneNumbers = [] }) 
         setErrors({});
         setProcessing(true);
 
+        const componentErrors = {};
+        components.forEach(comp => {
+            if (comp.type === 'HEADER') {
+                const fmt = comp.format ?? 'TEXT';
+                if (fmt === 'TEXT') {
+                    if (!comp.text?.trim()) {
+                        componentErrors.header = 'Header text is required when Header section is enabled.';
+                    } else if (comp.text.length > 60) {
+                        componentErrors.header = 'Header text cannot exceed 60 characters.';
+                    }
+                } else {
+                    if (!comp.example?.header_handle?.length) {
+                        componentErrors.header = 'Please upload a media sample file for your Header.';
+                    }
+                }
+            } else if (comp.type === 'FOOTER') {
+                if (!comp.text?.trim()) {
+                    componentErrors.footer = 'Footer text is required when Footer section is enabled.';
+                } else if (comp.text.length > 60) {
+                    componentErrors.footer = 'Footer text cannot exceed 60 characters.';
+                }
+            } else if (comp.type === 'BODY') {
+                if (!comp.text?.trim()) {
+                    componentErrors.body = 'Body text is required.';
+                }
+            }
+        });
+
+        if (Object.keys(componentErrors).length > 0) {
+            setErrors(componentErrors);
+            setProcessing(false);
+            return;
+        }
+
         // Build clean components payload for the server
         const payload = {
             name,
@@ -711,11 +755,11 @@ export default function WhatsappTemplateEditor({ template, phoneNumbers = [] }) 
                         {components.map((comp, idx) => {
                             const commonProps = { comp, onChange: (u) => updateComp(idx, u) };
                             return (
-                                <div key={idx}>
-                                    {comp.type === 'HEADER'  && <HeaderBlock  {...commonProps} onRemove={() => removeComp(idx)} />}
-                                    {comp.type === 'BODY'    && <BodyBlock    {...commonProps} />}
-                                    {comp.type === 'FOOTER'  && <FooterBlock  {...commonProps} onRemove={() => removeComp(idx)} />}
-                                    {comp.type === 'BUTTONS' && <ButtonsBlock {...commonProps} onRemove={() => removeComp(idx)} />}
+                                <div key={comp.type}>
+                                    {comp.type === 'HEADER'  && <HeaderBlock  {...commonProps} error={errors.header} onRemove={() => removeComp(idx)} />}
+                                    {comp.type === 'BODY'    && <BodyBlock    {...commonProps} error={errors.body} />}
+                                    {comp.type === 'FOOTER'  && <FooterBlock  {...commonProps} error={errors.footer} onRemove={() => removeComp(idx)} />}
+                                    {comp.type === 'BUTTONS' && <ButtonsBlock {...commonProps} error={errors.buttons} onRemove={() => removeComp(idx)} />}
                                 </div>
                             );
                         })}
