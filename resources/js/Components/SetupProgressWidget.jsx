@@ -1,11 +1,24 @@
 import { Link } from '@inertiajs/react';
-import { Check, AlertTriangle, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/Components/ui';
+import { Check, AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
+
+function safeRoute(name, fallback = '#') {
+    try {
+        if (typeof window !== 'undefined' && typeof window.route === 'function') {
+            if (window.route().has && window.route().has(name)) {
+                return window.route(name);
+            }
+        }
+    } catch (e) {
+        // fallback
+    }
+    return fallback;
+}
 
 export default function SetupProgressWidget({ progress, className = '' }) {
     if (!progress || !progress.steps) return null;
 
     const { steps = [], percent = 0, done = 0, total = 8, is_complete = false } = progress;
+    const onboardingUrl = safeRoute('client.onboarding', safeRoute('client.onboarding.show', '/app/onboarding'));
 
     if (is_complete && percent === 100) {
         return (
@@ -26,13 +39,11 @@ export default function SetupProgressWidget({ progress, className = '' }) {
                         </p>
                     </div>
                 </div>
-                <Link href={route('client.onboarding')}>
-                    <button
-                        type="button"
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-emerald-300 dark:border-emerald-500/40 transition shadow-xs whitespace-nowrap"
-                    >
-                        Review Setup
-                    </button>
+                <Link
+                    href={onboardingUrl}
+                    className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-emerald-300 dark:border-emerald-500/40 transition shadow-xs whitespace-nowrap inline-flex items-center justify-center cursor-pointer"
+                >
+                    Review Setup
                 </Link>
             </div>
         );
@@ -55,10 +66,12 @@ export default function SetupProgressWidget({ progress, className = '' }) {
                     </h3>
                 </div>
 
-                <Link href={route('client.onboarding')}>
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm">
-                        Continue Setup <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                    </Button>
+                <Link
+                    href={onboardingUrl}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs font-bold shadow-sm inline-flex items-center justify-center transition-all duration-150 cursor-pointer"
+                >
+                    <span>Continue Setup</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
             </div>
 
@@ -79,9 +92,10 @@ export default function SetupProgressWidget({ progress, className = '' }) {
                     const isSkipped = step.status === 'skipped';
 
                     return (
-                        <div
+                        <Link
                             key={step.key}
-                            className={`p-2 rounded-xl border text-xs flex items-center gap-2 transition-all ${
+                            href={onboardingUrl}
+                            className={`p-2 rounded-xl border text-xs flex items-center gap-2 transition-all hover:scale-[1.02] cursor-pointer ${
                                 isCompleted
                                     ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
                                     : isCurrent
@@ -107,7 +121,7 @@ export default function SetupProgressWidget({ progress, className = '' }) {
                             <span className="truncate font-medium text-[11px]">
                                 {step.title.replace('Create ', '').replace('Choose ', '').replace('Connect ', '').replace('Complete ', '').replace('Configure ', '').replace('Add ', '').replace('Test Your ', '')}
                             </span>
-                        </div>
+                        </Link>
                     );
                 })}
             </div>
