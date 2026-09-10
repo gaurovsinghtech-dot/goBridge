@@ -70,15 +70,15 @@ class OnboardingController extends Controller
             : collect();
 
         $voiceAgents = $workspace && Schema::hasTable('voice_agents')
-            ? VoiceAgent::where('workspace_id', $workspace->id)->get(['id', 'name', 'language', 'tone', 'status'])
+            ? VoiceAgent::where('workspace_id', $workspace->id)->get()
             : collect();
 
         $aiAgents = $workspace && Schema::hasTable('ai_chatbots')
-            ? AiChatbot::where('workspace_id', $workspace->id)->get(['id', 'name', 'role', 'language', 'enabled'])
+            ? AiChatbot::where('workspace_id', $workspace->id)->get()
             : collect();
 
         $documents = $workspace && Schema::hasTable('ai_documents')
-            ? AiDocument::where('workspace_id', $workspace->id)->latest()->get(['id', 'title', 'type', 'status', 'created_at'])
+            ? AiDocument::where('workspace_id', $workspace->id)->latest()->get()
             : collect();
 
         $meta = CredentialResolver::system()->meta();
