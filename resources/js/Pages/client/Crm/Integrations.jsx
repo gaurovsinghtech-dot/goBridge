@@ -78,11 +78,16 @@ const CRM_META = {
     custom: {
         name: 'Custom CRM via REST API',
         badge: 'bg-indigo-600 text-white',
-        desc: 'Connect any proprietary or in-house CRM with custom REST endpoints.',
+        desc: 'Connect any proprietary, in-house, or custom CRM with custom REST endpoints.',
         fields: [
+            { key: 'crm_name', label: 'Custom CRM System Name', type: 'text', required: false, hint: 'e.g. In-House Sales CRM' },
             { key: 'base_url', label: 'API Base URL', type: 'text', required: true, hint: 'e.g. https://api.yourcrm.com/v1' },
-            { key: 'auth_token', label: 'Authorization Token / API Key', type: 'password', required: false },
-            { key: 'contacts_endpoint', label: 'Contacts Path', type: 'text', required: false, hint: 'Default: /contacts' },
+            { key: 'auth_type', label: 'Authentication Type', type: 'select', options: { bearer: 'Bearer Token (Authorization: Bearer ...)', api_key_header: 'Custom Header (e.g. X-API-Key)', basic: 'HTTP Basic Auth' }, required: true },
+            { key: 'auth_token', label: 'API Key / Secret Token', type: 'password', required: false, hint: 'Secret API token or key value' },
+            { key: 'auth_header_name', label: 'Custom Header Name (if Header Auth selected)', type: 'text', required: false, hint: 'Default: X-API-Key' },
+            { key: 'contacts_endpoint', label: 'Contacts Endpoint Path', type: 'text', required: false, hint: 'Default: /contacts' },
+            { key: 'leads_endpoint', label: 'Leads Endpoint Path', type: 'text', required: false, hint: 'Default: /leads' },
+            { key: 'activities_endpoint', label: 'Activities Endpoint Path', type: 'text', required: false, hint: 'Default: /activities' },
         ]
     },
     webhook: {
@@ -182,6 +187,27 @@ export default function CrmIntegrations({ providers = [], logs = [] }) {
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                             Connect your existing CRM without data migration. Growbridge synchronizes contacts, WhatsApp conversations, voice call logs, and AI interaction notes bidirectionally.
                         </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const customP = providers.find(p => p.provider === 'custom') || {
+                                    provider: 'custom',
+                                    label: 'Custom CRM via REST API',
+                                    connected: false,
+                                    sync_direction: 'two_way',
+                                    sync_mode: 'realtime',
+                                    credentials: {}
+                                };
+                                openConfigModal(customP);
+                            }}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-md shadow-indigo-600/20"
+                        >
+                            <Settings2 className="h-4 w-4" />
+                            + Add Custom CRM Integration
+                        </button>
                     </div>
                 </div>
 

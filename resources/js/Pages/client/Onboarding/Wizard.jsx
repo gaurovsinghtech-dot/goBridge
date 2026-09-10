@@ -1127,6 +1127,64 @@ export default function OnboardingWizard({
                                         </div>
                                     )}
 
+                                    {selectedCrm === 'custom' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold text-neutral-400 mb-1">
+                                                    Custom CRM API Base URL <span className="text-rose-500">*</span>
+                                                </label>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="https://api.yourcrm.com/v1"
+                                                    value={crmCreds.base_url || ''}
+                                                    onChange={e => setCrmCreds({ ...crmCreds, base_url: e.target.value })}
+                                                    className="bg-neutral-900 border-neutral-700 text-xs text-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-neutral-400 mb-1">
+                                                    API Token / Secret Key
+                                                </label>
+                                                <Input
+                                                    type="password"
+                                                    placeholder="Bearer token or secret API key"
+                                                    value={crmCreds.auth_token || ''}
+                                                    onChange={e => setCrmCreds({ ...crmCreds, auth_token: e.target.value })}
+                                                    className="bg-neutral-900 border-neutral-700 text-xs text-white font-mono"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-neutral-400 mb-1">
+                                                    Contacts Endpoint Path
+                                                </label>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="/contacts"
+                                                    value={crmCreds.contacts_endpoint || ''}
+                                                    onChange={e => setCrmCreds({ ...crmCreds, contacts_endpoint: e.target.value })}
+                                                    className="bg-neutral-900 border-neutral-700 text-xs text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {['salesforce', 'zoho', 'pipedrive', 'freshsales', 'dynamics', 'gohighlevel'].includes(selectedCrm) && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold text-neutral-400 mb-1">
+                                                    API Token / Access Key <span className="text-rose-500">*</span>
+                                                </label>
+                                                <Input
+                                                    type="password"
+                                                    placeholder="Enter API token or credential secret..."
+                                                    value={crmCreds.api_key || crmCreds.access_token || crmCreds.api_token || ''}
+                                                    onChange={e => setCrmCreds({ ...crmCreds, api_key: e.target.value, access_token: e.target.value, api_token: e.target.value })}
+                                                    className="bg-neutral-900 border-neutral-700 text-xs text-white font-mono"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {crmTestResult && (
                                         <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
                                             crmTestResult.ok ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
