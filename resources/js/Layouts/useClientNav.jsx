@@ -8,8 +8,15 @@ import {
 
 const iconClass = 'h-4 w-4';
 
-function safeRoute(name, ...args) {
-    try { return route(name, ...args); } catch { return '#'; }
+function safeRoute(name, fallback = '#') {
+    try {
+        if (typeof route === 'function' && route().has(name)) {
+            return route(name);
+        }
+        return fallback;
+    } catch {
+        return fallback;
+    }
 }
 
 /**
@@ -167,7 +174,7 @@ export default function useClientNav() {
         },
         {
             label: t('nav.api_connections', 'Integrations & CRM'),
-            href: safeRoute('client.crm.integrations.index', safeRoute('client.api-tokens.index', '/app/crm/integrations')),
+            href: safeRoute('client.crm.integrations.index', '/app/crm/integrations'),
             icon: <Sliders className={iconClass} />,
             activePattern: ['client.api-tokens.*', 'client.api.*', 'client.webhooks.*', 'client.crm.integrations.*'],
             dataTour: 'nav-integrations',

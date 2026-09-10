@@ -80,14 +80,14 @@ const CRM_META = {
         badge: 'bg-indigo-600 text-white',
         desc: 'Connect any proprietary, in-house, or custom CRM with custom REST endpoints.',
         fields: [
-            { key: 'crm_name', label: 'Custom CRM System Name', type: 'text', required: false, hint: 'e.g. In-House Sales CRM' },
-            { key: 'base_url', label: 'API Base URL', type: 'text', required: true, hint: 'e.g. https://api.yourcrm.com/v1' },
+            { key: 'crm_name', label: 'Custom CRM System Name', type: 'text', required: false, placeholder: 'e.g. My In-House Sales CRM' },
+            { key: 'base_url', label: 'API Base URL', type: 'text', required: true, placeholder: 'https://api.yourcrm.com/v1' },
             { key: 'auth_type', label: 'Authentication Type', type: 'select', options: { bearer: 'Bearer Token (Authorization: Bearer ...)', api_key_header: 'Custom Header (e.g. X-API-Key)', basic: 'HTTP Basic Auth' }, required: true },
-            { key: 'auth_token', label: 'API Key / Secret Token', type: 'password', required: false, hint: 'Secret API token or key value' },
-            { key: 'auth_header_name', label: 'Custom Header Name (if Header Auth selected)', type: 'text', required: false, hint: 'Default: X-API-Key' },
-            { key: 'contacts_endpoint', label: 'Contacts Endpoint Path', type: 'text', required: false, hint: 'Default: /contacts' },
-            { key: 'leads_endpoint', label: 'Leads Endpoint Path', type: 'text', required: false, hint: 'Default: /leads' },
-            { key: 'activities_endpoint', label: 'Activities Endpoint Path', type: 'text', required: false, hint: 'Default: /activities' },
+            { key: 'auth_token', label: 'API Key / Secret Token', type: 'password', required: false, placeholder: 'Enter token or key value...' },
+            { key: 'auth_header_name', label: 'Custom Header Name (Header Auth)', type: 'text', required: false, placeholder: 'X-API-Key' },
+            { key: 'contacts_endpoint', label: 'Contacts Endpoint Path', type: 'text', required: false, placeholder: '/contacts' },
+            { key: 'leads_endpoint', label: 'Leads Endpoint Path', type: 'text', required: false, placeholder: '/leads' },
+            { key: 'activities_endpoint', label: 'Activities Endpoint Path', type: 'text', required: false, placeholder: '/activities' },
         ]
     },
     webhook: {
@@ -358,132 +358,138 @@ export default function CrmIntegrations({ providers = [], logs = [] }) {
 
                 {/* Configuration Modal */}
                 {selectedProvider && (
-                    <div className="fixed inset-0 z-50 bg-neutral-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-                        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-150">
-                            <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-4">
+                    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+                        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+                            {/* Sticky Header */}
+                            <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 px-6 py-4 bg-white dark:bg-neutral-900 shrink-0">
                                 <div className="flex items-center gap-3">
-                                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs font-bold ${CRM_META[selectedProvider.provider]?.badge || 'bg-indigo-600 text-white'}`}>
-                                        <Share2 className="h-4 w-4" />
+                                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center text-xs font-bold shadow-sm ${CRM_META[selectedProvider.provider]?.badge || 'bg-indigo-600 text-white'}`}>
+                                        <Share2 className="h-5 w-5" />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-base text-neutral-900 dark:text-neutral-100">
                                             Configure {CRM_META[selectedProvider.provider]?.name || selectedProvider.label}
                                         </h3>
-                                        <p className="text-xs text-neutral-500">Two-way synchronization settings</p>
+                                        <p className="text-xs text-neutral-500">Two-way synchronization & credentials setup</p>
                                     </div>
                                 </div>
 
                                 <button
                                     type="button"
                                     onClick={() => setSelectedProvider(null)}
-                                    className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 text-sm font-bold p-1"
+                                    className="h-8 w-8 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400 font-bold transition"
                                 >
                                     ✕
                                 </button>
                             </div>
 
-                            {/* Diagnostics Alert */}
-                            {testResult && (
-                                <div className={`p-4 rounded-xl border text-xs space-y-2 ${
-                                    testResult.ok
-                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800'
-                                        : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-800'
-                                }`}>
-                                    <div className="flex items-center gap-2 font-bold">
-                                        {testResult.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-rose-600" />}
-                                        {testResult.ok ? 'Connection Verified' : 'Connection Failed'}
-                                    </div>
-                                    <p className="opacity-90">{testResult.message}</p>
-                                </div>
-                            )}
+                            {/* Scrollable Form Body */}
+                            <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                                <div className="px-6 py-5 overflow-y-auto flex-1 space-y-6 scrollbar-thin">
+                                    {/* Diagnostics Alert */}
+                                    {testResult && (
+                                        <div className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
+                                            testResult.ok
+                                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800'
+                                                : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-200 dark:border-rose-800'
+                                        }`}>
+                                            <div className="flex items-center gap-2 font-bold text-sm">
+                                                {testResult.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-rose-600" />}
+                                                {testResult.ok ? 'Connection Verified' : 'Connection Failed'}
+                                            </div>
+                                            <p className="opacity-90">{testResult.message}</p>
+                                        </div>
+                                    )}
 
-                            <form onSubmit={handleSave} className="space-y-4">
-                                {/* Dynamic CRM fields */}
-                                {(CRM_META[selectedProvider.provider]?.fields || []).map((f) => (
-                                    <div key={f.key}>
-                                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
-                                            {f.label} {f.required && <span className="text-rose-500">*</span>}
-                                        </label>
-                                        {f.type === 'select' ? (
+                                    {/* Dynamic CRM Fields in 2-Column Grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {(CRM_META[selectedProvider.provider]?.fields || []).map((f) => (
+                                            <div key={f.key} className={f.type === 'select' || f.key === 'base_url' || f.key === 'crm_name' ? 'sm:col-span-2' : ''}>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
+                                                    {f.label} {f.required && <span className="text-rose-500 font-bold">*</span>}
+                                                </label>
+                                                {f.type === 'select' ? (
+                                                    <select
+                                                        value={credentials[f.key] || ''}
+                                                        onChange={e => setCredentials({ ...credentials, [f.key]: e.target.value })}
+                                                        className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/80 px-3.5 py-2.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                                    >
+                                                        {Object.entries(f.options || {}).map(([val, lbl]) => (
+                                                            <option key={val} value={val}>{lbl}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    <input
+                                                        type={f.type || 'text'}
+                                                        value={credentials[f.key] || ''}
+                                                        onChange={e => setCredentials({ ...credentials, [f.key]: e.target.value })}
+                                                        placeholder={f.placeholder || f.hint || 'Enter value...'}
+                                                        className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/80 px-3.5 py-2.5 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-sans"
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Sync Settings */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
+                                                Sync Direction
+                                            </label>
                                             <select
-                                                value={credentials[f.key] || ''}
-                                                onChange={e => setCredentials({ ...credentials, [f.key]: e.target.value })}
-                                                className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100"
+                                                value={syncDirection}
+                                                onChange={e => setSyncDirection(e.target.value)}
+                                                className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/80 px-3.5 py-2.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                             >
-                                                {Object.entries(f.options || {}).map(([val, lbl]) => (
-                                                    <option key={val} value={val}>{lbl}</option>
-                                                ))}
+                                                <option value="two_way">Two-Way (Growbridge ↔ CRM)</option>
+                                                <option value="outbound_only">Growbridge → CRM Only</option>
+                                                <option value="inbound_only">CRM → Growbridge Only</option>
                                             </select>
-                                        ) : (
-                                            <input
-                                                type={f.type || 'text'}
-                                                value={credentials[f.key] || ''}
-                                                onChange={e => setCredentials({ ...credentials, [f.key]: e.target.value })}
-                                                placeholder={f.hint || 'Enter value...'}
-                                                className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100"
-                                            />
-                                        )}
-                                        {f.hint && <p className="text-[11px] text-neutral-400 mt-1">{f.hint}</p>}
-                                    </div>
-                                ))}
+                                        </div>
 
-                                {/* Sync Settings */}
-                                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                    <div>
-                                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
-                                            Sync Direction
-                                        </label>
-                                        <select
-                                            value={syncDirection}
-                                            onChange={e => setSyncDirection(e.target.value)}
-                                            className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-neutral-900 dark:text-neutral-100"
-                                        >
-                                            <option value="two_way">Two-Way (Growbridge ↔ CRM)</option>
-                                            <option value="outbound_only">Growbridge → CRM Only</option>
-                                            <option value="inbound_only">CRM → Growbridge Only</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
-                                            Sync Mode
-                                        </label>
-                                        <select
-                                            value={syncMode}
-                                            onChange={e => setSyncMode(e.target.value)}
-                                            className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-xs text-neutral-900 dark:text-neutral-100"
-                                        >
-                                            <option value="realtime">Real-Time Webhooks</option>
-                                            <option value="hourly">Hourly Background Sync</option>
-                                            <option value="daily">Daily Sync</option>
-                                            <option value="manual">Manual Only</option>
-                                        </select>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
+                                                Sync Mode
+                                            </label>
+                                            <select
+                                                value={syncMode}
+                                                onChange={e => setSyncMode(e.target.value)}
+                                                className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/80 px-3.5 py-2.5 text-xs font-medium text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                            >
+                                                <option value="realtime">Real-Time Webhooks</option>
+                                                <option value="hourly">Hourly Background Sync</option>
+                                                <option value="daily">Daily Sync</option>
+                                                <option value="manual">Manual Only</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                                {/* Sticky Footer */}
+                                <div className="px-6 py-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900/90 shrink-0">
                                     <button
                                         type="button"
                                         disabled={testing}
                                         onClick={handleTest}
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 disabled:opacity-50"
+                                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition disabled:opacity-50"
                                     >
                                         <FlaskConical className={`h-3.5 w-3.5 ${testing ? 'animate-spin' : ''}`} />
                                         {testing ? 'Testing...' : 'Test Connection'}
                                     </button>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3">
                                         <button
                                             type="button"
                                             onClick={() => setSelectedProvider(null)}
-                                            className="px-3 py-2 text-xs font-semibold text-neutral-500 hover:text-neutral-700"
+                                            className="px-4 py-2.5 text-xs font-semibold text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={saving}
-                                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20 disabled:opacity-50"
+                                            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 disabled:opacity-50"
                                         >
                                             {saving ? 'Connecting...' : 'Save & Connect'}
                                         </button>

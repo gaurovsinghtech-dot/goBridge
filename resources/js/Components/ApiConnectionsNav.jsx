@@ -2,10 +2,10 @@ import { Link } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { Key, Share2, Webhook, BookOpen, Sliders } from 'lucide-react';
 
-function safeRoute(name, fallback = '#', ...args) {
+function safeRoute(name, fallback = '#') {
     try {
-        if (typeof route === 'function') {
-            return route(name, ...args);
+        if (typeof route === 'function' && route().has(name)) {
+            return route(name);
         }
         return fallback;
     } catch {
