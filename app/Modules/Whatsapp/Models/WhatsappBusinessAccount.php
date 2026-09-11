@@ -84,7 +84,17 @@ class WhatsappBusinessAccount extends Model
             }
         }
 
-        return CredentialResolver::system()->meta()?->systemUserToken();
+        $fromChannel = ChannelAccount::where('workspace_id', $workspaceId)
+            ->where('channel', 'whatsapp')
+            ->where('status', 'active')
+            ->first();
+
+        if ($fromChannel && ! empty($fromChannel->credentials['access_token'])) {
+            return (string) $fromChannel->credentials['access_token'];
+        }
+
+        return CredentialResolver::system()->meta()?->systemUserToken()
+            ?? env('META_SYSTEM_USER_TOKEN');
     }
 
     public static function defaultPhoneNumberIdForWorkspace(int $workspaceId): ?string

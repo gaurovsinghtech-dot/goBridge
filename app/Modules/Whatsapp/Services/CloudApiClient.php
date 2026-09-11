@@ -19,27 +19,15 @@ class CloudApiClient
 
     public static function forWorkspace(int $workspaceId): ?static
     {
-        $waba = WhatsappBusinessAccount::where('workspace_id', $workspaceId)
-            ->where('status', 'active')
-            ->with('phoneNumbers')
-            ->first();
+        $token = WhatsappBusinessAccount::resolveAccessTokenForWorkspace($workspaceId);
+        $phoneNumberId = WhatsappBusinessAccount::defaultPhoneNumberIdForWorkspace($workspaceId)
+            ?? env('META_PHONE_NUMBER_ID');
 
-        if (! $waba) {
-            Log::warning('CloudApiClient: no active WABA for workspace', ['workspace_id' => $workspaceId]);
-
-            return null;
-        }
-
-        $token = $waba->accessToken() ?? WhatsappBusinessAccount::resolveAccessTokenForWorkspace($workspaceId);
-        $phoneNumberId = WhatsappBusinessAccount::defaultPhoneNumberIdForWorkspace($workspaceId) ?? '';
-
-        if (! $token || $phoneNumberId === '') {
-            Log::warning('CloudApiClient: missing credentials', [
+        if (! $token || empty($phoneNumberId)) {
+            Log::warning('CloudApiClient: missing credentials for workspace', [
                 'workspace_id' => $workspaceId,
-                'waba_id' => $waba->waba_id,
                 'token_empty' => empty($token),
                 'phone_number_id' => $phoneNumberId ?: 'EMPTY',
-                'phone_count' => $waba->phoneNumbers->count(),
             ]);
 
             return null;
@@ -55,20 +43,11 @@ class CloudApiClient
             ->with('businessAccount')
             ->first();
 
-        if (! $phone) {
-            Log::warning('CloudApiClient: phone number not linked to workspace', [
-                'workspace_id' => $workspaceId,
-                'phone_number_id' => $phoneNumberId,
-            ]);
-
-            return null;
-        }
-
-        $token = $phone->businessAccount->accessToken()
+        $token = $phone?->businessAccount?->accessToken()
             ?? WhatsappBusinessAccount::resolveAccessTokenForWorkspace($workspaceId);
 
-        if (! $token) {
-            Log::warning('CloudApiClient: no access token for phone', [
+        if (! $token || empty($phoneNumberId)) {
+            Log::warning('CloudApiClient: no access token or phone number for phone', [
                 'workspace_id' => $workspaceId,
                 'phone_number_id' => $phoneNumberId,
             ]);
