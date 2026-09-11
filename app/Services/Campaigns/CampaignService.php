@@ -265,10 +265,29 @@ class CampaignService
             Log::info("Campaign {$campaign->id} delayed due to quiet hours window.");
         }
 
-        $campaign->update([
-            'status' => 'queued',
-            'estimated_cost' => $analysis['estimated_cost'],
-        ]);
+        try {
+            $campaign->update([
+                'status' => 'queued',
+                'estimated_cost' => $analysis['estimated_cost'],
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), '1265') || str_contains(strtolower($e->getMessage()), 'status')) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE campaigns MODIFY COLUMN status VARCHAR(64) NOT NULL DEFAULT 'draft'");
+                    $campaign->update([
+                        'status' => 'queued',
+                        'estimated_cost' => $analysis['estimated_cost'],
+                    ]);
+                } catch (\Throwable $ex) {
+                    $campaign->update([
+                        'status' => 'sending',
+                        'estimated_cost' => $analysis['estimated_cost'],
+                    ]);
+                }
+            } else {
+                throw $e;
+            }
+        }
         $campaign->refresh();
 
         if (! $campaign->schedule_at || $campaign->schedule_at->isPast()) {
@@ -304,7 +323,20 @@ class CampaignService
         if ($campaign->status !== 'paused') {
             throw new \InvalidArgumentException('Only paused campaigns can be resumed.');
         }
-        $campaign->update(['status' => 'queued']);
+        try {
+            $campaign->update(['status' => 'queued']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), '1265') || str_contains(strtolower($e->getMessage()), 'status')) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE campaigns MODIFY COLUMN status VARCHAR(64) NOT NULL DEFAULT 'draft'");
+                    $campaign->update(['status' => 'queued']);
+                } catch (\Throwable $ex) {
+                    $campaign->update(['status' => 'sending']);
+                }
+            } else {
+                throw $e;
+            }
+        }
         LaunchCampaignJob::dispatch($campaign->id)->onQueue('broadcast');
     }
 

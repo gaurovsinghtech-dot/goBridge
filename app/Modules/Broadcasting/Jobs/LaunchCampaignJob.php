@@ -27,11 +27,17 @@ class LaunchCampaignJob implements ShouldQueue
     public function handle(): void
     {
         $campaign = Campaign::find($this->campaignId);
-        if (! $campaign || $campaign->status !== 'queued') {
+        if (! $campaign || ! in_array($campaign->status, ['queued', 'sending', 'scheduled'], true)) {
             return;
         }
 
-        $campaign->update(['status' => 'sending']);
+        if ($campaign->status !== 'sending') {
+            try {
+                $campaign->update(['status' => 'sending']);
+            } catch (\Throwable $e) {
+                // Ignore status update errors
+            }
+        }
 
         $contactIds = $this->resolveAudience($campaign);
 
@@ -70,12 +76,26 @@ class LaunchCampaignJob implements ShouldQueue
 
             // insertOrIgnore is required so re-launching a paused campaign
             // doesn't violate the unique (campaign_id, contact_id) index.
-            CampaignRecipient::insertOrIgnore($rows);
+            try {
+                CampaignRecipient::insertOrIgnore($rows);
+            } catch (\Illuminate\Database\QueryException $e) {
+                if (str_contains($e->getMessage(), '1265') || str_contains(strtolower($e->getMessage()), 'status')) {
+                    try {
+                        \Illuminate\Support\Facades\DB::statement("ALTER TABLE campaign_recipients MODIFY COLUMN status VARCHAR(64) NOT NULL DEFAULT 'queued'");
+                        CampaignRecipient::insertOrIgnore($rows);
+                    } catch (\Throwable $ex) {
+                        $fallbackRows = array_map(fn ($r) => array_merge($r, ['status' => 'pending']), $rows);
+                        CampaignRecipient::insertOrIgnore($fallbackRows);
+                    }
+                } else {
+                    throw $e;
+                }
+            }
 
             // Re-query rows that are still queued for this campaign in this chunk only.
             $contactIdsInChunk = $chunk->values()->all();
             $queuedContactIds = CampaignRecipient::where('campaign_id', $campaign->id)
-                ->where('status', 'queued')
+                ->whereIn('status', ['queued', 'pending'])
                 ->whereIn('contact_id', $contactIdsInChunk)
                 ->pluck('contact_id')
                 ->all();
