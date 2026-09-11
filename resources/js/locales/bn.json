@@ -114,7 +114,21 @@
         "ai_agents": "Ai Agents",
         "voice_agents": "Voice Agents",
         "analytics": "Analytics",
-        "main_menu": "Main Menu"
+        "main_menu": "Main Menu",
+        "signing_out": "Signing Out",
+        "playground": "Playground",
+        "knowledge_base": "Knowledge Base",
+        "ai_analytics": "Ai Analytics",
+        "voice_studio": "Voice Studio",
+        "call_center": "Call Center",
+        "voice_campaigns": "Voice Campaigns",
+        "smart_queue": "Smart Queue",
+        "voice_follow_ups": "Voice Follow Ups",
+        "phone_numbers": "Phone Numbers",
+        "channels": "Channels",
+        "api_connections": "Api Connections",
+        "wallet": "Wallet",
+        "plans_and_billing": "Plans And Billing"
     },
     "welcome": {
         "title": "AI দিয়ে ওয়েবসাইট বানান।",
@@ -174,8 +188,13 @@
     "client": {
         "profile": {
             "edit": "সম্পাদনা",
-            "2fa": "2Fa",
-            "sessions": "Sessions",
+            "2fa": {
+                "enable": "Enable",
+                "disable": "Disable"
+            },
+            "sessions": {
+                "destroy": "Destroy"
+            },
             "update": "Update",
             "destroy": "Destroy"
         },
@@ -222,7 +241,12 @@
             "cancel": "Cancel",
             "plans": "Plans",
             "checkout": "Checkout",
-            "verify": "Verify"
+            "verify": "Verify",
+            "wallet": {
+                "index": "Index",
+                "topup": "Topup",
+                "settings": "Settings"
+            }
         },
         "audit_log": "অডিট লগ",
         "audit_log_subtitle": "অডিট লগের বিস্তারিত",
@@ -308,8 +332,23 @@
             "destroy": "মুছুন"
         },
         "onboarding": {
-            "show": "দেখুন",
-            "complete": "সম্পন্ন"
+            "numbers": {
+                "search": "Search",
+                "provision": "Provision"
+            },
+            "service": "Service",
+            "whatsapp": {
+                "connect": "Connect"
+            },
+            "calling": {
+                "configure": "Configure"
+            },
+            "crm": {
+                "save": "Save",
+                "skip": "Skip"
+            },
+            "business": "Business",
+            "launch": "Launch"
         },
         "team_members": "টিম সদস্য",
         "manage_team": "টিম পরিচালনা করুন",
@@ -339,13 +378,17 @@
                 "delete": "মুছুন"
             },
             "timeline": "Timeline",
-            "merge": "Merge"
+            "merge": "Merge",
+            "notes": "Notes"
         },
         "segments": {
             "index": "তালিকা",
             "store": "সংরক্ষণ",
             "destroy": "মুছুন",
-            "contacts": "Contacts"
+            "contacts": {
+                "attach": "Attach",
+                "detach": "Detach"
+            }
         },
         "whatsapp": {
             "templates": {
@@ -378,37 +421,8 @@
             }
         },
         "inbox": {
-            "index": "তালিকা",
-            "show": "দেখুন",
-            "reply": "উত্তর",
-            "status": "অবস্থা",
-            "labels": {
-                "update": "আপডেট",
-                "store": "সংরক্ষণ",
-                "destroy": "মুছুন",
-                "detach": "আলাদা করুন",
-                "attach": "যুক্ত করুন"
-            },
-            "typing": "টাইপ করছেন",
-            "notes": {
-                "index": "তালিকা",
-                "store": "সংরক্ষণ"
-            },
-            "handover": "হ্যান্ডওভার",
-            "contacts": {
-                "search": "খুঁজুন"
-            },
-            "start": "শুরু করুন",
-            "templates": "টেমপ্লেট",
-            "assign": "বরাদ্দ করুন",
             "setup": {
-                "resubscribe": "Resubscribe",
-                "manual": {
-                    "instagram": "Instagram"
-                }
-            },
-            "activities": {
-                "index": "Index"
+                "destroy": "Destroy"
             }
         },
         "ai": {
@@ -426,6 +440,35 @@
             "documents": {
                 "destroy": "মুছুন",
                 "reindex": "পুনরায় ইন্ডেক্স"
+            },
+            "playground": {
+                "index": "Index",
+                "test": "Test",
+                "feedback": "Feedback",
+                "activate": "Activate"
+            },
+            "knowledge": {
+                "index": "Index",
+                "business": "Business",
+                "faq": "Faq",
+                "website": "Website",
+                "document": {
+                    "reprocess": "Reprocess",
+                    "toggle": "Toggle",
+                    "destroy": "Destroy"
+                },
+                "text": "Text",
+                "settings": "Settings",
+                "gaps": {
+                    "resolve": "Resolve"
+                },
+                "process": "Process"
+            },
+            "analytics": {
+                "index": "Index",
+                "question": {
+                    "resolve": "Resolve"
+                }
             }
         },
         "social": {
@@ -555,15 +598,18 @@
                 "connect": "সংযোগ করুন"
             }
         },
-        "workspaces": {
-            "switch": "Switch",
-            "index": "Index",
-            "store": "Store"
-        },
+        "workspaces": "Workspaces",
         "settings": {
             "update": "আপডেট",
             "notifications": "নোটিফিকেশন",
-            "index": "Index"
+            "index": "Index",
+            "workspace": {
+                "update": "Update",
+                "logo": {
+                    "upload": "Upload",
+                    "delete": "Delete"
+                }
+            }
         },
         "team": {
             "store": "স্টোর",
@@ -611,12 +657,41 @@
                 "update": "Update",
                 "store": "Store",
                 "toggle": "Toggle",
-                "destroy": "Destroy"
+                "destroy": "Destroy",
+                "search": "Search",
+                "purchase": "Purchase",
+                "whatsapp": {
+                    "connect": "Connect",
+                    "disconnect": "Disconnect"
+                }
             },
             "calls": {
-                "index": "Index"
+                "index": "Index",
+                "show": "Show",
+                "analyze": "Analyze"
             },
-            "edit": "Edit"
+            "edit": "Edit",
+            "campaigns": {
+                "index": "Index",
+                "create": "Create",
+                "show": "Show",
+                "store": "Store",
+                "start": "Start",
+                "pause": "Pause",
+                "stop": "Stop"
+            },
+            "queue": {
+                "index": "Index",
+                "dial": "Dial",
+                "requeue": "Requeue",
+                "callback": "Callback",
+                "exclude": "Exclude"
+            },
+            "settings": {
+                "index": "Index",
+                "update": "Update",
+                "test": "Test"
+            }
         },
         "integrations": {
             "heyo": {
@@ -625,6 +700,49 @@
                 "disconnect": "Disconnect",
                 "show": "Show"
             }
+        },
+        "api": {
+            "tokens": "Tokens",
+            "docs": "Docs"
+        },
+        "crm": {
+            "integrations": {
+                "index": "Index",
+                "test": "Test",
+                "connect": "Connect",
+                "sync": "Sync"
+            },
+            "dashboard": "Dashboard",
+            "leads": {
+                "store": "Store",
+                "stage": "Stage",
+                "show": "Show"
+            },
+            "reports": {
+                "index": "Index"
+            },
+            "tasks": {
+                "index": "Index",
+                "store": "Store",
+                "status": "Status"
+            },
+            "notes": {
+                "store": "Store"
+            },
+            "deals": {
+                "store": "Store"
+            },
+            "stages": {
+                "update": "Update",
+                "store": "Store",
+                "destroy": "Destroy"
+            }
+        },
+        "tour": {
+            "progress": "Progress",
+            "complete": "Complete",
+            "skip": "Skip",
+            "reset": "Reset"
         }
     },
     "pagination": {
@@ -858,7 +976,10 @@
             "update": "আপডেট",
             "test": "পরীক্ষা",
             "rotate": "ঘোরান",
-            "edit": "সম্পাদনা"
+            "edit": "সম্পাদনা",
+            "whatsapp": {
+                "index": "Index"
+            }
         },
         "pusher_settings": "পুশার সেটিংস",
         "search": "খুঁজুন",
@@ -951,40 +1072,37 @@
         "secret_key_hint": "সার্ভার-সাইড সিক্রেট কী — এটি গোপন রাখুন",
         "stripe_webhook_hint": "Stripe ড্যাশবোর্ড থেকে Webhook সাইনিং সিক্রেট (whsec_…)",
         "webhook_hint": "ইনকামিং গেটওয়ে ইভেন্ট যাচাই করতে ব্যবহৃত Webhook সিক্রেট",
-        "clients": {
+        "clients": "Clients",
+        "subscriptions": {
             "index": "Index",
-            "users": {
-                "index": "Index",
-                "store": "Store",
-                "update": "Update",
-                "destroy": "Destroy"
-            },
-            "impersonate": "Impersonate",
-            "destroy": "Destroy",
-            "export": "Export",
             "store": "Store",
-            "update": "Update"
+            "export": "Export"
         },
-        "subscriptions": "Subscriptions",
-        "payments": {
-            "index": "Index"
-        },
-        "plans": {
-            "index": "Index",
+        "payments": "Payments",
+        "plans": "Plans",
+        "currencies": {
             "update": "Update",
-            "duplicate": "Duplicate",
-            "destroy": "Destroy",
-            "reorder": "Reorder",
             "store": "Store"
         },
-        "currencies": "Currencies",
-        "admins": {
+        "admins": "Admins",
+        "settings": {
             "index": "Index",
-            "destroy": "Destroy",
-            "store": "Store",
-            "update": "Update"
+            "general": {
+                "update": "Update"
+            },
+            "logo": {
+                "upload": "Upload",
+                "delete": "Delete"
+            },
+            "favicon": {
+                "upload": "Upload",
+                "delete": "Delete"
+            },
+            "update": "Update",
+            "firebase": {
+                "update": "Update"
+            }
         },
-        "settings": "Settings",
         "ai": {
             "index": "ইনডেক্স"
         },
@@ -1068,7 +1186,10 @@
         "recent_payments": "Recent payments",
         "amount": "Amount",
         "last_n_days": "Last {{n}} days",
-        "license": "License",
+        "license": {
+            "deactivate": "Deactivate",
+            "activate": "Activate"
+        },
         "add_currency": "Add Currency",
         "announcements": {
             "store": "Store",
@@ -1076,7 +1197,10 @@
             "destroy": "Destroy"
         },
         "currency_inherit": "Platform default",
-        "exchange_rate_hint": "Exchange rate is how much one unit of the currency is worth in USD — EUR is 1.087, INR is about 0.012. The currency with rate 1 is the reference. Setting a currency as Default makes it the platform-wide currency for anyone who has not picked their own."
+        "exchange_rate_hint": "Exchange rate is how much one unit of the currency is worth in USD — EUR is 1.087, INR is about 0.012. The currency with rate 1 is the reference. Setting a currency as Default makes it the platform-wide currency for anyone who has not picked their own.",
+        "twilio": {
+            "index": "Index"
+        }
     },
     "open_menu": "মেনু খুলুন",
     "impersonation": {
@@ -1505,7 +1629,12 @@
         "live_preview": "লাইভ প্রিভিউ",
         "variables_hint": "ভেরিয়েবল <field>[Field]<\/field> হিসেবে দেখা যায়। প্রতিটি প্রাপক নিজের মান পায়।",
         "at_a_glance": "এক নজরে",
-        "reachable": "পৌঁছানো যায়"
+        "reachable": "পৌঁছানো যায়",
+        "reply": "Reply",
+        "save_as_draft": "Save As Draft",
+        "schedule_and_launch": "Schedule And Launch",
+        "launch_now": "Launch Now",
+        "metric_replied": "Metric Replied"
     },
     "form": {
         "submitted": "জমা দেওয়া হয়েছে"
@@ -1797,7 +1926,10 @@
         "secondary_brand_color": "Secondary Brand Color",
         "secondary_color_hint": "Used for supporting surfaces such as the sidebar.",
         "font_family": "Font",
-        "font_family_hint": "Applied across the whole interface."
+        "font_family_hint": "Applied across the whole interface.",
+        "help_and_support": "Help And Support",
+        "tour_description": "Tour Description",
+        "restart_tour": "Restart Tour"
     },
     "integrations": {
         "title": "ইন্টিগ্রেশন",
@@ -2459,7 +2591,11 @@
         "revoke": "বাতিল করুন",
         "revoke_confirm": "এই টোকেন বাতিল করবেন? এটি অবিলম্বে কাজ করা বন্ধ করবে।",
         "no_tokens": "এখনো কোনো টোকেন নেই।",
-        "view_docs": "ডকুমেন্টেশন দেখুন"
+        "view_docs": "ডকুমেন্টেশন দেখুন",
+        "nav_tokens": "Nav Tokens",
+        "nav_crm": "Nav Crm",
+        "nav_webhooks": "Nav Webhooks",
+        "nav_docs": "Nav Docs"
     },
     "contacts_page": {
         "title": "পরিচিতি",
@@ -2616,7 +2752,9 @@
         "date_prev": "Previous",
         "date_next": "Next",
         "date_time": "Time",
-        "date_today": "Today"
+        "date_today": "Today",
+        "upgrade_required": "Upgrade Required",
+        "upgrade_now": "Upgrade Now"
     },
     "inbox_ui": {
         "new_conversation": "নতুন কথোপকথন",
@@ -3709,7 +3847,18 @@
         "field_media_required": "Media (upload or URL) *",
         "template_not_approved": "This template is {{status}} — only APPROVED templates are delivered by WhatsApp.",
         "template_var_n": "Variable {{n}}",
-        "template_var_placeholder": "Value for {{n}} (tokens allowed)"
+        "template_var_placeholder": "Value for {{n}} (tokens allowed)",
+        "trigger_campaign_reply": "Trigger Campaign Reply",
+        "trigger_stage_changed": "Trigger Stage Changed",
+        "trigger_voice_completed": "Trigger Voice Completed",
+        "node_send_instagram": "Node Send Instagram",
+        "node_send_messenger": "Node Send Messenger",
+        "node_goal_reached": "Node Goal Reached",
+        "node_ai_detect_intent": "Node Ai Detect Intent",
+        "node_voice_call": "Node Voice Call",
+        "node_human_handoff": "Node Human Handoff",
+        "node_create_task": "Node Create Task",
+        "node_add_note": "Node Add Note"
     },
     "ai": {
         "chatbots_title": "চ্যাটবট",
@@ -4234,7 +4383,11 @@
         "01": "01",
         "07em": "07Em",
         "08em": "08Em",
-        "1em": "1Em"
+        "1em": "1Em",
+        "25": "25",
+        "0": "0",
+        "2": "2",
+        "15": "15"
     },
     "12": {
         "01": "01"
@@ -4247,7 +4400,8 @@
         "5": "5"
     },
     "4": {
-        "9": "9"
+        "9": "9",
+        "5": "5"
     },
     "37": {
         "4220": "4220"
@@ -4302,6 +4456,94 @@
         "row_n": "Row {{n}}",
         "start_import": "Import {{count}} rows"
     },
+    "Polly": {
+        "Aditi": "Aditi"
+    },
+    "Secure checkout": "Secure Checkout",
+    "Back to pricing": "Back To Pricing",
+    "tour": {
+        "steps": {
+            "dashboard": "Dashboard",
+            "inbox": "Inbox",
+            "contacts": "Contacts",
+            "campaigns": "Campaigns",
+            "automations": "Automations",
+            "ai_agents": "Ai Agents",
+            "whatsapp": "Whatsapp",
+            "analytics": "Analytics",
+            "integrations": "Integrations",
+            "billing": "Billing",
+            "voice_agents": "Voice Agents",
+            "phone_numbers": "Phone Numbers"
+        },
+        "welcome_title": "Welcome Title",
+        "welcome_subtitle": "Welcome Subtitle",
+        "quick_tour": "Quick Tour",
+        "tip_1": "Tip 1",
+        "tip_2": "Tip 2",
+        "tip_3": "Tip 3",
+        "tip_4": "Tip 4",
+        "start_tour": "Start Tour",
+        "skip": "Skip",
+        "complete_title": "Complete Title",
+        "complete_subtitle": "Complete Subtitle",
+        "explore_dashboard": "Explore Dashboard",
+        "finish": "Finish",
+        "restarted": "Restarted",
+        "restart_failed": "Restart Failed"
+    },
+    "1": {
+        "5": "5",
+        "0": [
+            "0"
+        ]
+    },
+    "28": {
+        "50": "50"
+    },
+    "2": {
+        "5": "5"
+    },
+    "lead": {
+        "stage_changed": "Stage Changed"
+    },
+    "voice": {
+        "call_completed": "Call Completed"
+    },
+    "wallet": {
+        "topup_success": "Topup Success",
+        "settings_success": "Settings Success",
+        "title": "Title",
+        "subtitle": "Subtitle",
+        "manage_settings": "Manage Settings",
+        "add_money": "Add Money",
+        "low_balance_warning": "Low Balance Warning",
+        "low_balance_desc": "Low Balance Desc",
+        "low_balance_action": "Low Balance Action",
+        "recharge_now": "Recharge Now",
+        "available_balance": "Available Balance",
+        "single_bill_notice": "Single Bill Notice",
+        "estimated_spend": "Estimated Spend",
+        "quick_add": "Quick Add",
+        "usage_this_month": "Usage This Month",
+        "growbridge_managed_billing": "Growbridge Managed Billing",
+        "no_provider_accounts": "No Provider Accounts",
+        "transaction_history": "Transaction History",
+        "no_transactions": "No Transactions",
+        "topup_heading": "Topup Heading",
+        "choose_amount": "Choose Amount",
+        "confirm_deposit": "Confirm Deposit",
+        "settings_heading": "Settings Heading",
+        "low_balance_threshold": "Low Balance Threshold"
+    },
+    "mobile": {
+        "app_title": "App Title",
+        "app_subtitle": "App Subtitle",
+        "features_heading": "Features Heading",
+        "download_apk_btn": "Download Apk Btn",
+        "view_details_btn": "View Details Btn",
+        "scan_to_download": "Scan To Download"
+    },
     "v20": [
         "0"
     ],
@@ -4311,10 +4553,5 @@
                 "1": "1"
             }
         ]
-    ],
-    "Polly": {
-        "Aditi": "Aditi"
-    },
-    "Secure checkout": "Secure Checkout",
-    "Back to pricing": "Back To Pricing"
+    ]
 }

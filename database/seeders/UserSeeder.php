@@ -95,21 +95,5 @@ class UserSeeder extends Seeder
                 ]
             );
         }
-
-        Contact::firstOrCreate(
-            [
-                'workspace_id' => $workspaceId,
-                'phone_e164' => '+15555550100',
-            ],
-            [
-                'first_name' => 'Demo',
-                'last_name' => 'Contact',
-                'opt_in_whatsapp' => true,
-                'opt_in_sms' => false,
-                'opt_in_email' => false,
-                'country' => 'US',
-                'source' => 'seed',
-            ]
-        );
     }
 }

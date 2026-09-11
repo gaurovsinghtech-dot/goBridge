@@ -29,10 +29,6 @@ class DatabaseSeeder extends Seeder
             SmtpConfigurationSeeder::class,
             LandingPageSeeder::class,
             CmsPageSeeder::class,
-
-            // Comprehensive demo content: one fully-populated client
-            // (SpaGreen Wellness) across every module, plus light secondaries.
-            DemoSeeder::class,
         ]);
 
         // User::factory(10)->create();
