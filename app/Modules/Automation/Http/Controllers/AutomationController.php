@@ -15,6 +15,7 @@ use App\Modules\Ecommerce\Models\EcommerceStore;
 use App\Modules\Integrations\Models\IntegrationConfig;
 use App\Modules\Shared\Models\ChannelAccount;
 use App\Modules\Shared\Models\Contact;
+use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
 use App\Modules\Whatsapp\Models\WhatsappTemplate;
 use App\Services\Automation\WorkflowAiBuilderService;
 use App\Services\Automation\WorkflowExecutionService;
@@ -144,9 +145,12 @@ class AutomationController extends Controller
             'contacts' => Contact::where('workspace_id', $workspaceId)
                 ->latest()->limit(50)->get(['id', 'first_name', 'last_name', 'phone_e164', 'email', 'lead_score'])->values(),
             'channels' => [
-                'whatsapp' => (bool) ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'whatsapp')->where('is_active', true)->exists(),
-                'instagram' => (bool) ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'instagram')->where('is_active', true)->exists(),
-                'messenger' => (bool) ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'messenger')->where('is_active', true)->exists(),
+                'whatsapp' => (bool) (
+                    WhatsappBusinessAccount::where('workspace_id', $workspaceId)->where('status', 'active')->exists()
+                    || ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'whatsapp')->where(fn ($q) => $q->where('status', 'active')->orWhere('status', 'connected'))->exists()
+                ),
+                'instagram' => (bool) ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'instagram')->where(fn ($q) => $q->where('status', 'active')->orWhere('status', 'connected'))->exists(),
+                'messenger' => (bool) ChannelAccount::where('workspace_id', $workspaceId)->where('channel', 'messenger')->where(fn ($q) => $q->where('status', 'active')->orWhere('status', 'connected'))->exists(),
                 'email' => true,
             ],
             'integrations' => [
