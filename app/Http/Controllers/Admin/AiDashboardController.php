@@ -9,6 +9,7 @@ use App\Modules\AI\Models\AiKnowledgeBase;
 use App\Modules\AI\Models\AiProviderConfig;
 use App\Modules\AI\Models\AiRun;
 use App\Modules\Integrations\Models\IntegrationConfig;
+use App\Modules\Integrations\Services\CredentialResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -25,38 +26,17 @@ class AiDashboardController extends Controller
             ->pluck('count', 'provider')
             ->toArray();
 
-        // 2. Platform-wide AI Provider Integration Configs
-        $aiIntegrations = IntegrationConfig::whereIn('provider', [
-            'ai_providers',
-            'llm_openai_default',
-            'llm_anthropic_default',
-            'llm_gemini_default',
-        ])->where('enabled', true)->get();
-
-        $aiCreds = [];
-        foreach ($aiIntegrations as $cfg) {
-            if (is_array($cfg->credentials)) {
-                $aiCreds = array_merge($aiCreds, $cfg->credentials);
-            }
-        }
-
         $providers = ['openai', 'anthropic', 'gemini'];
         $providerStats = [];
 
         foreach ($providers as $p) {
             $wsCount = $workspaceCounts[$p] ?? 0;
-
-            // System .env or IntegrationConfig key check
-            $envKey = env(strtoupper($p).'_API_KEY') ?? env(strtoupper($p).'_KEY');
-            $integrationKey = $aiCreds["{$p}_api_key"] ?? $aiCreds['api_key'] ?? null;
-            $hasPlatformConfig = ! empty($envKey) || ! empty($integrationKey) || ! empty(config("services.{$p}.api_key"));
-
-            // Check if chatbots or voice agents are using this provider
-            $hasChatbots = AiChatbot::where('provider', $p)->exists();
+            $systemLlm = CredentialResolver::system()->llm($p);
+            $hasPlatformConfig = $systemLlm !== null;
 
             if ($wsCount > 0) {
                 $providerStats[$p] = $wsCount;
-            } elseif ($hasPlatformConfig || $hasChatbots) {
+            } elseif ($hasPlatformConfig) {
                 $providerStats[$p] = 9999; // Platform Default
             } else {
                 $providerStats[$p] = 0;
