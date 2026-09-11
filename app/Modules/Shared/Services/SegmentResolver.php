@@ -45,6 +45,18 @@ class SegmentResolver
         return $query->count();
     }
 
+    /** Resolve contact IDs for a given segment (static or dynamic). */
+    public function resolveIds(Segment $segment): array
+    {
+        return $this->query($segment)->pluck('id')->all();
+    }
+
+    /** Alias for resolveIds. */
+    public function resolve(Segment $segment): array
+    {
+        return $this->resolveIds($segment);
+    }
+
     /** Materialise a dynamic segment into segment_contact pivot. */
     public function materialise(Segment $segment): int
     {
