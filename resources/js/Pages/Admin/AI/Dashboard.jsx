@@ -83,7 +83,9 @@ export default function AiDashboard({ providerStats = {}, configuredWorkspaces =
                                             <span className="text-sm text-neutral-800 dark:text-neutral-200">{PROVIDER_LABELS[p]}</span>
                                         </div>
                                         {configured
-                                            ? <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PROVIDER_COLORS[p]}`}>{t('ai_dashboard.workspace_count', { count })}</span>
+                                            ? <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PROVIDER_COLORS[p]}`}>
+                                                {count >= 9999 ? 'Platform Default' : count === 1 ? '1 workspace' : `${count} workspaces`}
+                                              </span>
                                             : <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('ai_dashboard.not_configured')}</span>}
                                     </div>
                                 );
@@ -91,7 +93,7 @@ export default function AiDashboard({ providerStats = {}, configuredWorkspaces =
                         </div>
                         <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800">
                             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                <span className="font-medium text-neutral-800 dark:text-neutral-200">{configuredWorkspaces}</span> {t('ai_dashboard.workspace_configured')}
+                                <span className="font-medium text-neutral-800 dark:text-neutral-200">{configuredWorkspaces}</span> {configuredWorkspaces === 1 ? 'workspace has AI configured' : 'workspaces have AI configured'}
                             </p>
                         </div>
                     </Card>
