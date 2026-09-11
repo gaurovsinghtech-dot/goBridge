@@ -1,1 +1,0 @@
-import{u as r,l as c}from"./vendor-framework-Cc7f0RCK.js";import{a as n}from"./app-Cq50XRtw.js";function L(){const o=r().props,l=o.i18n?.locale??o.locale??"en",s=o.i18n?.isRtl??!1,t=o.i18n?.locales??[],a=o.rtlLocales??["ar"];return{locale:l,isRtl:s,locales:t,setLocale:e=>{e!==l&&(n(e,a),c.put(route("locale.update"),{locale:e},{preserveScroll:!0}))}}}export{L as u};

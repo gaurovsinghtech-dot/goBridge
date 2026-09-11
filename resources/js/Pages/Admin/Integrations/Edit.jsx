@@ -323,15 +323,18 @@ const DEFAULT_BRAND = {
     subtitle: 'Integration service',
 };
 
-function SecretField({ label, fieldKey, value, onChange, required, hint }) {
+function SecretField({ label, fieldKey, value, onChange, required, hint, statusBadge = null }) {
     const [visible, setVisible] = useState(false);
     const isMasked = value && /^•+/.test(value);
 
     return (
         <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
-                {label} {required && <span className="text-rose-500 font-bold">*</span>}
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                    {label} {required && <span className="text-rose-500 font-bold">*</span>}
+                </label>
+                {statusBadge}
+            </div>
             <div className="relative">
                 <input
                     type={visible ? 'text' : 'password'}
@@ -353,13 +356,16 @@ function SecretField({ label, fieldKey, value, onChange, required, hint }) {
     );
 }
 
-function PlainField({ label, fieldKey, value, onChange, required, hint, type = 'text', options = [] }) {
+function PlainField({ label, fieldKey, value, onChange, required, hint, type = 'text', options = [], statusBadge = null }) {
     if (type === 'select') {
         return (
             <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
-                    {label} {required && <span className="text-rose-500 font-bold">*</span>}
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                        {label} {required && <span className="text-rose-500 font-bold">*</span>}
+                    </label>
+                    {statusBadge}
+                </div>
                 <select
                     value={value || ''}
                     onChange={e => onChange(fieldKey, e.target.value)}
@@ -378,9 +384,12 @@ function PlainField({ label, fieldKey, value, onChange, required, hint, type = '
 
     return (
         <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
-                {label} {required && <span className="text-rose-500 font-bold">*</span>}
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                    {label} {required && <span className="text-rose-500 font-bold">*</span>}
+                </label>
+                {statusBadge}
+            </div>
             <input
                 type="text"
                 value={value || ''}
@@ -778,8 +787,101 @@ export default function IntegrationsEdit({
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {fields.map(f => (
-                                    f.type === 'password' ? (
+                                {provider === 'ai_providers' && (
+                                    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/50 p-4 mb-2 space-y-3">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5">
+                                            <Sparkles className="h-4 w-4 text-emerald-500" />
+                                            AI Providers Configuration Overview
+                                        </h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                    <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">OpenAI</span>
+                                                </div>
+                                                {data.credentials?.openai_api_key ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                        <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                        <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-blue-500" />
+                                                    <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Google Gemini</span>
+                                                </div>
+                                                {data.credentials?.gemini_api_key ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                        <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                        <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="h-2 w-2 rounded-full bg-purple-500" />
+                                                    <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Anthropic Claude</span>
+                                                </div>
+                                                {data.credentials?.anthropic_api_key ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                        <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                        <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {fields.map(f => {
+                                    let statusBadge = null;
+                                    if (provider === 'ai_providers') {
+                                        if (f.key === 'openai_api_key') {
+                                            statusBadge = data.credentials?.openai_api_key ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                    <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                </span>
+                                            );
+                                        } else if (f.key === 'gemini_api_key') {
+                                            statusBadge = data.credentials?.gemini_api_key ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                    <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                </span>
+                                            );
+                                        } else if (f.key === 'anthropic_api_key') {
+                                            statusBadge = data.credentials?.anthropic_api_key ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> Configured
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                    <XCircle className="h-3 w-3 text-amber-500" /> Not Configured
+                                                </span>
+                                            );
+                                        }
+                                    }
+
+                                    return f.type === 'password' ? (
                                         <SecretField
                                             key={f.key}
                                             label={f.label}
@@ -788,6 +890,7 @@ export default function IntegrationsEdit({
                                             onChange={setCredential}
                                             required={f.required}
                                             hint={f.hint}
+                                            statusBadge={statusBadge}
                                         />
                                     ) : (
                                         <PlainField
@@ -800,9 +903,10 @@ export default function IntegrationsEdit({
                                             hint={f.hint}
                                             type={f.type}
                                             options={f.options ?? []}
+                                            statusBadge={statusBadge}
                                         />
-                                    )
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
