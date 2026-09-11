@@ -286,7 +286,9 @@ export default function ChatbotsIndex({
                                                 <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 capitalize">
                                                     <span>{agent.agent_type?.replace('_', ' ') || 'Custom Agent'}</span>
                                                     <span>•</span>
-                                                    <span className="font-mono font-semibold text-neutral-500">v{agent.version || 1}</span>
+                                                    <span className="font-mono font-semibold text-brand-600 dark:text-brand-400 uppercase">{agent.provider || 'OpenAI'}</span>
+                                                    <span>•</span>
+                                                    <span className="font-mono text-neutral-500">{agent.model || 'gpt-4o-mini'}</span>
                                                 </div>
                                             </div>
                                         </div>
