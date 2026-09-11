@@ -290,15 +290,15 @@ export default function CampaignForm({
     // We keep the slot user-input separately and only marshal back into Meta shape on submit.
     const [slots, setSlots] = useState(() => deriveSlotsFromTemplate(selectedTemplate?.components ?? []));
 
-    // Auto-select the only phone number when switching to WhatsApp with a single number.
+    // Auto-select phone number when switching to WhatsApp if none selected.
     useEffect(() => {
-        if (data.channel === 'whatsapp' && whatsappPhoneNumbers.length === 1 && !data.whatsapp_phone_number_id) {
+        if (data.channel === 'whatsapp' && whatsappPhoneNumbers.length > 0 && !data.whatsapp_phone_number_id) {
             setData('whatsapp_phone_number_id', whatsappPhoneNumbers[0].phone_number_id);
         }
         if (data.channel !== 'whatsapp' && data.whatsapp_phone_number_id) {
             setData('whatsapp_phone_number_id', '');
         }
-    }, [data.channel]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [data.channel, whatsappPhoneNumbers, data.whatsapp_phone_number_id]);
 
     // Reset template when the phone number changes (templates are WABA-scoped).
     const prevPhoneRef = useRef(data.whatsapp_phone_number_id);

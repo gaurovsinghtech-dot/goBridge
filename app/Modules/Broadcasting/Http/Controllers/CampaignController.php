@@ -10,7 +10,9 @@ use App\Modules\Broadcasting\Services\CampaignPersonalizer;
 use App\Modules\Shared\Models\ContactTag;
 use App\Modules\Shared\Models\Segment;
 use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
+use App\Modules\Whatsapp\Models\WhatsappPhoneNumber;
 use App\Modules\Whatsapp\Models\WhatsappTemplate;
+use App\Modules\Whatsapp\Services\CloudApiClient;
 use App\Services\Campaigns\CampaignAiAssistantService;
 use App\Services\Campaigns\CampaignAudienceService;
 use App\Services\Campaigns\CampaignSafetyService;
@@ -421,12 +423,42 @@ class CampaignController extends Controller
             ->where('status', 'active')
             ->with('phoneNumbers')
             ->get()
-            ->flatMap(fn ($waba) => $waba->phoneNumbers->map(fn ($p) => [
-                'phone_number_id' => $p->phone_number_id,
-                'display_phone'   => $p->display_phone,
-                'verified_name'   => $p->verified_name,
-                'waba_id'         => $waba->waba_id,
-            ]))
+            ->flatMap(function ($waba) {
+                if ($waba->phoneNumbers->isEmpty()) {
+                    try {
+                        $token = $waba->accessToken();
+                        if ($token) {
+                            $fetched = CloudApiClient::fetchWabaPhoneNumbers($waba->waba_id, $token);
+                            foreach ($fetched as $p) {
+                                if (! empty($p['id'])) {
+                                    WhatsappPhoneNumber::firstOrCreate([
+                                        'waba_id_fk' => $waba->id,
+                                        'phone_number_id' => (string) $p['id'],
+                                    ], [
+                                        'display_phone' => $p['display_phone_number'] ?? '',
+                                        'verified_name' => $p['verified_name'] ?? '',
+                                        'quality_rating' => $p['quality_rating'] ?? 'GREEN',
+                                        'messaging_limit_tier' => 'TIER_1K',
+                                        'code_verification_status' => 'VERIFIED',
+                                        'name_status' => 'APPROVED',
+                                        'account_mode' => 'LIVE',
+                                    ]);
+                                }
+                            }
+                            $waba->load('phoneNumbers');
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('CampaignController: failed to auto-fetch phone numbers', ['error' => $e->getMessage()]);
+                    }
+                }
+
+                return $waba->phoneNumbers->map(fn ($p) => [
+                    'phone_number_id' => $p->phone_number_id,
+                    'display_phone'   => $p->display_phone,
+                    'verified_name'   => $p->verified_name,
+                    'waba_id'         => $waba->waba_id,
+                ]);
+            })
             ->values();
 
         $availableChannels = $this->campaignService->getAvailableChannels($workspaceId);

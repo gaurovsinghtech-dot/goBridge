@@ -5,6 +5,7 @@ namespace App\Modules\Whatsapp\Services;
 use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
 use App\Modules\Whatsapp\Models\WhatsappPhoneNumber;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -33,6 +34,8 @@ class CloudApiClient
             return null;
         }
 
+        $phoneNumberId = static::resolveRealPhoneNumberId($phoneNumberId, $token, $workspaceId);
+
         return new static($phoneNumberId, $token);
     }
 
@@ -54,6 +57,8 @@ class CloudApiClient
 
             return null;
         }
+
+        $phoneNumberId = static::resolveRealPhoneNumberId($phoneNumberId, $token, $workspaceId);
 
         return new static($phoneNumberId, $token);
     }
@@ -100,6 +105,74 @@ class CloudApiClient
             'status' => 'read',
             'message_id' => $messageId,
         ]);
+    }
+
+    /**
+     * Resolves a real Phone Number ID from Meta if passed a WABA ID or unknown ID.
+     */
+    public static function resolveRealPhoneNumberId(string $phoneNumberId, string $accessToken, int $workspaceId = 0): string
+    {
+        if (empty($phoneNumberId) || empty($accessToken)) {
+            return $phoneNumberId;
+        }
+
+        return Cache::remember('resolved_phone_number_id_'.$phoneNumberId, 3600, function () use ($phoneNumberId, $accessToken, $workspaceId) {
+            // 1. Check if $phoneNumberId already exists in database as a known phone_number_id
+            $existing = WhatsappPhoneNumber::where('phone_number_id', $phoneNumberId)->first();
+            if ($existing) {
+                return $phoneNumberId;
+            }
+
+            // 2. Check if $phoneNumberId is a WABA ID in database
+            $wabaQuery = WhatsappBusinessAccount::where('waba_id', $phoneNumberId);
+            if ($workspaceId > 0) {
+                $wabaQuery->where('workspace_id', $workspaceId);
+            }
+            $waba = $wabaQuery->with('phoneNumbers')->first();
+
+            if ($waba) {
+                $firstPhone = $waba->phoneNumbers->first();
+                if ($firstPhone && ! empty($firstPhone->phone_number_id) && $firstPhone->phone_number_id !== $phoneNumberId) {
+                    return $firstPhone->phone_number_id;
+                }
+
+                // Call Meta API to fetch attached phone numbers
+                try {
+                    $numbers = static::fetchWabaPhoneNumbers($waba->waba_id, $accessToken);
+                    if (! empty($numbers[0]['id'])) {
+                        $realId = (string) $numbers[0]['id'];
+                        WhatsappPhoneNumber::firstOrCreate([
+                            'waba_id_fk' => $waba->id,
+                            'phone_number_id' => $realId,
+                        ], [
+                            'display_phone' => $numbers[0]['display_phone_number'] ?? '',
+                            'verified_name' => $numbers[0]['verified_name'] ?? '',
+                            'quality_rating' => $numbers[0]['quality_rating'] ?? 'GREEN',
+                            'messaging_limit_tier' => 'TIER_1K',
+                            'code_verification_status' => 'VERIFIED',
+                            'name_status' => 'APPROVED',
+                            'account_mode' => 'LIVE',
+                        ]);
+
+                        return $realId;
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('resolveRealPhoneNumberId failed to fetch from Meta', ['error' => $e->getMessage()]);
+                }
+            } else {
+                // If waba not in DB, but $phoneNumberId might be a WABA ID passed directly, try querying Meta
+                try {
+                    $numbers = static::fetchWabaPhoneNumbers($phoneNumberId, $accessToken);
+                    if (! empty($numbers[0]['id'])) {
+                        return (string) $numbers[0]['id'];
+                    }
+                } catch (\Throwable $e) {
+                    // Not a WABA ID or request failed
+                }
+            }
+
+            return $phoneNumberId;
+        });
     }
 
     /**
