@@ -470,12 +470,23 @@ export default function CampaignForm({
         }
     };
 
+    const handleLaunchSubmit = async () => {
+        const saved = await saveDraft();
+        const targetUuid = draftUuid || campaign?.uuid;
+        if (saved && targetUuid) {
+            router.post(route('client.campaigns.launch', targetUuid), {
+                schedule_at: data.schedule_at ? tzLocalToUtcIso(data.schedule_at, data.timezone || 'UTC') : null,
+            });
+        }
+    };
+
     // ── Test send ────────────────────────────────────────────────────────────
     const sendTest = () => {
-        if (!campaign?.uuid) return;
+        const targetUuid = campaign?.uuid || draftUuid;
+        if (!targetUuid) return;
         setTestTo((s) => ({ ...s, sending: true, result: null }));
         axios
-            .post(route('client.campaigns.test-send', campaign.uuid), {
+            .post(route('client.campaigns.test-send', targetUuid), {
                 phone_e164: testTo.phone_e164 || null,
                 email: testTo.email || null,
             })
@@ -490,7 +501,7 @@ export default function CampaignForm({
                 setTestTo((s) => ({
                     ...s,
                     sending: false,
-                    result: { ok: false, message: e?.response?.data?.error ?? t('campaign.test_failed') },
+                    result: { ok: false, message: e?.response?.data?.error ?? e?.response?.data?.message ?? t('campaign.test_failed') },
                 })),
             );
     };
@@ -654,18 +665,30 @@ export default function CampaignForm({
                                 )}
                             </button>
                         ) : (
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="ml-auto flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition"
-                            >
-                                <Send className="h-4 w-4" />
-                                {processing
-                                    ? t('campaign.saving')
-                                    : mode === 'edit'
-                                      ? t('campaign.save_changes')
-                                      : t('campaign.create_campaign')}
-                            </button>
+                            <div className="ml-auto flex items-center gap-2">
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="flex items-center gap-1.5 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 disabled:opacity-60 transition cursor-pointer"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    {processing
+                                        ? t('campaign.saving')
+                                        : mode === 'edit'
+                                          ? t('campaign.save_changes')
+                                          : t('campaign.save_as_draft', 'Save Draft')}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={processing || draftStatus === 'saving'}
+                                    onClick={handleLaunchSubmit}
+                                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-60 transition shadow-sm cursor-pointer"
+                                >
+                                    <Send className="h-4 w-4" />
+                                    {data.schedule_at ? t('campaign.schedule_and_launch', 'Schedule & Launch') : t('campaign.launch_now', 'Launch Now')}
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -1261,8 +1284,8 @@ function ReviewStep({
                 )}
             </dl>
 
-            {/* Test send (edit-mode only — needs a saved campaign id) */}
-            {campaign?.id && (
+            {/* Test send */}
+            {(campaign?.uuid || draftUuid || campaign?.id) && (
                 <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 p-4 mt-4 space-y-3">
                     <div className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
                         <Eye className="h-4 w-4" /> {t('campaign.send_a_test')}

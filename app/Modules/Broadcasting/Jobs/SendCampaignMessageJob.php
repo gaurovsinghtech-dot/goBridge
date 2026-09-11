@@ -41,6 +41,26 @@ class SendCampaignMessageJob implements ShouldQueue
         public readonly int $contactId,
     ) {}
 
+    /**
+     * Send a one-off test message directly to a contact.
+     *
+     * @return array{id: string, body: string, type: string, payload: array<string, mixed>}
+     */
+    public static function sendDirect(Campaign $campaign, Contact $contact): array
+    {
+        $job = new self((int) $campaign->id, (int) ($contact->id ?? 0));
+        $personalizer = app(CampaignPersonalizer::class);
+
+        return match ($campaign->channel) {
+            'whatsapp' => $job->sendWhatsApp($campaign, $contact, $personalizer),
+            'instagram' => $job->sendInstagram($campaign, $contact, $personalizer),
+            'messenger' => $job->sendMessenger($campaign, $contact, $personalizer),
+            'sms' => $job->sendSms($campaign, $contact, $personalizer),
+            'email' => $job->sendEmail($campaign, $contact, $personalizer, Str::random(32), Str::random(32)),
+            default => throw new \RuntimeException("Unsupported channel {$campaign->channel}"),
+        };
+    }
+
     public function handle(CampaignPersonalizer $personalizer): void
     {
         $campaign = Campaign::find($this->campaignId);

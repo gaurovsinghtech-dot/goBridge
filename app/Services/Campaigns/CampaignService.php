@@ -331,23 +331,49 @@ class CampaignService
             throw new \InvalidArgumentException('Provide either a phone or email to test.');
         }
 
-        // Build temporary contact
-        $contact = new Contact([
-            'workspace_id' => $campaign->workspace_id,
-            'phone_e164' => $phone,
-            'email' => $email,
-            'first_name' => $user?->name ? explode(' ', $user->name)[0] : 'Test',
-            'last_name' => 'User',
-            'opt_in_whatsapp' => true,
-            'opt_in_sms' => true,
-            'opt_in_email' => true,
-        ]);
+        if ($phone) {
+            $phone = preg_replace('/[^\+0-9]/', '', $phone);
+            if (! str_starts_with($phone, '+')) {
+                $phone = '+'.$phone;
+            }
+        }
 
-        $messageId = 'TEST-'.Str::random(12);
+        $contact = Contact::where('workspace_id', $campaign->workspace_id)
+            ->where(function ($q) use ($phone, $email) {
+                if ($phone) {
+                    $q->where('phone_e164', $phone);
+                }
+                if ($email) {
+                    $q->orWhere('email', $email);
+                }
+            })
+            ->first();
+
+        if (! $contact) {
+            $contact = new Contact([
+                'workspace_id' => $campaign->workspace_id,
+                'phone_e164' => $phone,
+                'email' => $email,
+                'first_name' => $user?->name ? explode(' ', $user->name)[0] : 'Test',
+                'last_name' => 'User',
+            ]);
+        }
+
+        $contact->opt_in_whatsapp = true;
+        $contact->opt_in_sms = true;
+        $contact->opt_in_email = true;
+        if ($phone) {
+            $contact->phone_e164 = $phone;
+        }
+        if ($email) {
+            $contact->email = $email;
+        }
+
+        $sent = \App\Modules\Broadcasting\Jobs\SendCampaignMessageJob::sendDirect($campaign, $contact);
 
         return [
             'success' => true,
-            'message_id' => $messageId,
+            'message_id' => $sent['id'],
             'channel' => $campaign->channel,
             'recipient' => $phone ?: $email,
         ];

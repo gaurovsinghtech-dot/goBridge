@@ -14,7 +14,7 @@ class LaunchScheduledCampaignsJob implements ShouldQueue
 
     public function handle(): void
     {
-        Campaign::where('status', 'queued')
+        Campaign::whereIn('status', ['queued', 'scheduled'])
             ->whereNotNull('schedule_at')
             ->where('schedule_at', '<=', now())
             ->get()
