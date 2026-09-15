@@ -4,12 +4,22 @@ import {
     Bot, ArrowLeft, Save, Play, CheckCircle2, AlertCircle, Sparkles,
     BookOpen, MessageSquare, Phone, Mail, Instagram, Zap, ShieldCheck,
     Sliders, Users, Check, X, Clock, HelpCircle, Layers, Eye, RefreshCw,
-    Send, ChevronRight, AlertTriangle, ShieldAlert, Cpu, Award, Globe, ToggleLeft, ToggleRight
+    Send, ChevronRight, AlertTriangle, ShieldAlert, Cpu, Award, Globe, ToggleLeft, ToggleRight,
+    ExternalLink
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
+
+function safeRoute(name, fallback = '#', ...args) {
+    try {
+        if (typeof route === 'function' && route().has(name)) {
+            return route(name, ...args);
+        }
+    } catch (e) {}
+    return fallback;
+}
 
 export default function ChatbotStudio({
     mode = 'create', // create or edit
@@ -670,7 +680,8 @@ export default function ChatbotStudio({
                                     onChange={e => setData('ai_kb_id', Number(e.target.value) || null)}
                                     className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-white"
                                 >
-                                    {knowledgeBases.map(kb => (
+                                    <option value="">-- Workspace Knowledge Base (Default) --</option>
+                                    {(knowledgeBases || []).map(kb => (
                                         <option key={kb.id} value={kb.id}>
                                             {kb.name} ({kb.documents_count || kb.documents?.length || 0} Sources)
                                         </option>
@@ -712,7 +723,7 @@ export default function ChatbotStudio({
                                     Need to upload new PDFs, FAQs, or websites?
                                 </span>
                                 <Link
-                                    href={route('client.ai.knowledge.index')}
+                                    href={safeRoute('client.ai.knowledge.index', '/app/ai/knowledge')}
                                     className="font-bold text-blue-600 hover:underline flex items-center gap-1"
                                 >
                                     Open Knowledge Base <ExternalLink className="w-3 h-3" />
