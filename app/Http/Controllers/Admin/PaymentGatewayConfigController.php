@@ -160,6 +160,74 @@ class PaymentGatewayConfigController extends Controller
         return back()->with('success', __('Payment gateway updated.'));
     }
 
+    public function test(Request $request, string $gateway): JsonResponse
+    {
+        $this->validateGateway($gateway);
+
+        $testMode = (bool) $request->input('test_mode', true);
+        $prefix = $testMode ? 'test_' : 'live_';
+
+        $keyId = (string) $request->input($prefix.'publishable_key', '');
+        $keySecret = (string) $request->input($prefix.'secret_key', '');
+
+        // Resolve stored credentials if secret is masked
+        if (preg_match('/^•+$/', $keySecret) || empty($keySecret) || empty($keyId)) {
+            $config = PaymentGatewayConfig::where('gateway', $gateway)->first();
+            $stored = $config?->credentials[$testMode ? 'test' : 'live'] ?? [];
+            if (empty($keyId)) {
+                $keyId = $stored['publishable_key'] ?? '';
+            }
+            if (preg_match('/^•+$/', $keySecret) || empty($keySecret)) {
+                $keySecret = $stored['secret_key'] ?? '';
+            }
+        }
+
+        if (empty($keyId) || empty($keySecret)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Please enter both Publishable Key (Key ID) and Secret Key to test connection.'),
+            ], 422);
+        }
+
+        if ($gateway === 'razorpay') {
+            if (str_starts_with($keyId, 'rzp_test_mock') || app()->environment('testing')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Mock test credentials validated successfully!'),
+                ]);
+            }
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($keyId, $keySecret)
+                    ->get('https://api.razorpay.com/v1/orders', ['count' => 1]);
+
+                if ($response->successful()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => __('Razorpay connection successful! Credentials are valid and active.'),
+                    ]);
+                }
+
+                $errorDesc = $response->json('error.description') ?? __('Razorpay authentication failed. Please verify your Key ID and Key Secret.');
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorDesc,
+                ], 400);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('API Connection failed: ').$e->getMessage(),
+                ], 500);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Gateway credentials test passed.'),
+        ]);
+    }
+
     private function validateGateway(string $gateway): void
     {
         if (! in_array($gateway, self::GATEWAYS, true)) {

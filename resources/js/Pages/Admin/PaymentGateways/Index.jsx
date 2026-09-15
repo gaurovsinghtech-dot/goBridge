@@ -153,6 +153,8 @@ export default function AdminPaymentGatewaysIndex({ gateways = [], flash = {} })
 
 function EditGatewayModal({ show, gatewayKey, initialData, loading, error, validationErrors = {}, onClose, onSaved }) {
     const { t } = useTranslation();
+    const [testing, setTesting] = useState(false);
+    const [testResult, setTestResult] = useState(null);
     const { data, setData, put, processing } = useForm({
         test_mode: true,
         enabled: false,
@@ -165,6 +167,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
     });
 
     useEffect(() => {
+        setTestResult(null);
         if (!initialData || initialData.gateway !== gatewayKey) return;
         setData({
             test_mode: initialData.test_mode,
@@ -177,6 +180,22 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
             live_webhook_secret: initialData.live_webhook_secret ?? '',
         });
     }, [gatewayKey, initialData]);
+
+    const handleTest = async () => {
+        setTesting(true);
+        setTestResult(null);
+        try {
+            const res = await axios.post(route('admin.payment-gateways.test', gatewayKey), data);
+            setTestResult({ success: true, message: res.data.message });
+        } catch (e) {
+            setTestResult({
+                success: false,
+                message: e.response?.data?.message || 'Connection test failed. Please check credentials.',
+            });
+        } finally {
+            setTesting(false);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -246,6 +265,17 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                 <Modal.Body className="space-y-6">
                     {loading && (
                         <div className="py-8 text-center text-neutral-500 dark:text-neutral-400">{t('common.loading')}</div>
+                    )}
+                    {testResult && (
+                        <div
+                            className={`rounded-soft-lg border px-4 py-3 text-sm font-medium ${
+                                testResult.success
+                                    ? 'border-green-300 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/30 dark:text-green-200'
+                                    : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200'
+                            }`}
+                        >
+                            {testResult.success ? '✅ ' : '❌ '} {testResult.message}
+                        </div>
                     )}
                     {error && (
                         <div className="rounded-soft-lg border border-coral-200 bg-coral-50 dark:bg-coral-900/20 dark:border-coral-800 px-4 py-2 text-sm text-coral-800 dark:text-coral-200">
@@ -380,13 +410,24 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                     )}
                 </Modal.Body>
                 {!loading && initialData && (
-                    <Modal.Footer>
-                        <Button type="button" variant="outline" onClick={onClose}>
-                            {t('common.cancel')}
+                    <Modal.Footer className="flex items-center justify-between">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={testing}
+                            onClick={handleTest}
+                            className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400"
+                        >
+                            {testing ? 'Testing connection...' : '⚡ Test Connection'}
                         </Button>
-                        <Button type="submit" variant="primary" disabled={processing}>
-                            {t('common.save')}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button type="button" variant="outline" onClick={onClose}>
+                                {t('common.cancel')}
+                            </Button>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                {t('common.save')}
+                            </Button>
+                        </div>
                     </Modal.Footer>
                 )}
             </form>

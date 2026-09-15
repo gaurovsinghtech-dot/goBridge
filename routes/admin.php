@@ -70,6 +70,8 @@ Route::post('/payments/{transaction}/refund', [TransactionController::class, 're
 Route::get('/payment-gateways', [PaymentGatewayConfigController::class, 'index'])->name('payment-gateways.index')->middleware('permission:view_payment_gateways');
 Route::get('/payment-gateways/{gateway}', [PaymentGatewayConfigController::class, 'show'])->name('payment-gateways.show')->middleware('permission:manage_payment_gateways');
 Route::match(['put', 'post'], '/payment-gateways/{gateway}', [PaymentGatewayConfigController::class, 'update'])->name('payment-gateways.update')->middleware('permission:manage_payment_gateways');
+Route::post('/payment-gateways/{gateway}/test', [PaymentGatewayConfigController::class, 'test'])->name('payment-gateways.test')->middleware('permission:manage_payment_gateways');
+
 
 // Provider Cost Ledger, Margins & Centralized Pricing Management
 Route::prefix('billing')->name('billing.')->middleware('permission:view_payment_gateways')->group(function () {
