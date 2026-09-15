@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Button, Modal } from '@/Components/ui';
 import PlanTable from './PlanTable';
 import PlanModal from './PlanModal';
 import { useTranslation } from 'react-i18next';
+import { CreditCard } from 'lucide-react';
 
 function Toast({ message, onDismiss }) {
     useEffect(() => {
@@ -142,10 +143,17 @@ export default function AdminPlansIndex({ plans = [], currencies = [], defaultCu
                             {t('admin.plans_desc')}
                         </p>
                     </div>
-                    <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Link
+                            href={route('admin.payment-gateways.index')}
+                            className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-4 py-2 shadow-sm transition-all"
+                        >
+                            <CreditCard className="w-4 h-4" />
+                            <span>Payment Gateways</span>
+                        </Link>
                         <Button
                             onClick={handleAdd}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm"
+                            className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg shadow-sm"
                         >
                             + {t('admin.add_plan')}
                         </Button>

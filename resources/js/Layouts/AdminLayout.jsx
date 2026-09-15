@@ -144,13 +144,26 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
                     <Link
                         href={safeRoute('admin.plans.index', '/admin/plans')}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                            route().current('admin.plans.*') || route().current('admin.subscriptions.*') || route().current('admin.payment-gateways.*')
+                            route().current('admin.plans.*') || route().current('admin.subscriptions.*')
                                 ? 'bg-emerald-600 text-white shadow-md'
                                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
                         }`}
                     >
                         <CreditCard className="h-4 w-4 shrink-0" />
                         {!sidebarCollapsed && <span>Plans & Billing</span>}
+                    </Link>
+
+                    {/* Payment Gateways */}
+                    <Link
+                        href={safeRoute('admin.payment-gateways.index', '/admin/payment-gateways')}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                            route().current('admin.payment-gateways.*')
+                                ? 'bg-emerald-600 text-white shadow-md'
+                                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+                        }`}
+                    >
+                        <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
+                        {!sidebarCollapsed && <span>Payment Gateways</span>}
                     </Link>
 
                     {/* Provider Cost Ledger & Margin Management */}

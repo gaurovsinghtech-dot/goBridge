@@ -25,10 +25,25 @@ class RazorpayGateway implements PaymentProviderInterface, PaymentGatewayInterfa
         ?string $keySecret = null,
         ?string $webhookSecret = null
     ) {
-        $this->keyId = $keyId ?: (string) config('services.razorpay.key_id', env('RAZORPAY_KEY'));
-        $this->keySecret = $keySecret ?: (string) config('services.razorpay.key_secret', env('RAZORPAY_SECRET'));
-        $this->webhookSecret = $webhookSecret ?: (string) config('services.razorpay.webhook_secret', env('RAZORPAY_WEBHOOK_SECRET'));
+        if (! $keyId || ! $keySecret) {
+            try {
+                $dbConfig = \App\Models\PaymentGatewayConfig::where('gateway', 'razorpay')->where('enabled', true)->first();
+                if ($dbConfig) {
+                    $creds = $dbConfig->getActiveCredentials();
+                    $keyId = $keyId ?: ($creds['publishable_key'] ?? $creds['key_id'] ?? null);
+                    $keySecret = $keySecret ?: ($creds['secret_key'] ?? $creds['key_secret'] ?? null);
+                    $webhookSecret = $webhookSecret ?: ($creds['webhook_secret'] ?? null);
+                }
+            } catch (\Throwable) {
+                // Table might not be migrated during setup
+            }
+        }
+
+        $this->keyId = $keyId ?: (string) (config('services.razorpay.key_id') ?: config('billing.gateways.razorpay.key_id') ?: env('RAZORPAY_KEY_ID', env('RAZORPAY_KEY', '')));
+        $this->keySecret = $keySecret ?: (string) (config('services.razorpay.key_secret') ?: config('billing.gateways.razorpay.key_secret') ?: env('RAZORPAY_KEY_SECRET', env('RAZORPAY_SECRET', '')));
+        $this->webhookSecret = $webhookSecret ?: (string) (config('services.razorpay.webhook_secret') ?: config('billing.gateways.razorpay.webhook_secret') ?: env('RAZORPAY_WEBHOOK_SECRET', ''));
     }
+
 
     public function getProviderName(): string
     {
