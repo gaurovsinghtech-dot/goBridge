@@ -39,6 +39,7 @@ Route::get('/clients/{client}/edit', [ClientController::class, 'edit'])->name('c
 Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update')->middleware('permission:update_clients');
 Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy')->middleware('permission:delete_clients');
 Route::post('/clients/{client}/assign-plan', [ClientController::class, 'assignPlan'])->name('clients.assign-plan')->middleware('permission:update_clients');
+Route::post('/clients/{client}/assign-ai-token-limit', [ClientController::class, 'updateAiTokenLimit'])->name('clients.assign-ai-token-limit')->middleware('permission:update_clients');
 Route::get('/clients/{client}/users', [ClientController::class, 'users'])->name('clients.users.index')->middleware('permission:view_clients');
 Route::post('/clients/{client}/users', [ClientController::class, 'storeUser'])->name('clients.users.store')->middleware('permission:update_clients');
 Route::put('/clients/{client}/users/{user}', [ClientController::class, 'updateUser'])->name('clients.users.update')->middleware('permission:update_clients');
@@ -78,6 +79,7 @@ Route::prefix('billing')->name('billing.')->middleware('permission:view_payment_
     Route::get('/provider-costs', [\App\Http\Controllers\Admin\ProviderBillingController::class, 'index'])->name('provider-costs.index');
     Route::put('/pricing-rules/{rule}', [\App\Http\Controllers\Admin\ProviderBillingController::class, 'updatePricingRule'])->name('pricing-rules.update');
     Route::post('/wallets/{wallet}/adjust', [\App\Http\Controllers\Admin\ProviderBillingController::class, 'adjustWallet'])->name('wallets.adjust');
+    Route::post('/openai-usage', [\App\Http\Controllers\Admin\ProviderBillingController::class, 'fetchOpenAiUsage'])->name('openai-usage.fetch');
 });
 
 // Coupons

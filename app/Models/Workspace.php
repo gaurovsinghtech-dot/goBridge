@@ -29,7 +29,46 @@ class Workspace extends Model
         'service_type',
         'onboarding_completed',
         'status',
+        'custom_ai_token_limit',
     ];
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * Effective AI token limit for this workspace.
+     */
+    public function effectiveAiTokenLimit(): int
+    {
+        if ($this->custom_ai_token_limit !== null) {
+            return (int) $this->custom_ai_token_limit;
+        }
+
+        if ($this->client_id && $this->client) {
+            return $this->client->effectiveAiTokenLimit();
+        }
+
+        $subscription = Subscription::with('plan')->where('workspace_id', $this->id)->latest('id')->first();
+        if (!$subscription && $this->owner_id) {
+            $subscription = Subscription::with('plan')->where('user_id', $this->owner_id)->latest('id')->first();
+        }
+
+        $plan = $subscription?->plan;
+        if (!$plan) {
+            return 100000;
+        }
+
+        $limits = $plan->limits ?? [];
+        $planLimit = $limits['ai_tokens_per_month'] ?? $limits['ai_tokens'] ?? null;
+
+        if ($planLimit === null || $planLimit === -1) {
+            return -1;
+        }
+
+        return (int) $planLimit;
+    }
 
     public function logoUrl(int $minutes = 60): ?string
     {

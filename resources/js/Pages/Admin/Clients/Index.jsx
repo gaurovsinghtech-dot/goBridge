@@ -3,7 +3,7 @@ import { Badge, Button, Card, Modal, Pagination, Tooltip } from '@/Components/ui
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download } from 'lucide-react';
+import { Download, Cpu } from 'lucide-react';
 import {
     Pencil,
     Users,
@@ -56,7 +56,32 @@ export default function AdminClientsIndex({ clients, plans = [], filters = {} })
     const [clientUsers, setClientUsers] = useState([]);
     const [assignPlanOpen, setAssignPlanOpen] = useState(false);
     const [assignPlanClient, setAssignPlanClient] = useState(null);
+    const [assignTokenLimitOpen, setAssignTokenLimitOpen] = useState(false);
+    const [assignTokenLimitClient, setAssignTokenLimitClient] = useState(null);
+    const assignTokenForm = useForm({
+        custom_ai_token_limit: '',
+    });
     const [deleteClientConfirm, setDeleteClientConfirm] = useState(null);
+
+    const openAssignTokenLimit = (c) => {
+        setAssignTokenLimitClient(c);
+        assignTokenForm.setData({
+            custom_ai_token_limit: c.custom_ai_token_limit !== null && c.custom_ai_token_limit !== undefined ? String(c.custom_ai_token_limit) : '',
+        });
+        setAssignTokenLimitOpen(true);
+    };
+
+    const submitAssignTokenLimit = (e) => {
+        e.preventDefault();
+        if (!assignTokenLimitClient) return;
+        assignTokenForm.post(route('admin.clients.assign-ai-token-limit', assignTokenLimitClient.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setAssignTokenLimitOpen(false);
+                setAssignTokenLimitClient(null);
+            },
+        });
+    };
     const [addUserOpen, setAddUserOpen] = useState(false);
     const [editUserOpen, setEditUserOpen] = useState(false);
     const [editUser, setEditUser] = useState(null);
@@ -293,6 +318,7 @@ export default function AdminClientsIndex({ clients, plans = [], filters = {} })
                                     <th className="pb-2 pr-4 font-medium uppercase">{t('admin.col_email')}</th>
                                     <th className="pb-2 pr-4 font-medium uppercase">{t('admin.col_status')}</th>
                                     <th className="pb-2 pr-4 font-medium uppercase">{t('admin.col_subscription')}</th>
+                                    <th className="pb-2 pr-4 font-medium uppercase">AI Tokens (Month)</th>
                                     <th className="pb-2 pr-4 font-medium text-right uppercase">{t('admin.col_actions')}</th>
                                 </tr>
                             </thead>
@@ -309,6 +335,27 @@ export default function AdminClientsIndex({ clients, plans = [], filters = {} })
                                         <td className="py-3 pr-4 text-neutral-900 dark:text-neutral-100">
                                             {c.subscription?.name ?? t('admin.no_plan')}
                                         </td>
+                                        <td className="py-3 pr-4 text-xs font-mono min-w-[160px]">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center justify-between text-neutral-800 dark:text-neutral-200 text-[11px]">
+                                                    <span className="font-bold">{c.ai_tokens_used ? c.ai_tokens_used.toLocaleString() : '0'}</span>
+                                                    <span className="text-[10px] text-neutral-500">
+                                                        / {c.effective_ai_token_limit === -1 ? 'Unlimited' : (c.effective_ai_token_limit ? c.effective_ai_token_limit.toLocaleString() : '100,000')}
+                                                    </span>
+                                                </div>
+                                                <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-1.5 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full transition-all ${
+                                                            c.ai_tokens_percentage >= 90 ? 'bg-red-500' : c.ai_tokens_percentage >= 75 ? 'bg-amber-500' : 'bg-emerald-500'
+                                                        }`}
+                                                        style={{ width: `${Math.min(100, c.ai_tokens_percentage || 0)}%` }}
+                                                    />
+                                                </div>
+                                                {c.custom_ai_token_limit !== null && c.custom_ai_token_limit !== undefined && (
+                                                    <span className="text-[9px] font-semibold text-brand-600 dark:text-brand-400">Custom Limit Assigned</span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="py-3 pr-4">
                                             <div className="flex items-center justify-end gap-0.5">
                                                 {canUpdate && (
@@ -316,6 +363,7 @@ export default function AdminClientsIndex({ clients, plans = [], filters = {} })
                                                         <ActionIcon title={t('admin.edit_client_title')} icon={Pencil} onClick={() => openEditClient(c)} />
                                                         <ActionIcon title={t('admin.manage_users_title')} icon={Users} onClick={() => openManageUsers(c)} />
                                                         <ActionIcon title={t('admin.assign_plan_title')} icon={CheckCircle} onClick={() => openAssignPlan(c)} />
+                                                        <ActionIcon title="Assign AI Token Limit" icon={Cpu} onClick={() => openAssignTokenLimit(c)} />
                                                         <ActionIcon title={t('admin.impersonate_title')} icon={LogIn} onClick={() => doImpersonate(c)} />
                                                     </>
                                                 )}
@@ -743,6 +791,41 @@ export default function AdminClientsIndex({ clients, plans = [], filters = {} })
                         <Modal.Footer>
                             <Button type="button" variant="outline" onClick={() => setAssignPlanOpen(false)}>{t('common.cancel')}</Button>
                             <Button type="submit" disabled={!assignPlanId}>{t('admin.assign_plan_btn')}</Button>
+                        </Modal.Footer>
+                    </form>
+                )}
+            </Modal>
+
+            {/* Assign AI Token Limit Modal */}
+            <Modal show={assignTokenLimitOpen} onClose={() => setAssignTokenLimitOpen(false)} maxWidth="md">
+                <Modal.Header title="Assign Monthly AI Token Limit" onClose={() => setAssignTokenLimitOpen(false)} />
+                {assignTokenLimitClient && (
+                    <form onSubmit={submitAssignTokenLimit}>
+                        <Modal.Body className="space-y-4">
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                Client: <span className="font-semibold text-neutral-900 dark:text-neutral-100">{assignTokenLimitClient.name}</span>
+                            </p>
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                                    Custom AI Tokens per Month
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="1000"
+                                    placeholder="e.g. 500000 (Leave empty for Plan Default)"
+                                    value={assignTokenForm.data.custom_ai_token_limit}
+                                    onChange={(e) => assignTokenForm.setData('custom_ai_token_limit', e.target.value)}
+                                    className="w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-white"
+                                />
+                                <p className="mt-1 text-xs text-neutral-500">
+                                    Leave blank to inherit the assigned plan limit ({assignTokenLimitClient.subscription?.name || 'Default Plan'}).
+                                </p>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button type="button" variant="outline" onClick={() => setAssignTokenLimitOpen(false)}>{t('common.cancel')}</Button>
+                            <Button type="submit" disabled={assignTokenForm.processing}>Save Token Limit</Button>
                         </Modal.Footer>
                     </form>
                 )}

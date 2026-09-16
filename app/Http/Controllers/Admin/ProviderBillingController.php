@@ -65,12 +65,80 @@ class ProviderBillingController extends Controller
                 ];
             });
 
+        // Fetch system OpenAI integration summary
+        $config = \App\Modules\Integrations\Models\IntegrationConfig::where('provider', 'llm_engine')->first();
+        $creds = $config?->credentials ?? [];
+        $apiKey = !empty($creds['openai_api_key']) ? $creds['openai_api_key'] : env('OPENAI_API_KEY');
+        $month = now()->startOfMonth()->format('Y-m-d');
+        $totalRecordedTokens = (int) \App\Models\WorkspaceUsage::whereDate('period_month', $month)->sum('ai_tokens_count');
+
+        $openaiSummary = [
+            'has_key' => !empty($apiKey),
+            'masked_key' => !empty($apiKey) ? (substr($apiKey, 0, 7) . '...' . substr($apiKey, -4)) : 'Not Configured',
+            'recorded_tokens_this_month' => $totalRecordedTokens,
+        ];
+
         return Inertia::render('Admin/Billing/ProviderCostLedger', [
             'financials' => $financials,
             'provider_accounts' => $providerAccounts,
             'pricing_rules' => $pricingRules,
             'recent_usage' => $recentUsage,
+            'openai_summary' => $openaiSummary,
         ]);
+    }
+
+    /**
+     * Fetch Live Usage & Status directly from OpenAI API using system configured API Key.
+     */
+    public function fetchOpenAiUsage(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $config = \App\Modules\Integrations\Models\IntegrationConfig::where('provider', 'llm_engine')->first();
+        $creds = $config?->credentials ?? [];
+        $apiKey = !empty($creds['openai_api_key']) ? $creds['openai_api_key'] : env('OPENAI_API_KEY');
+
+        if (empty($apiKey)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'No OpenAI API key is configured in System Integrations or .env file.',
+            ], 422);
+        }
+
+        try {
+            // Test connection / list models directly from OpenAI API platform
+            $modelsResp = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->timeout(10)
+                ->get('https://api.openai.com/v1/models');
+
+            if (!$modelsResp->successful()) {
+                $err = $modelsResp->json()['error']['message'] ?? 'OpenAI API authentication failed.';
+                return response()->json(['ok' => false, 'message' => $err], 400);
+            }
+
+            // Get total tokens recorded in app database for current month
+            $month = now()->startOfMonth()->format('Y-m-d');
+            $totalRecordedTokens = (int) \App\Models\WorkspaceUsage::whereDate('period_month', $month)->sum('ai_tokens_count');
+            $totalRequests = (int) \App\Models\WorkspaceUsage::whereDate('period_month', $month)->sum('ai_requests_count');
+
+            $maskedKey = substr($apiKey, 0, 7) . '...' . substr($apiKey, -4);
+            $models = $modelsResp->json('data') ?? [];
+            $sampleModels = array_slice(array_column($models, 'id'), 0, 8);
+
+            return response()->json([
+                'ok' => true,
+                'message' => 'Successfully connected to OpenAI platform API.',
+                'api_key' => $maskedKey,
+                'recorded_tokens_this_month' => $totalRecordedTokens,
+                'recorded_requests_this_month' => $totalRequests,
+                'models_count' => count($models),
+                'sample_models' => $sampleModels,
+                'openai_status' => 'Operational',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Failed to reach OpenAI platform: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

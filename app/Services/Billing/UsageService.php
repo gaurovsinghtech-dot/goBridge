@@ -54,7 +54,8 @@ class UsageService
         return match (strtolower($metric)) {
             'whatsapp_messages', 'whatsapp', 'messages', 'messages_count' => 'whatsapp_messages',
             'email_sent', 'emails_sent', 'email_sends', 'campaigns', 'campaigns_count' => 'email_sent',
-            'ai_messages', 'ai_requests', 'ai_requests_count', 'ai_tokens' => 'ai_messages',
+            'ai_tokens', 'ai_tokens_count', 'tokens', 'ai_tokens_per_month' => 'ai_tokens',
+            'ai_messages', 'ai_requests', 'ai_requests_count' => 'ai_messages',
             'storage_bytes', 'storage_mb', 'storage', 'storage_gb' => 'storage_bytes',
             'automation_runs', 'automation_executions', 'automation_workflows' => 'automation_runs',
             'voice_minutes', 'voice_minutes_count', 'voice_calls', 'voice_calls_count' => 'voice_minutes',
@@ -89,29 +90,34 @@ class UsageService
      */
     public function checkQuota(Workspace|int $workspace, string $metric, int $amount = 1): array
     {
-        $workspaceId = $workspace instanceof Workspace ? $workspace->id : $workspace;
+        $workspaceObj = $workspace instanceof Workspace ? $workspace : Workspace::with('client')->find($workspace);
+        $workspaceId = $workspaceObj ? $workspaceObj->id : (int) $workspace;
         $canonical = static::normalizeMetric($metric);
 
-        $subscription = Subscription::with('plan')->where('workspace_id', $workspaceId)->latest('id')->first();
-        if (! $subscription && $workspace instanceof Workspace && $workspace->owner_id) {
-            $subscription = Subscription::with('plan')->where('user_id', $workspace->owner_id)->latest('id')->first();
+        if ($canonical === 'ai_tokens') {
+            $max = $workspaceObj ? $workspaceObj->effectiveAiTokenLimit() : 100000;
+        } else {
+            $subscription = Subscription::with('plan')->where('workspace_id', $workspaceId)->latest('id')->first();
+            if (! $subscription && $workspaceObj && $workspaceObj->owner_id) {
+                $subscription = Subscription::with('plan')->where('user_id', $workspaceObj->owner_id)->latest('id')->first();
+            }
+
+            $plan = $subscription?->plan;
+            $limits = $plan?->limits ?? [];
+
+            // Determine plan limit for the metric
+            $max = match ($canonical) {
+                'whatsapp_messages' => $limits['whatsapp_messages'] ?? $limits['messages'] ?? 1000,
+                'email_sent' => $limits['email_sends'] ?? $limits['email_sent'] ?? $limits['campaigns'] ?? 2000,
+                'ai_messages' => $limits['ai_messages'] ?? $limits['ai_requests'] ?? 500,
+                'storage_bytes' => isset($limits['storage_mb']) ? ((int) $limits['storage_mb'] * 1048576) : ($limits['storage_bytes'] ?? (500 * 1048576)),
+                'automation_runs' => $limits['automation_executions'] ?? $limits['automation_workflows'] ?? $limits['automation_runs'] ?? 50,
+                'voice_minutes' => $limits['voice_minutes'] ?? 0,
+                'contacts' => $limits['contacts'] ?? 1000,
+                'api_requests' => $limits['api_requests'] ?? $limits['api_limits'] ?? 5000,
+                default => $limits[$metric] ?? -1,
+            };
         }
-
-        $plan = $subscription?->plan;
-        $limits = $plan?->limits ?? [];
-
-        // Determine plan limit for the metric
-        $max = match ($canonical) {
-            'whatsapp_messages' => $limits['whatsapp_messages'] ?? $limits['messages'] ?? 1000,
-            'email_sent' => $limits['email_sends'] ?? $limits['email_sent'] ?? $limits['campaigns'] ?? 2000,
-            'ai_messages' => $limits['ai_messages'] ?? $limits['ai_requests'] ?? 500,
-            'storage_bytes' => isset($limits['storage_mb']) ? ((int) $limits['storage_mb'] * 1048576) : ($limits['storage_bytes'] ?? (500 * 1048576)),
-            'automation_runs' => $limits['automation_executions'] ?? $limits['automation_workflows'] ?? $limits['automation_runs'] ?? 50,
-            'voice_minutes' => $limits['voice_minutes'] ?? 0,
-            'contacts' => $limits['contacts'] ?? 1000,
-            'api_requests' => $limits['api_requests'] ?? $limits['api_limits'] ?? 5000,
-            default => $limits[$metric] ?? -1,
-        };
 
         // Unlimited indicator (-1)
         if ($max === -1) {
@@ -132,6 +138,7 @@ class UsageService
             'whatsapp_messages' => (int) $usage->messages_count,
             'email_sent' => (int) $usage->campaigns_count,
             'ai_messages' => (int) $usage->ai_requests_count,
+            'ai_tokens' => (int) $usage->ai_tokens_count,
             'storage_bytes' => (int) StoredFile::where('workspace_id', $workspaceId)->sum('size_bytes'),
             'automation_runs' => (int) $usage->automation_executions_count,
             'voice_minutes' => (int) $usage->voice_minutes_count,
@@ -178,6 +185,7 @@ class UsageService
             'whatsapp_messages' => 'messages_count',
             'email_sent' => 'campaigns_count',
             'ai_messages' => 'ai_requests_count',
+            'ai_tokens' => 'ai_tokens_count',
             'voice_minutes' => 'voice_minutes_count',
             'automation_runs' => 'automation_executions_count',
             'api_requests' => 'api_requests_count',

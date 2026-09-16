@@ -19,6 +19,7 @@ class Client extends Model
         'phone',
         'address',
         'status',
+        'custom_ai_token_limit',
         'base_currency',
         'currency_symbol',
         'currency_position',
@@ -29,6 +30,35 @@ class Client extends Model
         'custom_domain',
         'support_email',
     ];
+
+    protected $casts = [
+        'custom_ai_token_limit' => 'integer',
+    ];
+
+    /**
+     * Effective AI token limit: custom_ai_token_limit if explicitly assigned,
+     * otherwise plan limit (ai_tokens_per_month), or -1 if unlimited.
+     */
+    public function effectiveAiTokenLimit(): int
+    {
+        if ($this->custom_ai_token_limit !== null) {
+            return (int) $this->custom_ai_token_limit;
+        }
+
+        $plan = $this->effectivePlan();
+        if (!$plan) {
+            return 100000; // default free tier token limit
+        }
+
+        $limits = $plan->limits ?? [];
+        $planLimit = $limits['ai_tokens_per_month'] ?? $limits['ai_tokens'] ?? null;
+
+        if ($planLimit === null || $planLimit === -1) {
+            return -1; // Unlimited
+        }
+
+        return (int) $planLimit;
+    }
 
     public function logoUrl(): ?string
     {

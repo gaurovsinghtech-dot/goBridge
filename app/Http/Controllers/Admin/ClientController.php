@@ -8,6 +8,7 @@ use App\Models\ClientSubscription;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\AuditLogService;
+use App\Models\WorkspaceUsage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ClientController extends Controller
     {
         $this->authorizeForUser($request->user('admin'), 'viewAny', Client::class);
 
-        $query = Client::query()->with('activeSubscription.plan');
+        $query = Client::query()->with(['activeSubscription.plan', 'workspaces']);
 
         if ($request->filled('search')) {
             $q = $request->search;
@@ -35,10 +36,22 @@ class ClientController extends Controller
             });
         }
 
-        $clients = $query->orderBy('name')->paginate(20)->withQueryString()->through(function (Client $c) {
-            // Effective plan: admin-assigned ClientSubscription, else the plan from a
-            // user's own active Subscription — matches what the client's dashboard shows.
+        $month = now()->startOfMonth()->format('Y-m-d');
+
+        $clients = $query->orderBy('name')->paginate(20)->withQueryString()->through(function (Client $c) use ($month) {
             $plan = $c->effectivePlan();
+
+            // Calculate current monthly token usage across all client's workspaces
+            $workspaceIds = $c->workspaces->pluck('id')->toArray();
+            $aiTokensUsed = 0;
+            if (!empty($workspaceIds)) {
+                $aiTokensUsed = (int) WorkspaceUsage::whereIn('workspace_id', $workspaceIds)
+                    ->whereDate('period_month', $month)
+                    ->sum('ai_tokens_count');
+            }
+
+            $effectiveLimit = $c->effectiveAiTokenLimit();
+            $percentage = ($effectiveLimit > 0) ? round(($aiTokensUsed / $effectiveLimit) * 100, 1) : 0.0;
 
             return [
                 'id' => $c->id,
@@ -47,6 +60,10 @@ class ClientController extends Controller
                 'phone' => $c->phone,
                 'address' => $c->address,
                 'status' => $c->status,
+                'custom_ai_token_limit' => $c->custom_ai_token_limit,
+                'effective_ai_token_limit' => $effectiveLimit,
+                'ai_tokens_used' => $aiTokensUsed,
+                'ai_tokens_percentage' => $percentage,
                 'base_currency' => $c->base_currency,
                 'currency_symbol' => $c->currency_symbol,
                 'currency_position' => $c->currency_position,
@@ -80,13 +97,13 @@ class ClientController extends Controller
             'phone' => ['nullable', 'string', 'max:64'],
             'address' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'in:active,inactive'],
+            'custom_ai_token_limit' => ['nullable', 'numeric', 'min:0'],
             'base_currency' => ['nullable', 'string', 'max:10'],
             'currency_symbol' => ['nullable', 'string', 'max:16'],
             'currency_position' => ['nullable', 'string', 'in:before,after'],
         ]);
 
         $validated['status'] = $validated['status'] ?? 'active';
-        // Currency fields left null inherit the platform default currency.
 
         $client = Client::create($validated);
 
@@ -105,6 +122,7 @@ class ClientController extends Controller
             'phone' => ['nullable', 'string', 'max:64'],
             'address' => ['nullable', 'string'],
             'status' => ['required', 'string', 'in:active,inactive'],
+            'custom_ai_token_limit' => ['nullable', 'numeric', 'min:0'],
             'base_currency' => ['nullable', 'string', 'max:10'],
             'currency_symbol' => ['nullable', 'string', 'max:16'],
             'currency_position' => ['nullable', 'string', 'in:before,after'],
@@ -115,6 +133,29 @@ class ClientController extends Controller
         $this->auditLog->logAdmin('client.updated', Client::class, (int) $client->id, ['name' => $client->name]);
 
         return redirect()->back()->with('success', __('Client updated.'));
+    }
+
+    public function updateAiTokenLimit(Request $request, Client $client): RedirectResponse
+    {
+        $this->authorizeForUser($request->user('admin'), 'update', $client);
+
+        $validated = $request->validate([
+            'custom_ai_token_limit' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $val = $validated['custom_ai_token_limit'] !== null && $validated['custom_ai_token_limit'] !== '' 
+            ? (int) $validated['custom_ai_token_limit'] 
+            : null;
+
+        $client->update(['custom_ai_token_limit' => $val]);
+
+        // Also update workspaces owned by this client
+        $client->workspaces()->update(['custom_ai_token_limit' => $val]);
+
+        $limitStr = $val !== null ? number_format($val) . ' tokens/mo' : 'Plan Default';
+        $this->auditLog->logAdmin('client.ai_token_limit_updated', Client::class, (int) $client->id, ['limit' => $limitStr]);
+
+        return redirect()->back()->with('success', __("AI token limit updated to {$limitStr} for {$client->name}."));
     }
 
     public function destroy(Request $request, Client $client): RedirectResponse

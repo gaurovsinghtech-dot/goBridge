@@ -25,9 +25,28 @@ export default function ProviderCostLedger({
     provider_accounts = [],
     pricing_rules = [],
     recent_usage = [],
+    openai_summary = {},
 }) {
     const { t } = useTranslation();
     const [editingRule, setEditingRule] = useState(null);
+    const [fetchingOpenAi, setFetchingOpenAi] = useState(false);
+    const [openAiLiveResult, setOpenAiLiveResult] = useState(null);
+
+    const handleFetchOpenAiUsage = async () => {
+        setFetchingOpenAi(true);
+        setOpenAiLiveResult(null);
+        try {
+            const res = await axios.post(route('admin.billing.openai-usage.fetch'));
+            setOpenAiLiveResult(res.data);
+            toast.success(res.data.message || 'OpenAI API connection verified successfully!');
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Failed to fetch OpenAI platform usage.';
+            setOpenAiLiveResult({ ok: false, message: msg });
+            toast.error(msg);
+        } finally {
+            setFetchingOpenAi(false);
+        }
+    };
 
     // Edit Pricing Rule Form
     const editForm = useForm({
@@ -176,6 +195,85 @@ export default function ProviderCostLedger({
                             </div>
                         ))}
                     </div>
+                </div>
+
+                {/* 2.5 Live OpenAI Platform Usage & Sync Card */}
+                <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 className="text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                                <Zap className="h-5 w-5 text-indigo-500" />
+                                Direct OpenAI Platform Usage & API Sync
+                            </h2>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                Verify live connection to platform.openai.com, inspect API key status, and fetch direct platform model metrics.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleFetchOpenAiUsage}
+                            disabled={fetchingOpenAi}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-xs disabled:opacity-50"
+                        >
+                            <RefreshCw className={`h-3.5 w-3.5 ${fetchingOpenAi ? 'animate-spin' : ''}`} />
+                            {fetchingOpenAi ? 'Fetching OpenAI API...' : 'Fetch Live OpenAI Usage'}
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/80 dark:border-neutral-700/80 space-y-1">
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">OpenAI API Key Status</span>
+                            <div className="flex items-center gap-2">
+                                <span className={`h-2.5 w-2.5 rounded-full ${openai_summary.has_key ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                <span className="font-bold text-neutral-900 dark:text-white font-mono">{openai_summary.masked_key}</span>
+                            </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/80 dark:border-neutral-700/80 space-y-1">
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Recorded App Tokens (This Month)</span>
+                            <div className="text-base font-extrabold text-neutral-900 dark:text-white font-mono">
+                                {(openai_summary.recorded_tokens_this_month || 0).toLocaleString()} <span className="text-xs font-normal text-neutral-500">Tokens</span>
+                            </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200/80 dark:border-neutral-700/80 space-y-1">
+                            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">OpenAI API Endpoint</span>
+                            <div className="text-xs font-bold text-neutral-700 dark:text-neutral-300 font-mono truncate">
+                                https://api.openai.com/v1/models
+                            </div>
+                        </div>
+                    </div>
+
+                    {openAiLiveResult && (
+                        <div className={`p-4 rounded-2xl text-xs space-y-2 border ${
+                            openAiLiveResult.ok
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-red-500/10 border-red-500/20 text-red-800 dark:text-red-300'
+                        }`}>
+                            <div className="flex items-center justify-between font-bold">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    <span>{openAiLiveResult.message}</span>
+                                </div>
+                                <span>Key: {openAiLiveResult.api_key}</span>
+                            </div>
+                            {openAiLiveResult.ok && (
+                                <div className="pt-2 border-t border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                                    <div>
+                                        <span className="font-semibold">Recorded Requests:</span> {openAiLiveResult.recorded_requests_this_month?.toLocaleString()}
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold">OpenAI Models Available:</span> {openAiLiveResult.models_count} models
+                                    </div>
+                                    {openAiLiveResult.sample_models && (
+                                        <div className="sm:col-span-2">
+                                            <span className="font-semibold">Available Models:</span> {openAiLiveResult.sample_models.join(', ')}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* 3. Service Pricing & Retail Markup Rules Table */}

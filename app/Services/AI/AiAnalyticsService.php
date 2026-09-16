@@ -443,13 +443,27 @@ class AiAnalyticsService
             $outTokens = $requests * 140;
         }
 
+        $totalTokens = $inTokens + $outTokens;
+
+        // Fetch official token quota and limit checks
+        $usageService = app(\App\Services\Billing\UsageService::class);
+        $quotaCheck = $usageService->checkQuota($workspaceId, 'ai_tokens');
+
         return [
             'ai_requests' => $requests,
             'input_tokens' => $inTokens,
             'output_tokens' => $outTokens,
-            'total_tokens' => $inTokens + $outTokens,
+            'total_tokens' => $totalTokens,
             'cost_display' => $cost !== null ? '₹' . number_format((float) $cost, 2) : 'Cost data unavailable',
             'has_cost' => $cost !== null,
+            'token_quota' => [
+                'used' => $quotaCheck['current'] > 0 ? $quotaCheck['current'] : $totalTokens,
+                'max_limit' => $quotaCheck['max'],
+                'percentage' => $quotaCheck['percentage'],
+                'allowed' => $quotaCheck['allowed'],
+                'warning' => $quotaCheck['warning'],
+                'threshold_level' => $quotaCheck['threshold_level'],
+            ],
         ];
     }
 }

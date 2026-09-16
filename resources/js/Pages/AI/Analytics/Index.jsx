@@ -188,6 +188,115 @@ export default function AnalyticsIndex({
                     </div>
                 </div>
 
+                {/* ─── AI Token Quota & Consumption Banner Widget ────────────── */}
+                {(() => {
+                    const quota = usage.token_quota || {};
+                    const used = quota.used !== undefined ? quota.used : (usage.total_tokens || 0);
+                    const max = quota.max_limit !== undefined ? quota.max_limit : 100000;
+                    const isUnlimited = max === -1;
+                    const pct = isUnlimited ? 0 : (quota.percentage !== undefined ? quota.percentage : (max > 0 ? Math.round((used / max) * 100) : 0));
+                    const isHigh = pct >= 80;
+                    const isExceeded = !isUnlimited && (pct >= 100 || quota.allowed === false);
+
+                    return (
+                        <div className={`p-6 rounded-2xl border transition shadow-xs space-y-4 ${
+                            isExceeded
+                                ? 'bg-red-50/70 dark:bg-red-950/30 border-red-200 dark:border-red-900/50'
+                                : isHigh
+                                ? 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50'
+                                : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800'
+                        }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${
+                                        isExceeded
+                                            ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                            : isHigh
+                                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                            : 'bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                                    }`}>
+                                        <Sparkles className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Monthly AI Token Allocation & Quota</h3>
+                                            {isExceeded && (
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-500 text-white uppercase tracking-wider">Quota Exceeded</span>
+                                            )}
+                                            {isHigh && !isExceeded && (
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500 text-white uppercase tracking-wider">High Usage</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                            Tracks prompt & completion tokens consumed by Chatbots, Voice Agents, and Knowledge Search across this billing period.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 text-xs">
+                                    <div className="text-right">
+                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Tokens Used</span>
+                                        <span className="text-lg font-extrabold text-neutral-900 dark:text-white">
+                                            {used.toLocaleString()} <span className="text-xs font-normal text-neutral-500">/ {isUnlimited ? 'Unlimited' : max.toLocaleString()}</span>
+                                        </span>
+                                    </div>
+                                    <div className="text-right pl-4 border-l border-neutral-200 dark:border-neutral-800">
+                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Quota Used</span>
+                                        <span className={`text-lg font-extrabold ${isExceeded ? 'text-red-600' : isHigh ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                            {isUnlimited ? '0%' : `${pct}%`}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="space-y-1.5">
+                                <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-neutral-200/60 dark:border-neutral-700/60">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-500 ${
+                                            isExceeded ? 'bg-red-500' : isHigh ? 'bg-amber-500' : 'bg-emerald-500'
+                                        }`}
+                                        style={{ width: `${Math.min(100, pct)}%` }}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                                    <div className="flex items-center gap-3">
+                                        <span>Input Tokens: <strong className="text-neutral-800 dark:text-neutral-200">{(usage.input_tokens || 0).toLocaleString()}</strong></span>
+                                        <span>•</span>
+                                        <span>Output Tokens: <strong className="text-neutral-800 dark:text-neutral-200">{(usage.output_tokens || 0).toLocaleString()}</strong></span>
+                                    </div>
+                                    <span>{isUnlimited ? 'Unlimited Plan' : `${(max - used > 0 ? max - used : 0).toLocaleString()} Tokens Remaining`}</span>
+                                </div>
+                            </div>
+
+                            {/* Warning / Exceeded Banners */}
+                            {isExceeded && (
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-700 dark:text-red-300">
+                                    <div className="flex items-center gap-2">
+                                        <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                                        <span>Your workspace has reached 100% of its monthly AI Token quota. AI agent replies will pause until your limit resets or is upgraded.</span>
+                                    </div>
+                                    <Link href={route('client.subscription.show')} className="px-3 py-1 rounded-lg bg-red-600 text-white font-bold hover:bg-red-700 transition shrink-0">
+                                        Upgrade Limit
+                                    </Link>
+                                </div>
+                            )}
+
+                            {isHigh && !isExceeded && (
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-200">
+                                    <div className="flex items-center gap-2">
+                                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                                        <span>Notice: You have consumed {pct}% of your monthly allocated AI Tokens.</span>
+                                    </div>
+                                    <Link href={route('client.subscription.show')} className="px-3 py-1 rounded-lg bg-amber-600 text-white font-bold hover:bg-amber-700 transition shrink-0">
+                                        Add Tokens
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })()}
+
                 {/* ─── Trajectory Chart & Resolution Breakdown ─────────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Conversations Timeseries Chart (2 cols) */}
