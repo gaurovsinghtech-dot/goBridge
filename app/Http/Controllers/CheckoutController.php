@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
+use App\Models\Subscription;
+use App\Models\Workspace;
+use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
 use App\Services\Billing\BillingGatewayRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +28,7 @@ class CheckoutController extends Controller
             'plan_id' => ['required', 'integer', Rule::exists('plans', 'id')],
             'billing_cycle' => ['required', 'string', Rule::in(['month', 'year'])],
             'gateway' => ['required', 'string', Rule::in(['razorpay'])],
+            'whatsapp_trial' => ['nullable', 'boolean'],
         ]);
 
         $plan = Plan::where('enabled', true)->findOrFail($validated['plan_id']);
@@ -34,7 +38,38 @@ class CheckoutController extends Controller
             return back()->with('error', __('That payment gateway is not configured.'));
         }
 
-        $result = $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle']);
+        $trialDaysOverride = null;
+        if ($request->boolean('whatsapp_trial')) {
+            $user = $request->user();
+            $workspaceId = $user->current_workspace_id ?? $user->workspace_id;
+            $workspace = $workspaceId ? Workspace::find($workspaceId) : null;
+
+            if (! $workspace) {
+                return back()->with('error', __('No active workspace found.'));
+            }
+
+            $hasConnectedWhatsapp = WhatsappBusinessAccount::where('workspace_id', $workspace->id)
+                ->where('status', 'active')
+                ->exists();
+
+            if (! $hasConnectedWhatsapp) {
+                return back()->with('error', __('Connect WhatsApp before starting your trial.'));
+            }
+
+            $alreadySubscribed = Subscription::where('workspace_id', $workspace->id)
+                ->whereIn('status', ['active', 'trialing', 'trial'])
+                ->exists();
+
+            if ($alreadySubscribed) {
+                return redirect()->route('client.dashboard')->with('success', __('Your WhatsApp trial is already active.'));
+            }
+
+            $trialDaysOverride = 14;
+        }
+
+        $result = $trialDaysOverride !== null
+            ? $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle'], $trialDaysOverride)
+            : $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle']);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error']);

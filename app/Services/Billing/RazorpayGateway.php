@@ -56,7 +56,7 @@ class RazorpayGateway implements BillingGatewayInterface
             ->asJson();
     }
 
-    public function createCheckout(User $user, Plan $plan, string $billingCycle): array
+    public function createCheckout(User $user, Plan $plan, string $billingCycle, ?int $trialDaysOverride = null): array
     {
         if (! $this->isConfigured()) {
             return ['error' => 'Razorpay is not configured.'];
@@ -71,6 +71,7 @@ class RazorpayGateway implements BillingGatewayInterface
         $period = $billingCycle === 'year' ? 'yearly' : 'monthly';
         // Razorpay requires a finite cycle count; use a long horizon to emulate open-ended.
         $totalCount = $billingCycle === 'year' ? 10 : 120;
+        $workspaceId = $user->current_workspace_id ?? $user->workspace_id;
 
         // 1) Create a plan (item.amount in paise).
         $planRes = $this->http()->post(self::BASE_URL.'/plans', [
@@ -84,6 +85,7 @@ class RazorpayGateway implements BillingGatewayInterface
             'notes' => [
                 'plan_id' => (string) $plan->id,
                 'billing_cycle' => $billingCycle,
+                'workspace_id' => (string) $workspaceId,
             ],
         ]);
 
@@ -108,12 +110,15 @@ class RazorpayGateway implements BillingGatewayInterface
                 'user_id' => (string) $user->id,
                 'plan_id' => (string) $plan->id,
                 'billing_cycle' => $billingCycle,
+                'workspace_id' => (string) $workspaceId,
             ],
         ];
 
-        // A free trial delays the first charge.
-        if (($plan->trial_days ?? 0) > 0) {
-            $body['start_at'] = now()->addDays((int) $plan->trial_days)->getTimestamp();
+        // A free trial delays the first charge. An explicit override (e.g. the WhatsApp
+        // ₹1 trial-unlock flow) always wins over the plan's own configured trial length.
+        $trialDays = $trialDaysOverride ?? ($plan->trial_days ?? 0);
+        if ($trialDays > 0) {
+            $body['start_at'] = now()->addDays($trialDays)->getTimestamp();
         }
 
         $subRes = $this->http()->post(self::BASE_URL.'/subscriptions', $body);
@@ -165,6 +170,7 @@ class RazorpayGateway implements BillingGatewayInterface
                 'subscription.charged' => $this->handleSubscriptionCharged($data),
                 'subscription.cancelled', 'subscription.completed', 'subscription.expired' => $this->handleSubscriptionEnded($data, 'canceled'),
                 'subscription.halted', 'subscription.pending', 'subscription.paused' => $this->handleSubscriptionEnded($data, 'past_due'),
+                'payment.captured' => $this->handleMandateAuthPayment($data),
                 default => null,
             };
         } catch (\Throwable $e) {
@@ -187,6 +193,7 @@ class RazorpayGateway implements BillingGatewayInterface
         $notes = $entity['notes'] ?? [];
         $userId = (int) ($notes['user_id'] ?? 0);
         $planId = (int) ($notes['plan_id'] ?? 0);
+        $workspaceId = (int) ($notes['workspace_id'] ?? 0) ?: null;
         $billingCycle = $notes['billing_cycle'] ?? 'month';
         if (! $subId || ! $userId || ! $planId) {
             return;
@@ -196,17 +203,31 @@ class RazorpayGateway implements BillingGatewayInterface
             ->where('gateway_subscription_id', $subId)
             ->exists();
 
+        $status = $this->mapStatus($entity['status'] ?? 'active');
+
+        // While 'authenticated' (mandate authorized, no billing cycle run yet) the trial
+        // ends when Razorpay's own delayed first charge (`start_at`) fires.
+        $trialEndsAt = ($status === 'trialing' && isset($entity['start_at']))
+            ? Carbon::createFromTimestamp($entity['start_at'])
+            : null;
+
+        $attributes = [
+            'user_id' => $userId,
+            'plan_id' => $planId,
+            'billing_cycle' => $billingCycle,
+            'status' => $status,
+            'starts_at' => now(),
+            'ends_at' => null,
+            'trial_ends_at' => $trialEndsAt,
+            'renews_at' => isset($entity['current_end']) ? Carbon::createFromTimestamp($entity['current_end']) : null,
+        ];
+        if ($workspaceId !== null) {
+            $attributes['workspace_id'] = $workspaceId;
+        }
+
         $subscription = Subscription::updateOrCreate(
             ['gateway' => 'razorpay', 'gateway_subscription_id' => $subId],
-            [
-                'user_id' => $userId,
-                'plan_id' => $planId,
-                'billing_cycle' => $billingCycle,
-                'status' => $this->mapStatus($entity['status'] ?? 'active'),
-                'starts_at' => now(),
-                'ends_at' => null,
-                'renews_at' => isset($entity['current_end']) ? Carbon::createFromTimestamp($entity['current_end']) : null,
-            ]
+            $attributes
         );
 
         if ($isNew) {
@@ -274,6 +295,44 @@ class RazorpayGateway implements BillingGatewayInterface
         }
     }
 
+    /**
+     * Razorpay charges a nominal mandate-authorization amount (e.g. ₹1) immediately when a
+     * subscription's first real billing cycle is deferred via `start_at`. That charge fires
+     * as a plain `payment.captured` webhook (not `subscription.charged`, which only fires on
+     * actual billing cycles) and would otherwise go unrecorded.
+     */
+    private function handleMandateAuthPayment(array $data): void
+    {
+        $payEntity = $data['payload']['payment']['entity'] ?? [];
+        $paymentId = $payEntity['id'] ?? null;
+        $subId = $payEntity['subscription_id'] ?? null;
+
+        if (! $paymentId || ! $subId) {
+            return;
+        }
+
+        if (PaymentTransaction::where('gateway', 'razorpay')->where('gateway_transaction_id', $paymentId)->exists()) {
+            return;
+        }
+
+        $subscription = Subscription::where('gateway', 'razorpay')
+            ->where('gateway_subscription_id', $subId)
+            ->first();
+
+        $transaction = PaymentTransaction::create([
+            'user_id' => $subscription?->user_id,
+            'subscription_id' => $subscription?->id,
+            'gateway' => 'razorpay',
+            'gateway_transaction_id' => $paymentId,
+            'amount_cents' => (int) ($payEntity['amount'] ?? 0),
+            'currency_code' => strtoupper($payEntity['currency'] ?? 'INR'),
+            'status' => 'paid',
+            'payload' => $payEntity,
+        ]);
+
+        $this->generateInvoicePdf($transaction);
+    }
+
     private function handleSubscriptionEnded(array $data, string $status): void
     {
         $subId = $data['payload']['subscription']['entity']['id'] ?? '';
@@ -334,7 +393,9 @@ class RazorpayGateway implements BillingGatewayInterface
     private function mapStatus(string $status): string
     {
         return match (strtolower($status)) {
-            'active', 'authenticated' => 'active',
+            'active' => 'active',
+            // Mandate authorized, no billing cycle has run yet — this is our trial state.
+            'authenticated' => 'trialing',
             'created', 'pending' => 'incomplete',
             'halted', 'paused' => 'past_due',
             'cancelled', 'completed', 'expired' => 'canceled',

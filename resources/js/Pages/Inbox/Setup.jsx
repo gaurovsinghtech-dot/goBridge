@@ -550,7 +550,7 @@ function WabaCard({ waba, webhookGlobalUrl, webhookBaseUrl, webhookToken, channe
     );
 }
 
-function WhatsAppSection({ wabas, webhookGlobalUrl, webhookBaseUrl, webhookTokensByWaba, channelAccountsByWaba, chatbots, showForm, setShowForm, metaConfigIdWhatsapp, metaAppId }) {
+function WhatsAppSection({ wabas, webhookGlobalUrl, webhookBaseUrl, webhookTokensByWaba, channelAccountsByWaba, chatbots, showForm, setShowForm, metaConfigIdWhatsapp, metaAppId, onConnected }) {
     const { t } = useTranslation();
     const [waApiError, setWaApiError] = useState(null);
     const [waSubmitting, setWaSubmitting] = useState(false);
@@ -580,13 +580,14 @@ function WhatsAppSection({ wabas, webhookGlobalUrl, webhookBaseUrl, webhookToken
                 if (json.webhook_warning) setWaApiError(json.webhook_warning);
                 router.reload({ preserveScroll: true });
                 setShowForm(false);
+                onConnected?.(json);
             }
         } catch {
             setWaApiError(t('inbox.network_error_retry'));
         } finally {
             setWaSubmitting(false);
         }
-    }, [setShowForm, t]);
+    }, [setShowForm, onConnected, t]);
 
     return (
         <ChannelCard
@@ -651,7 +652,7 @@ function WhatsAppSection({ wabas, webhookGlobalUrl, webhookBaseUrl, webhookToken
                             </div>
                         )
                     ) : (
-                        <ManualWhatsappForm onSuccess={() => setShowForm(false)} />
+                        <ManualWhatsappForm onSuccess={() => setShowForm(false)} onConnected={onConnected} />
                     )}
                     <button type="button" onClick={() => setShowForm(false)}
                         className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-xs text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
@@ -1076,7 +1077,7 @@ async function postManualConnect(url, payload) {
     return { ok: res.ok, json };
 }
 
-function ManualWhatsappForm({ onSuccess }) {
+function ManualWhatsappForm({ onSuccess, onConnected }) {
     const { t } = useTranslation();
     const [wabaId, setWabaId]         = useState('');
     const [token, setToken]           = useState('');
@@ -1103,6 +1104,7 @@ function ManualWhatsappForm({ onSuccess }) {
                 } else {
                     onSuccess?.();
                 }
+                onConnected?.(json);
             }
         } catch {
             setError(t('inbox.network_error_retry'));
@@ -1435,6 +1437,29 @@ export default function ChannelSetup({
 
     const [drawer, setDrawer] = useState(null);
     const [showWabaForm, setShowWabaForm] = useState(false);
+    const [trialPrompt, setTrialPrompt] = useState(null);
+    const [trialSubmitting, setTrialSubmitting] = useState(false);
+
+    const handleWhatsappConnected = (json) => {
+        if (json?.trial_status === 'needs_plan' || json?.trial_status === 'needs_payment') {
+            setTrialPrompt(json);
+        } else {
+            setTrialPrompt(null);
+        }
+    };
+
+    const payForTrial = () => {
+        if (!trialPrompt?.checkout_url) return;
+        setTrialSubmitting(true);
+        router.post(trialPrompt.checkout_url, {
+            plan_id: trialPrompt.plan_id,
+            billing_cycle: trialPrompt.billing_cycle,
+            gateway: 'razorpay',
+            whatsapp_trial: 1,
+        }, {
+            onFinish: () => setTrialSubmitting(false),
+        });
+    };
 
     const openDrawer = (key) => {
         setDrawer(key);
@@ -1480,6 +1505,25 @@ export default function ChannelSetup({
                 <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 px-4 py-3 text-sm flex items-center gap-2">
                     <Check className="h-4 w-4 shrink-0" />
                     {flash.success}
+                </div>
+            )}
+
+            {/* WhatsApp connected — trial unlock prompt */}
+            {trialPrompt?.trial_status === 'needs_plan' && (
+                <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-950/30 px-4 py-3 text-sm text-brand-800 dark:text-brand-200">
+                    <span>{t('inbox.whatsapp_connected_choose_plan', 'WhatsApp is connected. Choose a plan to activate your 14-day free trial for ₹1.')}</span>
+                    <Link href={`${trialPrompt.pricing_url}?whatsapp_trial=1`} className="shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 transition">
+                        {t('inbox.choose_plan', 'Choose plan')}
+                    </Link>
+                </div>
+            )}
+            {trialPrompt?.trial_status === 'needs_payment' && (
+                <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-950/30 px-4 py-3 text-sm text-brand-800 dark:text-brand-200">
+                    <span>{t('inbox.whatsapp_connected_pay_trial', 'WhatsApp is connected. Pay ₹1 to activate your 14-day free trial.')}</span>
+                    <button type="button" onClick={payForTrial} disabled={trialSubmitting}
+                        className="shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition">
+                        {trialSubmitting ? t('inbox.redirecting', 'Redirecting…') : t('inbox.pay_one_rupee', 'Pay ₹1 & start trial')}
+                    </button>
                 </div>
             )}
 
@@ -1633,6 +1677,7 @@ export default function ChannelSetup({
                     setShowForm={setShowWabaForm}
                     metaConfigIdWhatsapp={metaConfigIdWhatsapp}
                     metaAppId={metaAppId}
+                    onConnected={handleWhatsappConnected}
                 />
             </ConnectDrawer>
 

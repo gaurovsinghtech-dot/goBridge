@@ -3,6 +3,8 @@
 namespace App\Modules\Whatsapp\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
+use App\Models\Workspace;
 use App\Modules\Integrations\Services\CredentialResolver;
 use App\Modules\Whatsapp\Jobs\TemplateSyncJob;
 use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
@@ -164,14 +166,14 @@ class WhatsappEmbeddedSignupController extends Controller
 
         $warnings = array_filter([$webhookError, $syncError, $phoneCount === 0 ? 'No phone numbers were synced. Use Sync from Meta on Channel Setup or reconnect.' : null]);
 
-        return response()->json([
+        return response()->json(array_merge([
             'success'         => true,
             'waba_id'         => $validated['waba_id'],
             'name'            => $wabaData['name'] ?? $validated['waba_id'],
             'phone_count'     => $phoneCount,
             'sync_error'      => $syncError,
             'webhook_warning' => $warnings !== [] ? implode(' ', $warnings) : null,
-        ]);
+        ], $this->trialStatus($workspaceId)));
     }
 
     /**
@@ -311,7 +313,7 @@ class WhatsappEmbeddedSignupController extends Controller
             $phoneCount === 0 ? 'No phone numbers were synced. Check the Phone Number ID or use Sync from Meta on Channel Setup.' : null,
         ]);
 
-        return response()->json([
+        return response()->json(array_merge([
             'success'              => true,
             'waba_id'              => $wabaId,
             'name'                 => $wabaData['name'] ?? $wabaId,
@@ -320,7 +322,44 @@ class WhatsappEmbeddedSignupController extends Controller
             'webhook_warning'      => $warnings !== [] ? implode(' ', $warnings) : null,
             'webhook_url'          => route('webhooks.whatsapp.receive', ['token' => $verifyToken]),
             'webhook_verify_token' => $verifyToken,
-        ]);
+        ], $this->trialStatus($workspaceId)));
+    }
+
+    /**
+     * Whether the workspace still needs to pick a plan and/or pay the ₹1 WhatsApp
+     * trial-unlock charge, once a WABA has just been connected.
+     */
+    private function trialStatus(?int $workspaceId): array
+    {
+        if (! $workspaceId) {
+            return ['trial_status' => 'active'];
+        }
+
+        $active = Subscription::where('workspace_id', $workspaceId)
+            ->whereIn('status', ['active', 'trialing', 'trial'])
+            ->exists();
+
+        if ($active) {
+            return ['trial_status' => 'active'];
+        }
+
+        $lastSelected = Subscription::where('workspace_id', $workspaceId)
+            ->latest('id')
+            ->first();
+
+        if (! $lastSelected) {
+            return [
+                'trial_status' => 'needs_plan',
+                'pricing_url'  => route('client.pricing'),
+            ];
+        }
+
+        return [
+            'trial_status'  => 'needs_payment',
+            'checkout_url'  => route('client.checkout.store'),
+            'plan_id'       => $lastSelected->plan_id,
+            'billing_cycle' => $lastSelected->billing_cycle === 'yearly' ? 'year' : 'month',
+        ];
     }
 
     public function reregisterWebhook(Request $request, \App\Modules\Whatsapp\Models\WhatsappBusinessAccount $waba): JsonResponse

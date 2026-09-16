@@ -27,6 +27,7 @@ export default function Pricing({
     const hasCanceled  = url.includes('checkout=canceled');
     const flashError   = flash?.error;
     const flashSuccess = flash?.success;
+    const isWhatsappTrial = url.includes('whatsapp_trial=1');
 
     const configuredGateways = gateways.filter((g) => g.configured);
 
@@ -38,6 +39,7 @@ export default function Pricing({
             plan_id:       planId,
             billing_cycle: billingCycle,
             gateway:       gatewayKey,
+            ...(isWhatsappTrial ? { whatsapp_trial: 1 } : {}),
         }, {
             preserveScroll: true,
             onFinish: () => setLoadingGateway(null),
@@ -80,6 +82,12 @@ export default function Pricing({
                         </button>
                     </div>
                 </div>
+
+                {isWhatsappTrial && (
+                    <div className="rounded-soft-lg border border-brand-200 bg-brand-50 dark:bg-brand-950/30 dark:border-brand-800 px-4 py-3 text-sm text-brand-800 dark:text-brand-200">
+                        {t('pricing.whatsapp_trial_banner', 'Pick a plan to activate your 14-day WhatsApp trial for just ₹1.')}
+                    </div>
+                )}
 
                 {(flashError || hasCanceled) && (
                     <div className="rounded-soft-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
