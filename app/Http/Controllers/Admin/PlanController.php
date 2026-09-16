@@ -18,6 +18,20 @@ class PlanController extends Controller
         return [
             'users' => null,
             'storage' => null,
+            'whatsapp_accounts' => null,
+            'whatsapp_templates' => null,
+            'whatsapp_messages_per_month' => null,
+            'campaigns_per_month' => null,
+            'sms_per_month' => null,
+            'emails_per_month' => null,
+            'inbox_agents' => null,
+            'ai_tokens_per_month' => null,
+            'knowledge_bases' => null,
+            'chatbots' => null,
+            'social_accounts' => null,
+            'social_posts_per_month' => null,
+            'lead_credits_per_month' => null,
+            'automations' => null,
         ];
     }
 
@@ -161,7 +175,7 @@ class PlanController extends Controller
         ];
 
         foreach ($limitsKeys as $key) {
-            $rules['limits.'.$key] = ['nullable', 'integer', 'min:0'];
+            $rules['limits.'.$key] = ['nullable', 'integer', 'min:-1'];
         }
 
         return $request->validate($rules);

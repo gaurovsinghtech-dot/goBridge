@@ -30,18 +30,29 @@ function FeaturesSummary({ features = [], limits = {} }) {
     const limitLabels = {
         users: 'Team',
         storage: 'Storage',
+        ai_tokens_per_month: 'AI Tokens / mo',
+        whatsapp_messages_per_month: 'WhatsApp / mo',
+        emails_per_month: 'Emails / mo',
     };
     Object.entries(limits || {}).forEach(([key, val]) => {
         if (val != null && val !== '' && limitLabels[key]) {
-            displayItems.push(`${limitLabels[key]}: ${val}`);
+            let valFormatted = val;
+            if (val === -1) {
+                valFormatted = 'Unlimited';
+            } else if (key === 'ai_tokens_per_month' && typeof val === 'number') {
+                valFormatted = val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val.toLocaleString();
+            } else if (typeof val === 'number') {
+                valFormatted = val.toLocaleString();
+            }
+            displayItems.push(`${limitLabels[key]}: ${valFormatted}`);
         }
     });
-    const first3 = displayItems.slice(0, 3);
-    const rest = displayItems.length - 3;
+    const first4 = displayItems.slice(0, 4);
+    const rest = displayItems.length - 4;
     return (
         <div className="text-sm text-neutral-600 dark:text-neutral-400">
-            {first3.length === 0 && '—'}
-            {first3.map((item, i) => (
+            {first4.length === 0 && '—'}
+            {first4.map((item, i) => (
                 <div key={i}>{item}</div>
             ))}
             {rest > 0 && <div className="text-neutral-500 dark:text-neutral-500">+{rest} more</div>}

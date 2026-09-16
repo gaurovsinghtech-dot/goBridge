@@ -67,11 +67,12 @@ export default function PlanLimits({ limits = {}, onChange }) {
                     <Input
                         key={key}
                         type="number"
-                        min={0}
+                        min={-1}
                         label={LABELS[key]}
                         value={value[key] ?? ''}
-                        onChange={(e) => update(key, e.target.value ? e.target.value : null)}
+                        onChange={(e) => update(key, e.target.value !== '' ? Number(e.target.value) : null)}
                         placeholder={t('admin.unlimited_placeholder')}
+                        hint={key === 'ai_tokens_per_month' ? 'Tokens per month (e.g. 500000, or -1 / empty for Unlimited)' : undefined}
                     />
                 ))}
             </div>
