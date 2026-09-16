@@ -108,11 +108,6 @@ class Workspace extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function client(): BelongsTo
-    {
-        return $this->belongsTo(Client::class);
-    }
-
     /** Users who are members of this workspace (via pivot). */
     public function members(): BelongsToMany
     {
