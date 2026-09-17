@@ -142,8 +142,8 @@ class PaymentGatewayConfigController extends Controller
                     continue;
                 }
 
-                // Strip any invisible/special characters (Razorpay keys are strictly alphanumeric and underscores)
-                $v = preg_replace('/[^a-zA-Z0-9_]/', '', (string) $v);
+                // Strip invisible zero-width characters that get accidentally copied, and trim whitespace
+                $v = trim(preg_replace('/[\x00-\x1F\x7F\xA0\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', '', (string) $v));
 
                 if ($mode === 'test') {
                     $test[$k] = (string) $v;
@@ -172,9 +172,9 @@ class PaymentGatewayConfigController extends Controller
         $keyId = (string) $request->input($prefix.'publishable_key', '');
         $keySecret = (string) $request->input($prefix.'secret_key', '');
 
-        // Sanitize incoming keys just in case
-        $keyId = preg_replace('/[^a-zA-Z0-9_]/', '', $keyId);
-        $keySecret = preg_replace('/[^a-zA-Z0-9_]/', '', $keySecret);
+        // Sanitize incoming keys just in case (remove zero-width spaces and trim)
+        $keyId = trim(preg_replace('/[\x00-\x1F\x7F\xA0\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', '', $keyId));
+        $keySecret = trim(preg_replace('/[\x00-\x1F\x7F\xA0\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', '', $keySecret));
 
         // Resolve stored credentials if secret is masked
         if (empty($keySecret) || empty($keyId)) {
