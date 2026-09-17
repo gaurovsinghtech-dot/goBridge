@@ -176,14 +176,14 @@ class PaymentGatewayConfigController extends Controller
         $keyId = trim(preg_replace('/[\x00-\x1F\x7F\xA0\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', '', $keyId));
         $keySecret = trim(preg_replace('/[\x00-\x1F\x7F\xA0\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', '', $keySecret));
 
-        // Resolve stored credentials if secret is masked
-        if (empty($keySecret) || empty($keyId)) {
+        // Resolve stored credentials if secret or id is masked or empty
+        if (empty($keySecret) || preg_match('/^•+$/', $keySecret) || empty($keyId) || preg_match('/^•+$/', $keyId)) {
             $config = PaymentGatewayConfig::where('gateway', $gateway)->first();
             $stored = $config?->credentials[$testMode ? 'test' : 'live'] ?? [];
-            if (empty($keyId)) {
+            if (empty($keyId) || preg_match('/^•+$/', $keyId)) {
                 $keyId = $stored['publishable_key'] ?? '';
             }
-            if (preg_match('/^•+$/', $keySecret) || empty($keySecret)) {
+            if (empty($keySecret) || preg_match('/^•+$/', $keySecret)) {
                 $keySecret = $stored['secret_key'] ?? '';
             }
         }
