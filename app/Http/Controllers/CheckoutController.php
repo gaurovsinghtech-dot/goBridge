@@ -29,6 +29,7 @@ class CheckoutController extends Controller
             'billing_cycle' => ['required', 'string', Rule::in(['month', 'year'])],
             'gateway' => ['required', 'string', Rule::in(['razorpay'])],
             'whatsapp_trial' => ['nullable', 'boolean'],
+            'accept_trial' => ['nullable', 'boolean'],
         ]);
 
         $plan = Plan::where('enabled', true)->findOrFail($validated['plan_id']);
@@ -68,8 +69,9 @@ class CheckoutController extends Controller
         }
 
         // Apply new user ₹1 trial offer if they don't have a WhatsApp trial active
+        // ONLY apply if accept_trial is true (confirmed by user)
         $setupFeeCents = null;
-        if ($trialDaysOverride === null) {
+        if ($trialDaysOverride === null && $request->boolean('accept_trial')) {
             $user = $request->user();
             $workspaceId = $user->current_workspace_id ?? $user->workspace_id;
             
