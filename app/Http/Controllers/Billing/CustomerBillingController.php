@@ -7,7 +7,7 @@ use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Workspace;
-use App\Services\Billing\Gateways\RazorpayGateway;
+use App\Services\Billing\BillingGatewayRegistry;
 use App\Services\Billing\SubscriptionService;
 use App\Services\Billing\UsageService;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +21,7 @@ class CustomerBillingController extends Controller
     public function __construct(
         private readonly SubscriptionService $subscriptionService,
         private readonly UsageService $usageService,
-        private readonly RazorpayGateway $razorpayGateway
+        private readonly BillingGatewayRegistry $gateways
     ) {}
 
     public function index(Request $request): Response
@@ -102,56 +102,25 @@ class CustomerBillingController extends Controller
             ], 422);
         }
 
-        $order = $this->razorpayGateway->createSubscriptionOrder(
-            $workspace,
-            $request->user(),
-            $plan,
-            $validated['billing_cycle']
-        );
-
-        return response()->json($order);
-    }
-
-    public function verifyPayment(Request $request): JsonResponse
-    {
-        $workspaceId = (int) ($request->user()->current_workspace_id ?? $request->user()->workspace_id);
-        $workspace = Workspace::findOrFail($workspaceId);
-
-        $validated = $request->validate([
-            'razorpay_order_id' => ['required', 'string'],
-            'razorpay_payment_id' => ['required', 'string'],
-            'razorpay_signature' => ['required', 'string'],
-            'plan_id' => ['required', 'exists:plans,id'],
-            'billing_cycle' => ['required', 'in:monthly,yearly'],
-        ]);
-
-        $verified = $this->razorpayGateway->verifyPayment($validated);
-
-        if (! $verified) {
+        $gateway = $this->gateways->get('razorpay');
+        if (! $gateway || ! $gateway->isConfigured()) {
             return response()->json([
                 'success' => false,
-                'message' => __('Payment verification failed. Please contact support if amount was deducted.'),
-            ], 400);
+                'message' => __('Razorpay is not configured.'),
+            ], 422);
         }
 
-        $plan = Plan::findOrFail($validated['plan_id']);
-        $amount = $validated['billing_cycle'] === 'yearly'
-            ? ($plan->yearly_price_cents ?: $plan->price_cents * 12)
-            : ($plan->monthly_price_cents ?: $plan->price_cents);
+        // The gateway's Subscriptions-API checkout takes 'month'/'year'; this controller's
+        // request contract has always used 'monthly'/'yearly' — translate at the boundary.
+        $billingCycle = $validated['billing_cycle'] === 'yearly' ? 'year' : 'month';
 
-        $this->subscriptionService->activatePaidSubscription(
-            $workspace,
-            $plan,
-            $validated['billing_cycle'],
-            'razorpay',
-            $validated['razorpay_payment_id'],
-            $amount
-        );
+        $result = $gateway->createCheckout($request->user(), $plan, $billingCycle);
 
-        return response()->json([
-            'success' => true,
-            'message' => __('Subscription activated successfully! Welcome to ').$plan->name.'.',
-        ]);
+        if (isset($result['error'])) {
+            return response()->json(['success' => false, 'message' => $result['error']], 422);
+        }
+
+        return response()->json(['success' => true, 'url' => $result['url']]);
     }
 
     public function cancel(Request $request): RedirectResponse
@@ -160,7 +129,8 @@ class CustomerBillingController extends Controller
 
         $subscription = Subscription::where('workspace_id', $workspaceId)->latest('id')->first();
         if ($subscription) {
-            $this->razorpayGateway->cancelSubscription($subscription);
+            $gateway = $this->gateways->get($subscription->gateway ?? 'razorpay');
+            $gateway?->cancel($subscription);
         }
 
         return back()->with('success', __('Subscription cancelled. Access remains active until the end of your billing period.'));

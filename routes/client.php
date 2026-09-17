@@ -164,7 +164,6 @@ Route::middleware(['verified'])->group(function () {
     Route::get('/billing', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'index'])->name('billing.index');
     Route::get('/billing/plans', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'plans'])->name('billing.plans');
     Route::post('/billing/checkout', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'checkout'])->name('billing.checkout');
-    Route::post('/billing/verify', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'verifyPayment'])->name('billing.verify');
     Route::post('/billing/cancel', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'cancel'])->name('billing.cancel');
     Route::get('/billing/invoices/{invoice}/download', [\App\Http\Controllers\Billing\CustomerBillingController::class, 'downloadInvoice'])->name('billing.invoice.download');
     Route::get('/pricing', [PricingController::class, 'index'])->name('pricing');

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import ClientLayout from '@/Layouts/ClientLayout';
 import { Button, Card, Badge } from '@/Components/ui';
 import { Check, Sparkles, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
@@ -28,63 +28,19 @@ export default function PricingPlans({
         })
         .then((res) => {
             const data = res.data;
-            if (!data.success && data.message) {
-                toast.error(data.message);
+            if (!data.success || !data.url) {
+                toast.error(data.message || 'Failed to initiate checkout.');
+                setLoadingPlanId(null);
                 return;
             }
 
-            // Open Razorpay Standard Checkout
-            const options = {
-                key: data.key_id,
-                amount: data.amount,
-                currency: data.currency,
-                name: 'Growbridge Connect',
-                description: `${plan.name} (${billingCycle})`,
-                order_id: data.order_id,
-                handler: function (response) {
-                    toast.info('Verifying payment server-side...');
-                    window.axios.post(route('client.billing.verify'), {
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                        plan_id: plan.id,
-                        billing_cycle: billingCycle,
-                    })
-                    .then((verifyRes) => {
-                        if (verifyRes.data.success) {
-                            toast.success(verifyRes.data.message || 'Subscription activated!');
-                            router.visit(route('client.billing.index'));
-                        } else {
-                            toast.error(verifyRes.data.message || 'Verification failed.');
-                        }
-                    })
-                    .catch((err) => {
-                        toast.error(err.response?.data?.message || 'Payment verification failed.');
-                    });
-                },
-                theme: {
-                    color: '#011B40',
-                },
-            };
-
-            if (window.Razorpay) {
-                const rzp = new window.Razorpay(options);
-                rzp.open();
-            } else {
-                // Load Razorpay script dynamically if not present
-                const script = document.createElement('script');
-                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-                script.onload = () => {
-                    const rzp = new window.Razorpay(options);
-                    rzp.open();
-                };
-                document.body.appendChild(script);
-            }
+            // Razorpay's hosted Subscriptions checkout page handles the ₹1 mandate
+            // authorization and, for recurring plans, the trial/billing cycle itself —
+            // fulfillment happens server-side via webhook, so we just follow the redirect.
+            window.location.href = data.url;
         })
         .catch((err) => {
             toast.error(err.response?.data?.message || 'Failed to initiate checkout.');
-        })
-        .finally(() => {
             setLoadingPlanId(null);
         });
     };

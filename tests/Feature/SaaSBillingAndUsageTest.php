@@ -10,10 +10,11 @@ use App\Models\Workspace;
 use App\Modules\Shared\Models\Contact;
 use App\Modules\Voice\Models\VoiceAgent;
 use App\Services\Billing\FeatureService;
-use App\Services\Billing\Gateways\RazorpayGateway;
 use App\Services\Billing\SubscriptionService;
 use App\Services\Billing\UsageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SaaSBillingAndUsageTest extends TestCase
@@ -176,30 +177,44 @@ class SaaSBillingAndUsageTest extends TestCase
         $this->assertStringContainsString('exceeds the Starter Plan plan limit of 500 contacts', $validation['reason']);
     }
 
-    public function test_razorpay_server_side_payment_verification_and_subscription_activation(): void
+    public function test_razorpay_checkout_creates_hosted_subscription_and_returns_redirect_url(): void
     {
-        $gateway = new RazorpayGateway('test_key_id', 'test_secret_123');
-
-        $orderId = 'order_test_998877';
-        $paymentId = 'pay_test_112233';
-        $signature = hash_hmac('sha256', $orderId.'|'.$paymentId, 'test_secret_123');
-
-        $verified = $gateway->verifyPayment([
-            'razorpay_order_id' => $orderId,
-            'razorpay_payment_id' => $paymentId,
-            'razorpay_signature' => $signature,
+        Config::set('billing.gateways.razorpay', [
+            'enabled' => true,
+            'key_id' => 'rzp_test_key_id',
+            'key_secret' => 'test_secret_123',
+            'webhook_secret' => '',
         ]);
 
-        $this->assertTrue($verified);
+        Http::fake([
+            'api.razorpay.com/v1/plans' => Http::response(['id' => 'plan_test_998877'], 200),
+            'api.razorpay.com/v1/subscriptions' => Http::response([
+                'id' => 'sub_test_998877',
+                'short_url' => 'https://rzp.io/i/test998877',
+            ], 200),
+        ]);
 
-        // Activate paid subscription
+        $response = $this->actingAs($this->user)->postJson(route('client.billing.checkout'), [
+            'plan_id' => $this->proPlan->id,
+            'billing_cycle' => 'monthly',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['success' => true, 'url' => 'https://rzp.io/i/test998877']);
+    }
+
+    public function test_subscription_charged_webhook_activates_subscription_and_generates_invoice(): void
+    {
+        // Fulfillment now happens server-side via the subscription.charged webhook rather
+        // than a client-side signature callback — activate a subscription the same way
+        // the webhook handler does and assert the resulting state.
         $subscriptionService = app(SubscriptionService::class);
         $sub = $subscriptionService->activatePaidSubscription(
             $this->workspace,
             $this->proPlan,
             'monthly',
             'razorpay',
-            $paymentId,
+            'pay_test_112233',
             299900
         );
 

@@ -10,12 +10,14 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Modules\Shared\Models\Contact;
-use App\Services\Billing\Contracts\PaymentProviderInterface;
+use App\Models\PaymentTransaction;
 use App\Services\Billing\EntitlementService;
-use App\Services\Billing\Gateways\RazorpayGateway;
+use App\Services\Billing\RazorpayGateway;
 use App\Services\Billing\SubscriptionService;
 use App\Services\Billing\UsageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -247,6 +249,17 @@ class MultiTenantBillingAndSubscriptionTest extends TestCase
         $this->assertEquals('razorpay', $invoice->payment_method);
     }
 
+    private function webhookRequest(array $payload, array $headers = []): Request
+    {
+        $request = Request::create('/webhooks/razorpay', 'POST', [], [], [], [], json_encode($payload));
+        $request->headers->set('Content-Type', 'application/json');
+        foreach ($headers as $key => $value) {
+            $request->headers->set($key, $value);
+        }
+
+        return $request;
+    }
+
     public function test_failed_payment_webhook_marks_subscription_past_due(): void
     {
         $sub = Subscription::create([
@@ -254,25 +267,24 @@ class MultiTenantBillingAndSubscriptionTest extends TestCase
             'user_id' => $this->userA->id,
             'plan_id' => $this->growthPlan->id,
             'status' => 'active',
-            'gateway' => 'manual',
+            'gateway' => 'razorpay',
+            'gateway_subscription_id' => 'sub_rzp_failtest',
             'billing_cycle' => 'monthly',
         ]);
 
-        $gateway = app(RazorpayGateway::class);
+        $gateway = new RazorpayGateway('rzp_test_key', 'test_secret', '');
         $payload = [
-            'event' => 'payment.failed',
+            'event' => 'subscription.halted',
             'payload' => [
-                'payment' => [
-                    'entity' => [
-                        'id' => 'pay_failed_123',
-                        'notes' => ['workspace_id' => $this->workspaceA->id],
-                    ],
+                'subscription' => [
+                    'entity' => ['id' => 'sub_rzp_failtest'],
                 ],
             ],
         ];
 
-        $gateway->handleWebhook($payload, []);
+        $response = $gateway->handleWebhook($this->webhookRequest($payload));
 
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('past_due', $sub->fresh()->status);
     }
 
@@ -289,23 +301,39 @@ class MultiTenantBillingAndSubscriptionTest extends TestCase
             'current_period_end' => now()->subDay(),
         ]);
 
-        $gateway = app(RazorpayGateway::class);
+        $gateway = new RazorpayGateway('rzp_test_key', 'test_secret', '');
+        $futureTimestamp = now()->addDays(30)->getTimestamp();
         $payload = [
             'event' => 'subscription.charged',
             'payload' => [
                 'subscription' => [
                     'entity' => [
                         'id' => 'sub_rzp_renew123',
+                        'current_end' => $futureTimestamp,
+                        'notes' => [
+                            'user_id' => (string) $this->userA->id,
+                            'plan_id' => (string) $this->growthPlan->id,
+                            'billing_cycle' => 'monthly',
+                            'workspace_id' => (string) $this->workspaceA->id,
+                        ],
+                    ],
+                ],
+                'payment' => [
+                    'entity' => [
+                        'id' => 'pay_renew_123',
+                        'amount' => 249900,
+                        'currency' => 'INR',
                     ],
                 ],
             ],
         ];
 
-        $gateway->handleWebhook($payload, []);
+        $response = $gateway->handleWebhook($this->webhookRequest($payload));
 
+        $this->assertEquals(200, $response->getStatusCode());
         $updated = $sub->fresh();
         $this->assertEquals('active', $updated->status);
-        $this->assertTrue($updated->current_period_end->isFuture());
+        $this->assertTrue($updated->renews_at->isFuture());
     }
 
     public function test_subscription_cancellation_retains_access_until_period_ends(): void
@@ -316,23 +344,37 @@ class MultiTenantBillingAndSubscriptionTest extends TestCase
             'user_id' => $this->userA->id,
             'plan_id' => $this->growthPlan->id,
             'status' => 'active',
-            'gateway' => 'manual',
+            'gateway' => 'razorpay',
+            'gateway_subscription_id' => 'sub_rzp_cancel123',
             'current_period_end' => $futureDate,
             'ends_at' => $futureDate,
         ]);
 
-        $gateway = app(RazorpayGateway::class);
-        $gateway->cancelSubscription($sub);
+        Http::fake([
+            'api.razorpay.com/v1/subscriptions/*/cancel' => Http::response(['status' => 'cancelled'], 200),
+        ]);
+
+        $gateway = new RazorpayGateway('rzp_test_key', 'test_secret', '');
+        $gateway->cancel($sub);
 
         $freshSub = $sub->fresh();
-        $this->assertEquals('cancelled', $freshSub->status);
-        $this->assertNotNull($freshSub->cancelled_at);
-        $this->assertTrue($freshSub->ends_at->isFuture());
+        $this->assertEquals('canceled', $freshSub->status);
+        $this->assertNotNull($freshSub->ends_at);
     }
 
     public function test_webhook_replay_protection_via_idempotency(): void
     {
-        $gateway = app(RazorpayGateway::class);
+        $sub = Subscription::create([
+            'workspace_id' => $this->workspaceA->id,
+            'user_id' => $this->userA->id,
+            'plan_id' => $this->starterPlan->id,
+            'status' => 'trialing',
+            'gateway' => 'razorpay',
+            'gateway_subscription_id' => 'sub_rzp_dedup123',
+            'billing_cycle' => 'monthly',
+        ]);
+
+        $gateway = new RazorpayGateway('rzp_test_key', 'test_secret', '');
         $eventId = 'evt_test_dedup_123';
 
         $payload = [
@@ -342,21 +384,26 @@ class MultiTenantBillingAndSubscriptionTest extends TestCase
                 'payment' => [
                     'entity' => [
                         'id' => 'pay_dedup_test',
-                        'amount' => 99900,
-                        'notes' => ['workspace_id' => $this->workspaceA->id, 'plan_id' => $this->starterPlan->id],
+                        'amount' => 100,
+                        'currency' => 'INR',
+                        'subscription_id' => 'sub_rzp_dedup123',
                     ],
                 ],
             ],
         ];
 
         // 1st delivery
-        $res1 = $gateway->handleWebhook($payload, ['x-razorpay-event-id' => $eventId]);
-        $this->assertTrue($res1['success']);
+        $res1 = $gateway->handleWebhook($this->webhookRequest($payload, ['X-Razorpay-Event-Id' => $eventId]));
+        $this->assertEquals(200, $res1->getStatusCode());
 
-        // 2nd delivery with identical event ID
-        $res2 = $gateway->handleWebhook($payload, ['x-razorpay-event-id' => $eventId]);
-        $this->assertTrue($res2['success']);
-        $this->assertStringContainsString('idempotent', $res2['message']);
+        // 2nd delivery with identical event ID — must not double-record the payment
+        $res2 = $gateway->handleWebhook($this->webhookRequest($payload, ['X-Razorpay-Event-Id' => $eventId]));
+        $this->assertEquals(200, $res2->getStatusCode());
+
+        $this->assertEquals(
+            1,
+            PaymentTransaction::where('gateway', 'razorpay')->where('gateway_transaction_id', 'pay_dedup_test')->count()
+        );
     }
 
     public function test_feature_entitlements_gating_backend_apis(): void

@@ -92,7 +92,4 @@ Route::middleware('throttle:webhooks')->group(function () {
     Route::match(['get', 'post'], 'track/email/{token}/unsubscribe', [EmailTrackingController::class, 'unsubscribe'])
         ->name('track.email.unsubscribe');
 
-    // ─── Razorpay Payment Webhook ───────────────────────────────────────────────
-    Route::post('webhooks/razorpay', [\App\Http\Controllers\Billing\RazorpayWebhookController::class, 'handle'])
-        ->name('webhooks.razorpay');
 }); // end throttle:webhooks

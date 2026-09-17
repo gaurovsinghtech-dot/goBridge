@@ -7,8 +7,9 @@ use App\Models\User;
 use App\Models\Workspace;
 use App\Modules\Shared\Models\Contact;
 use App\Modules\Voice\Models\VoiceCall;
-use App\Services\Billing\Gateways\RazorpayGateway;
+use App\Services\Billing\RazorpayGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class ProductionSecurityHardeningTest extends TestCase
@@ -63,13 +64,13 @@ class ProductionSecurityHardeningTest extends TestCase
     {
         $gateway = new RazorpayGateway('test_key', 'test_secret', 'test_webhook_secret');
 
-        $payload = ['event' => 'payment.captured', 'payload' => []];
-        $invalidHeaders = ['x-razorpay-signature' => ['invalid_fake_signature']];
+        $body = json_encode(['event' => 'payment.captured', 'payload' => []]);
+        $request = Request::create('/webhooks/razorpay', 'POST', [], [], [], [], $body);
+        $request->headers->set('X-Razorpay-Signature', 'invalid_fake_signature');
 
-        $result = $gateway->handleWebhook($payload, $invalidHeaders);
+        $result = $gateway->handleWebhook($request);
 
-        $this->assertFalse($result['success']);
-        $this->assertEquals(401, $result['status']);
+        $this->assertEquals(401, $result->getStatusCode());
     }
 
     public function test_impersonation_requires_admin_authorization(): void
