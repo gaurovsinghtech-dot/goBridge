@@ -4,12 +4,14 @@ import ClientLayout from '@/Layouts/ClientLayout';
 import { Button, Card, Badge } from '@/Components/ui';
 import { Check, Sparkles, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export default function PricingPlans({
     plans = [],
     currentPlanId = null,
     currentSubscription = null,
 }) {
+    const { t } = useTranslation();
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [loadingPlanId, setLoadingPlanId] = useState(null);
 
@@ -163,15 +165,19 @@ export default function PricingPlans({
                                         <span className="text-xs text-slate-400 font-medium"> / month</span>
                                     </div>
 
-                                    <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-neutral-800 text-xs">
-                                        <div className="font-semibold text-slate-700 dark:text-neutral-200">Included Limits:</div>
-                                        <div className="text-slate-600 dark:text-neutral-400 space-y-1.5">
-                                            <div>• <strong>{plan.limits?.contacts?.toLocaleString() ?? '1,000'}</strong> Contacts</div>
-                                            <div>• <strong>{plan.limits?.ai_messages?.toLocaleString() ?? '500'}</strong> AI Messages</div>
-                                            <div>• <strong>{plan.limits?.ai_voice_agents ?? '1'}</strong> AI Voice Agent ({plan.limits?.voice_calls ?? 50} calls)</div>
-                                            <div>• <strong>{plan.limits?.automation_workflows ?? '5'}</strong> Workflows</div>
-                                        </div>
-                                    </div>
+                                    <ul className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-neutral-800 text-sm text-slate-600 dark:text-neutral-300">
+                                        {plan.features?.map((f, i) => (
+                                            <li key={i} className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-brand-500 shrink-0" />
+                                                {f}
+                                            </li>
+                                        ))}
+                                        {plan.white_label_enabled && (
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-brand-500 shrink-0" /> {t('pricing.white_label', 'White-label branding')}
+                                            </li>
+                                        )}
+                                    </ul>
                                 </div>
 
                                 <div className="pt-6 mt-6 border-t border-slate-100 dark:border-neutral-800">

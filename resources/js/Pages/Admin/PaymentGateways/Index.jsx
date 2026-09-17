@@ -4,6 +4,7 @@ import { Button, Card, Modal, Toggle } from '@/Components/ui';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 import axios from 'axios';
+import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
 // Brand marks served from public/images/gateways (Simple Icons). Gateways without
@@ -187,11 +188,11 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
         try {
             const res = await axios.post(route('admin.payment-gateways.test', gatewayKey), data);
             setTestResult({ success: true, message: res.data.message });
+            toast.success(res.data.message);
         } catch (e) {
-            setTestResult({
-                success: false,
-                message: e.response?.data?.message || 'Connection test failed. Please check credentials.',
-            });
+            const message = e.response?.data?.message || 'Connection test failed. Please check credentials.';
+            setTestResult({ success: false, message });
+            toast.error(message);
         } finally {
             setTesting(false);
         }
