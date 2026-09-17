@@ -56,7 +56,7 @@ class RazorpayGateway implements BillingGatewayInterface
             ->asJson();
     }
 
-    public function createCheckout(User $user, Plan $plan, string $billingCycle, ?int $trialDaysOverride = null): array
+    public function createCheckout(User $user, Plan $plan, string $billingCycle, ?int $trialDaysOverride = null, ?int $setupFeeCents = null): array
     {
         if (! $this->isConfigured()) {
             return ['error' => 'Razorpay is not configured.'];
@@ -119,6 +119,18 @@ class RazorpayGateway implements BillingGatewayInterface
         $trialDays = $trialDaysOverride ?? ($plan->trial_days ?? 0);
         if ($trialDays > 0) {
             $body['start_at'] = now()->addDays($trialDays)->getTimestamp();
+        }
+
+        if ($setupFeeCents !== null && $setupFeeCents > 0) {
+            $body['addons'] = [
+                [
+                    'item' => [
+                        'name' => 'Trial Setup Fee',
+                        'amount' => $setupFeeCents,
+                        'currency' => $currency,
+                    ]
+                ]
+            ];
         }
 
         $subRes = $this->http()->post(self::BASE_URL.'/subscriptions', $body);

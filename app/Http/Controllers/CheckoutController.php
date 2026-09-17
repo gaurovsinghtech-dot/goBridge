@@ -67,8 +67,27 @@ class CheckoutController extends Controller
             $trialDaysOverride = 14;
         }
 
+        // Apply new user ₹1 trial offer if they don't have a WhatsApp trial active
+        $setupFeeCents = null;
+        if ($trialDaysOverride === null) {
+            $user = $request->user();
+            $workspaceId = $user->current_workspace_id ?? $user->workspace_id;
+            
+            $hasPastSubscriptions = false;
+            if ($workspaceId) {
+                $hasPastSubscriptions = Subscription::where('workspace_id', $workspaceId)->exists();
+            } else {
+                $hasPastSubscriptions = Subscription::where('user_id', $user->id)->exists();
+            }
+
+            if (! $hasPastSubscriptions) {
+                $trialDaysOverride = 14;
+                $setupFeeCents = 100; // 100 paise = 1 INR
+            }
+        }
+
         $result = $trialDaysOverride !== null
-            ? $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle'], $trialDaysOverride)
+            ? $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle'], $trialDaysOverride, $setupFeeCents)
             : $gateway->createCheckout($request->user(), $plan, $validated['billing_cycle']);
 
         if (isset($result['error'])) {

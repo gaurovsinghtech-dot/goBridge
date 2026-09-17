@@ -25,6 +25,17 @@ class PricingController extends Controller
             ?? $request->session()->get('display_currency')
             ?? Currency::defaultCode();
 
+        $isNewUser = true;
+        if ($user) {
+            $workspaceId = $user->current_workspace_id ?? $user->workspace_id;
+            if ($workspaceId) {
+                $hasPastSubscriptions = \App\Models\Subscription::where('workspace_id', $workspaceId)->exists();
+            } else {
+                $hasPastSubscriptions = \App\Models\Subscription::where('user_id', $user->id)->exists();
+            }
+            $isNewUser = !$hasPastSubscriptions;
+        }
+
         $plans = Plan::where('enabled', true)
             ->orderBy('sort_order')
             ->get()
@@ -59,6 +70,7 @@ class PricingController extends Controller
             'plans' => $plans,
             'gateways' => $this->gateways->listForFrontend(),
             'is_authenticated' => (bool) $user,
+            'is_new_user' => $isNewUser,
             'register_url' => route('register'),
             'checkout_url' => route('client.checkout.store'),
             'flash' => [
