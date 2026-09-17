@@ -321,7 +321,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             {t('admin.secret_key')} <span className="text-coral-500">*</span>
                                         </label>
                                         <input
-                                            type="password"
+                                            type="text"
                                             value={data.test_secret_key}
                                             onChange={(e) => setData('test_secret_key', e.target.value)}
                                             placeholder={t('admin.stripe_sk_placeholder')}
@@ -341,7 +341,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                     <div>
                                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('admin.webhook_secret')}</label>
                                         <input
-                                            type="password"
+                                            type="text"
                                             value={data.test_webhook_secret}
                                             onChange={(e) => setData('test_webhook_secret', e.target.value)}
                                             placeholder={t('admin.webhook_secret_placeholder')}
@@ -372,7 +372,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                     <div>
                                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('admin.secret_key')}</label>
                                         <input
-                                            type="password"
+                                            type="text"
                                             value={data.live_secret_key}
                                             onChange={(e) => setData('live_secret_key', e.target.value)}
                                             placeholder={t('admin.stripe_sk_live_placeholder')}
@@ -391,7 +391,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                     <div>
                                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('admin.webhook_secret')}</label>
                                         <input
-                                            type="password"
+                                            type="text"
                                             value={data.live_webhook_secret}
                                             onChange={(e) => setData('live_webhook_secret', e.target.value)}
                                             placeholder={t('admin.webhook_secret_placeholder')}
