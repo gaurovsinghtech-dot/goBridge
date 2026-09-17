@@ -29,7 +29,7 @@ export default function Modal({
         <Transition show={show} leave="duration-200">
             <Dialog
                 as="div"
-                className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-6"
+                className="relative z-50"
                 onClose={closeable ? onClose : () => {}}
             >
                 <TransitionChild
@@ -43,20 +43,24 @@ export default function Modal({
                     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-[2px]" />
                 </TransitionChild>
 
-                <TransitionChild
-                    enter="ease-out duration-200"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="ease-in duration-150"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
-                >
-                    <DialogPanel
-                        className={`relative w-full overflow-hidden rounded-soft-lg bg-white dark:bg-neutral-900 shadow-soft-xl border border-soft border-neutral-200 dark:border-neutral-800 transition-all sm:mx-auto ${maxWidthClass} text-neutral-900 dark:text-neutral-100`}
-                    >
-                        {children}
-                    </DialogPanel>
-                </TransitionChild>
+                <div className="fixed inset-0 z-10 overflow-y-auto">
+                    <div className="flex min-h-full justify-center p-4 text-center sm:p-0">
+                        <TransitionChild
+                            enter="ease-out duration-200"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-150"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
+                            <DialogPanel
+                                className={`relative m-auto transform overflow-hidden rounded-soft-lg bg-white dark:bg-neutral-900 text-left align-middle shadow-soft-xl border border-soft border-neutral-200 dark:border-neutral-800 transition-all sm:my-8 sm:w-full w-full ${maxWidthClass} text-neutral-900 dark:text-neutral-100`}
+                            >
+                                {children}
+                            </DialogPanel>
+                        </TransitionChild>
+                    </div>
+                </div>
             </Dialog>
         </Transition>
     );
