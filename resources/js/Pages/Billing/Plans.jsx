@@ -10,10 +10,12 @@ export default function PricingPlans({
     plans = [],
     currentPlanId = null,
     currentSubscription = null,
+    isEligibleForTrial = false,
 }) {
     const { t } = useTranslation();
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [loadingPlanId, setLoadingPlanId] = useState(null);
+    const [optInTrial, setOptInTrial] = useState(false);
 
     const handleSelectPlan = (plan) => {
         if (plan.id === currentPlanId && currentSubscription?.status === 'active') {
@@ -25,6 +27,7 @@ export default function PricingPlans({
         window.axios.post(route('client.billing.checkout'), {
             plan_id: plan.id,
             billing_cycle: billingCycle,
+            opt_in_trial: optInTrial,
         })
         .then((res) => {
             const data = res.data;
@@ -85,6 +88,33 @@ export default function PricingPlans({
                             Yearly Billing <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold ml-1">SAVE 20%</span>
                         </span>
                     </div>
+
+                    {isEligibleForTrial && (
+                        <div className="mt-8 mx-auto max-w-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-start gap-4 text-left transition-all hover:shadow-md">
+                            <div className="pt-0.5">
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="trial_opt_in"
+                                        checked={optInTrial}
+                                        onChange={(e) => setOptInTrial(e.target.checked)}
+                                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-indigo-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 dark:border-indigo-700 dark:bg-neutral-900 dark:checked:border-indigo-500 dark:checked:bg-indigo-500 transition-all"
+                                    />
+                                    <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <label htmlFor="trial_opt_in" className="cursor-pointer">
+                                    <h4 className="text-sm font-bold text-indigo-900 dark:text-indigo-300">
+                                        Start with a 14-Day Free Trial
+                                    </h4>
+                                    <p className="text-xs text-indigo-700/80 dark:text-indigo-400/80 mt-1 leading-relaxed">
+                                        Check this box to try before you buy! ₹1 will be charged immediately to verify your card, and the full plan amount will auto-deduct after 14 days.
+                                    </p>
+                                </label>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Plans Grid */}

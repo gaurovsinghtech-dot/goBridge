@@ -74,10 +74,15 @@ class CustomerBillingController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $hasHadTrial = \App\Models\Subscription::where('workspace_id', $workspaceId)
+            ->whereNotNull('trial_ends_at')
+            ->exists();
+
         return Inertia::render('Billing/Plans', [
             'plans' => $plans,
             'currentPlanId' => $subscription?->plan_id,
             'currentSubscription' => $subscription,
+            'isEligibleForTrial' => !$hasHadTrial,
         ]);
     }
 
@@ -89,6 +94,7 @@ class CustomerBillingController extends Controller
         $validated = $request->validate([
             'plan_id' => ['required', 'exists:plans,id'],
             'billing_cycle' => ['required', 'in:monthly,yearly'],
+            'opt_in_trial' => ['nullable', 'boolean'],
         ]);
 
         $plan = Plan::findOrFail($validated['plan_id']);
@@ -114,7 +120,17 @@ class CustomerBillingController extends Controller
         // request contract has always used 'monthly'/'yearly' — translate at the boundary.
         $billingCycle = $validated['billing_cycle'] === 'yearly' ? 'year' : 'month';
 
-        $result = $gateway->createCheckout($request->user(), $plan, $billingCycle);
+        $trialDaysOverride = null;
+        if (! empty($validated['opt_in_trial'])) {
+            $hasHadTrial = \App\Models\Subscription::where('workspace_id', $workspaceId)
+                ->whereNotNull('trial_ends_at')
+                ->exists();
+            if (! $hasHadTrial) {
+                $trialDaysOverride = 14;
+            }
+        }
+
+        $result = $gateway->createCheckout($request->user(), $plan, $billingCycle, $trialDaysOverride);
 
         if (isset($result['error'])) {
             return response()->json(['success' => false, 'message' => $result['error']], 422);
