@@ -17,6 +17,7 @@ export default function Pricing({
     is_authenticated = false,
     register_url = '/register',
     checkout_url = null,
+    is_new_user = false,
 }) {
     const { t } = useTranslation();
     const [billingCycle, setBillingCycle]     = useState('month');
@@ -83,9 +84,14 @@ export default function Pricing({
                     </div>
                 </div>
 
-                {isWhatsappTrial && (
+                {isWhatsappTrial && !is_new_user && (
                     <div className="rounded-soft-lg border border-brand-200 bg-brand-50 dark:bg-brand-950/30 dark:border-brand-800 px-4 py-3 text-sm text-brand-800 dark:text-brand-200">
                         {t('pricing.whatsapp_trial_banner', 'Pick a plan to activate your 14-day WhatsApp trial for just ₹1.')}
+                    </div>
+                )}
+                {is_new_user && (
+                    <div className="rounded-soft-lg border border-brand-200 bg-brand-50 dark:bg-brand-950/30 dark:border-brand-800 px-4 py-3 text-sm text-brand-800 dark:text-brand-200 font-medium">
+                        {t('pricing.new_user_trial_banner', 'Welcome Offer: Try any premium plan for 14 days for just ₹1! (Auto-renews after 14 days)')}
                     </div>
                 )}
 
@@ -132,9 +138,11 @@ export default function Pricing({
                                             <span className="ml-1 text-sm text-neutral-500">/ {billingCycle === 'year' ? t('pricing.per_year') : t('pricing.per_month')}</span>
                                         )}
                                     </div>
-                                    {plan.trial_days > 0 && (
+                                    {is_new_user && !isFree ? (
+                                        <p className="mt-1 text-xs font-medium text-brand-600 dark:text-brand-400">{t('pricing.trial_1_rupee', '14-day trial for ₹1')}</p>
+                                    ) : plan.trial_days > 0 ? (
                                         <p className="mt-1 text-xs text-brand-600 dark:text-brand-400">{t('pricing.trial_days', { days: plan.trial_days })}</p>
-                                    )}
+                                    ) : null}
 
                                     {/* Features list */}
                                     <ul className="mt-5 space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
@@ -160,7 +168,7 @@ export default function Pricing({
                                             href={getStartedHref(plan)}
                                             className={`block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition ${isPopular ? 'bg-brand-600 text-white hover:bg-brand-700' : 'border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
                                         >
-                                            {isFree ? t('pricing.get_started_free') : t('pricing.get_started')}
+                                            {isFree ? t('pricing.get_started_free') : is_new_user ? t('pricing.get_started_trial', 'Start ₹1 Trial') : t('pricing.get_started')}
                                         </Link>
                                     ) : isFree ? (
                                         <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center">{t('pricing.free_no_payment')}</p>
@@ -183,7 +191,7 @@ export default function Pricing({
                                                         disabled={loadingGateway !== null}
                                                         onClick={() => handleCheckout(plan.id, gw.key)}
                                                     >
-                                                        {isThisLoading ? t('pricing.redirecting') : t('pricing.pay_with', { name: gw.name })}
+                                                        {isThisLoading ? t('pricing.redirecting') : is_new_user ? t('pricing.start_trial_with', `Start ₹1 Trial with ${gw.name}`) : t('pricing.pay_with', { name: gw.name })}
                                                     </Button>
                                                 );
                                             })}
