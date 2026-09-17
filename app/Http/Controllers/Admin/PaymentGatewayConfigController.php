@@ -142,6 +142,9 @@ class PaymentGatewayConfigController extends Controller
                     continue;
                 }
 
+                // Strip any invisible/special characters (Razorpay keys are strictly alphanumeric and underscores)
+                $v = preg_replace('/[^a-zA-Z0-9_]/', '', (string) $v);
+
                 if ($mode === 'test') {
                     $test[$k] = (string) $v;
                 } else {
@@ -169,8 +172,12 @@ class PaymentGatewayConfigController extends Controller
         $keyId = (string) $request->input($prefix.'publishable_key', '');
         $keySecret = (string) $request->input($prefix.'secret_key', '');
 
+        // Sanitize incoming keys just in case
+        $keyId = preg_replace('/[^a-zA-Z0-9_]/', '', $keyId);
+        $keySecret = preg_replace('/[^a-zA-Z0-9_]/', '', $keySecret);
+
         // Resolve stored credentials if secret is masked
-        if (preg_match('/^•+$/', $keySecret) || empty($keySecret) || empty($keyId)) {
+        if (empty($keySecret) || empty($keyId)) {
             $config = PaymentGatewayConfig::where('gateway', $gateway)->first();
             $stored = $config?->credentials[$testMode ? 'test' : 'live'] ?? [];
             if (empty($keyId)) {
