@@ -262,7 +262,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
     return (
         <Modal show={show} onClose={onClose} maxWidth="4xl">
             <Modal.Header title={t('admin.edit_payment_gateway')} onClose={onClose} />
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete="off">
                 <Modal.Body className="space-y-6">
                     {loading && (
                         <div className="py-8 text-center text-neutral-500 dark:text-neutral-400">{t('common.loading')}</div>
@@ -310,6 +310,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.test_publishable_key}
                                             onChange={(e) => setData('test_publishable_key', e.target.value)}
                                             placeholder={t('admin.stripe_pk_placeholder')}
+                                            autoComplete="off"
+                                            data-1p-ignore="true"
                                             className="mt-1 w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                         />
                                         <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{publishableHint}</p>
@@ -323,6 +325,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.test_secret_key}
                                             onChange={(e) => setData('test_secret_key', e.target.value)}
                                             placeholder={t('admin.stripe_sk_placeholder')}
+                                            autoComplete="new-password"
+                                            data-1p-ignore="true"
                                             className={`mt-1 w-full rounded-soft border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
                                                 validationErrors.test_secret_key
                                                     ? 'border-coral-500 bg-coral-50 dark:bg-coral-900/10 dark:border-coral-600'
@@ -341,6 +345,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.test_webhook_secret}
                                             onChange={(e) => setData('test_webhook_secret', e.target.value)}
                                             placeholder={t('admin.webhook_secret_placeholder')}
+                                            autoComplete="new-password"
+                                            data-1p-ignore="true"
                                             className="mt-1 w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                         />
                                         <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{webhookHint}</p>
@@ -358,6 +364,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.live_publishable_key}
                                             onChange={(e) => setData('live_publishable_key', e.target.value)}
                                             placeholder={t('admin.stripe_pk_live_placeholder')}
+                                            autoComplete="off"
+                                            data-1p-ignore="true"
                                             className="mt-1 w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                         />
                                     </div>
@@ -368,6 +376,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.live_secret_key}
                                             onChange={(e) => setData('live_secret_key', e.target.value)}
                                             placeholder={t('admin.stripe_sk_live_placeholder')}
+                                            autoComplete="new-password"
+                                            data-1p-ignore="true"
                                             className={`mt-1 w-full rounded-soft border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${
                                                 validationErrors.live_secret_key
                                                     ? 'border-coral-500 bg-coral-50 dark:bg-coral-900/10 dark:border-coral-600'
@@ -385,6 +395,8 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
                                             value={data.live_webhook_secret}
                                             onChange={(e) => setData('live_webhook_secret', e.target.value)}
                                             placeholder={t('admin.webhook_secret_placeholder')}
+                                            autoComplete="new-password"
+                                            data-1p-ignore="true"
                                             className="mt-1 w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                         />
                                     </div>
