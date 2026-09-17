@@ -34,6 +34,19 @@ export default function Pricing({
 
     const handleCheckout = (planId, gatewayKey) => {
         if (! planId || ! gatewayKey) return;
+
+        let acceptTrial = 0;
+        if (is_new_user) {
+            const wantsTrial = window.confirm(t('pricing.confirm_trial', 'Continue with the plan and go with 14 days trial?'));
+            if (!wantsTrial) {
+                // If they cancel, they might just want to abort the checkout entirely, 
+                // but let's give them the option to proceed without trial or we just abort.
+                // Assuming "Cancel" means abort checkout based on standard UX.
+                return;
+            }
+            acceptTrial = 1;
+        }
+
         const loadingKey = `${planId}-${gatewayKey}`;
         setLoadingGateway(loadingKey);
         router.post(checkout_url ?? route('client.checkout.store'), {
@@ -41,6 +54,7 @@ export default function Pricing({
             billing_cycle: billingCycle,
             gateway:       gatewayKey,
             ...(isWhatsappTrial ? { whatsapp_trial: 1 } : {}),
+            accept_trial:  acceptTrial,
         }, {
             preserveScroll: true,
             onFinish: () => setLoadingGateway(null),
@@ -191,7 +205,7 @@ export default function Pricing({
                                                         disabled={loadingGateway !== null}
                                                         onClick={() => handleCheckout(plan.id, gw.key)}
                                                     >
-                                                        {isThisLoading ? t('pricing.redirecting') : is_new_user ? t('pricing.start_trial_with', `Start ₹1 Trial with ${gw.name}`) : t('pricing.pay_with', { name: gw.name })}
+                                                        {isThisLoading ? t('pricing.redirecting') : t('pricing.buy_now', 'Buy now!')}
                                                     </Button>
                                                 );
                                             })}
