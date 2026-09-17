@@ -71,11 +71,11 @@ class PaymentGatewayConfigController extends Controller
             'test_mode' => $config->test_mode,
             'enabled' => $config->enabled,
             'test_publishable_key' => $test['publishable_key'] ?? '',
-            'test_secret_key' => $test['secret_key'] ?? '',
-            'test_webhook_secret' => $test['webhook_secret'] ?? '',
+            'test_secret_key' => ($test['secret_key'] ?? '') !== '' ? '••••••••' : '',
+            'test_webhook_secret' => ($test['webhook_secret'] ?? '') !== '' ? '••••••••' : '',
             'live_publishable_key' => $live['publishable_key'] ?? '',
-            'live_secret_key' => $live['secret_key'] ?? '',
-            'live_webhook_secret' => $live['webhook_secret'] ?? '',
+            'live_secret_key' => ($live['secret_key'] ?? '') !== '' ? '••••••••' : '',
+            'live_webhook_secret' => ($live['webhook_secret'] ?? '') !== '' ? '••••••••' : '',
         ];
 
         return response()->json($data);
