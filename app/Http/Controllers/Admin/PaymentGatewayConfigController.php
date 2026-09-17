@@ -208,11 +208,10 @@ class PaymentGatewayConfigController extends Controller
                 }
 
                 $errorDesc = $response->json('error.description') ?? __('Razorpay authentication failed.');
-                $maskedSecret = strlen($keySecret) > 8 ? substr($keySecret, 0, 4) . '...' . substr($keySecret, -4) : '***';
 
                 return response()->json([
                     'success' => false,
-                    'message' => $errorDesc . ' (Debug: used secret starting with ' . $maskedSecret . ')',
+                    'message' => $errorDesc,
                 ], 400);
             } catch (\Throwable $e) {
                 return response()->json([
