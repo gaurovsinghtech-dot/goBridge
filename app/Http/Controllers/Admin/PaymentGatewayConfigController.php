@@ -137,16 +137,15 @@ class PaymentGatewayConfigController extends Controller
             foreach ($credentialKeys as $k) {
                 $field = $prefix.$k;
                 $v = $validated[$field] ?? null;
-                if ($v === null || $v === '') {
-                    continue;
-                }
+
                 if (preg_match('/^•+$/', (string) $v)) {
                     continue;
                 }
+
                 if ($mode === 'test') {
-                    $test[$k] = $v;
+                    $test[$k] = (string) $v;
                 } else {
-                    $live[$k] = $v;
+                    $live[$k] = (string) $v;
                 }
             }
         }
