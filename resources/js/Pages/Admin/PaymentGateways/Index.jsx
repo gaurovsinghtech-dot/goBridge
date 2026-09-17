@@ -260,7 +260,7 @@ function EditGatewayModal({ show, gatewayKey, initialData, loading, error, valid
     const gatewayNote = custom?.note ?? t('admin.gateway_credentials_note');
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl">
+        <Modal show={show} onClose={onClose} maxWidth="4xl">
             <Modal.Header title={t('admin.edit_payment_gateway')} onClose={onClose} />
             <form onSubmit={handleSubmit}>
                 <Modal.Body className="space-y-6">
