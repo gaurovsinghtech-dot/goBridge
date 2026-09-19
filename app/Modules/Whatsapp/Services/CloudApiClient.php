@@ -159,6 +159,8 @@ class CloudApiClient
                 } catch (\Throwable $e) {
                     Log::warning('resolveRealPhoneNumberId failed to fetch from Meta', ['error' => $e->getMessage()]);
                 }
+                
+                throw new \RuntimeException("Could not resolve a Phone Number ID for WABA ID '{$phoneNumberId}'. Ensure the WABA has a phone number and the access token has 'whatsapp_business_management' permissions.");
             } else {
                 // If waba not in DB, but $phoneNumberId might be a WABA ID passed directly, try querying Meta
                 try {

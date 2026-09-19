@@ -303,6 +303,9 @@ class SendCampaignMessageJob implements ShouldQueue
 
         if (! $resp->successful()) {
             $metaError = $resp->json('error.message') ?? $resp->body();
+            if (str_contains($metaError, 'Unsupported post request. Object with ID') && str_contains($metaError, 'does not exist')) {
+                $metaError .= "\n(Hint: The Phone Number ID '{$client->phoneNumberId()}' is invalid or the access token lacks permissions. Ensure you configured a Phone Number ID, not a WABA ID or App ID.)";
+            }
             throw new \RuntimeException('WhatsApp send failed: '.$metaError);
         }
 
