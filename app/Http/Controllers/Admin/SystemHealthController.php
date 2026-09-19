@@ -100,7 +100,7 @@ class SystemHealthController extends Controller
         $webhookStatus = [
             'whatsapp_webhook' => [
                 'name' => 'WhatsApp Cloud Webhook',
-                'url' => url('/api/v1/webhooks/whatsapp'),
+                'url' => url('/webhooks/whatsapp/global'),
                 'status' => $whatsappConfigured ? 'active' : 'unconfigured',
             ],
             'twilio_voice_webhook' => [

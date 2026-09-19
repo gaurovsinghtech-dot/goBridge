@@ -142,7 +142,7 @@ class IntegrationConfigController extends Controller
                 'status_webhook' => "{$appUrl}/api/v1/webhooks/twilio/status",
             ],
             $provider === 'meta_app' => [
-                'webhook_url' => "{$appUrl}/api/v1/webhooks/whatsapp",
+                'webhook_url' => "{$appUrl}/webhooks/whatsapp/global",
                 'verify_token' => $config->credentials['verify_token'] ?? 'growbridge_verify_token',
             ],
             str_starts_with($provider, 'crm_') => [

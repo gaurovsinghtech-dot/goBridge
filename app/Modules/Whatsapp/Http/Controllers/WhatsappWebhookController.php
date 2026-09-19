@@ -23,6 +23,11 @@ class WhatsappWebhookController extends Controller
     private function globalVerifyToken(): ?string
     {
         $meta = CredentialResolver::system()->meta();
+        
+        if ($meta && $meta->verifyToken()) {
+            return $meta->verifyToken();
+        }
+
         if (! $meta?->appId() || ! $meta->appSecret()) {
             return null;
         }
