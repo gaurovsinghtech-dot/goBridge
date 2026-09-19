@@ -5,4 +5,7 @@ deployment:
     - export DEPLOYPATH=/home/gghmvqpi/public_html
     - /bin/rm -rf $DEPLOYPATH/public/build
     - /bin/cp -R * $DEPLOYPATH
-
+    - /usr/local/bin/php $DEPLOYPATH/artisan optimize:clear
+    - /usr/local/bin/php $DEPLOYPATH/artisan view:cache
+    - /usr/local/bin/php $DEPLOYPATH/artisan route:cache
+    - /usr/local/bin/php $DEPLOYPATH/artisan config:cache
