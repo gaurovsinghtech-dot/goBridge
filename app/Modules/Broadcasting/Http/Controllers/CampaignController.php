@@ -244,7 +244,9 @@ class CampaignController extends Controller
     public function destroy(Request $request, Campaign $campaign): RedirectResponse
     {
         $this->authorise($request, $campaign);
-        abort_unless(in_array($campaign->status, ['draft', 'cancelled'], true), 422, 'Only draft or cancelled campaigns can be deleted.');
+        abort_if(in_array($campaign->status, ['queued', 'sending'], true), 422, 'Actively sending campaigns cannot be deleted directly. Please pause or cancel the campaign first.');
+
+        $campaign->recipients()->delete();
         $campaign->delete();
 
         return redirect()->route('client.campaigns.index')->with('success', 'Campaign deleted.');

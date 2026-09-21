@@ -242,7 +242,7 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                                         <Play className="h-4 w-4" />
                                                     </button>
                                                 )}
-                                                {c.status === 'draft' && (
+                                                {!['queued', 'sending'].includes(c.status) && (
                                                     <button
                                                         onClick={() => handleDelete(c.uuid)}
                                                         title={t('common.delete')}
