@@ -57,10 +57,29 @@ class WhatsappBusinessAccount extends Model
         return hash('sha256', $token);
     }
 
-    /** O(1) lookup for per-WABA webhook routes (token is stored encrypted). */
+    /** O(1) lookup for per-WABA webhook routes (token is stored encrypted) with fallback for un-hashed rows. */
     public static function findByWebhookToken(string $token): ?self
     {
-        return static::where('webhook_verify_token_hash', static::hashWebhookToken($token))->first();
+        $hash = static::hashWebhookToken($token);
+        $waba = static::where('webhook_verify_token_hash', $hash)->first();
+
+        if ($waba) {
+            return $waba;
+        }
+
+        // Fallback for legacy / un-hashed rows in database
+        foreach (static::whereNull('webhook_verify_token_hash')->orWhere('webhook_verify_token_hash', '')->cursor() as $account) {
+            try {
+                if ($account->webhook_verify_token && hash_equals((string) $account->webhook_verify_token, $token)) {
+                    $account->forceFill(['webhook_verify_token_hash' => $hash])->saveQuietly();
+                    return $account;
+                }
+            } catch (\Throwable $e) {
+                // Ignore decryption exceptions
+            }
+        }
+
+        return null;
     }
 
     /** Access token for Graph API (embedded OAuth or manual system user). */
@@ -121,7 +140,7 @@ class WhatsappBusinessAccount extends Model
     protected static function booted(): void
     {
         static::saving(function (self $waba) {
-            if ($waba->isDirty('webhook_verify_token') && $waba->webhook_verify_token) {
+            if ($waba->webhook_verify_token && (empty($waba->webhook_verify_token_hash) || $waba->isDirty('webhook_verify_token'))) {
                 $waba->webhook_verify_token_hash = static::hashWebhookToken($waba->webhook_verify_token);
             }
         });

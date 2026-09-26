@@ -109,9 +109,12 @@ class WhatsappWebhookController extends Controller
             abort(403, 'Invalid verify token');
         }
 
-        if ($request->input('hub_mode') === 'subscribe'
-            && hash_equals($token, (string) $request->input('hub_verify_token', ''))) {
-            return response($request->input('hub_challenge', ''), 200);
+        $mode = $request->input('hub_mode') ?? $request->input('hub.mode') ?? $request->query('hub_mode') ?? $request->query('hub.mode');
+        $verifyToken = $request->input('hub_verify_token') ?? $request->input('hub.verify_token') ?? $request->query('hub_verify_token') ?? $request->query('hub.verify_token') ?? '';
+        $challenge = $request->input('hub_challenge') ?? $request->input('hub.challenge') ?? $request->query('hub_challenge') ?? $request->query('hub.challenge') ?? '';
+
+        if ($mode === 'subscribe' && hash_equals($token, (string) $verifyToken)) {
+            return response((string) $challenge, 200);
         }
 
         abort(400);

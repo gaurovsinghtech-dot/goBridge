@@ -9,6 +9,8 @@ import i18n, { initI18n } from '@/i18n';
 import LocaleSync from '@/Components/LocaleSync';
 import BrandingFavicon from '@/Components/BrandingFavicon';
 import ErrorBoundary from '@/Components/ErrorBoundary';
+import LoadingScreen from '@/Components/LoadingScreen';
+import { setNavigationLoading } from '@/lib/navigationLoading';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { toast } from 'sonner';
 
@@ -42,6 +44,21 @@ router.on('invalid', (event) => {
     if (response?.status === 403 && response?.data?.code === 'demo_mode') {
         event.preventDefault();
         toast.error(response.data.message || i18n.t('demo.banner') || 'Demo mode: changes are disabled.');
+    }
+});
+
+// Show the global full-screen loader only for GET visits — real page navigations
+// (clicking a <Link>, a sidebar item, etc). POST/PUT/PATCH/DELETE visits are almost
+// always in-place actions (sync, delete, verify, save) that already show their own
+// local button/spinner feedback; covering those too would just add flicker.
+router.on('start', (event) => {
+    if (event.detail.visit.method === 'get') {
+        setNavigationLoading(true);
+    }
+});
+router.on('finish', (event) => {
+    if (event.detail.visit.method === 'get') {
+        setNavigationLoading(false);
     }
 });
 
@@ -117,10 +134,15 @@ createInertiaApp({
         const root = createRoot(el);
         // Wrap the whole app so a render error in ANY page or layout shows a
         // recoverable fallback instead of a blank white screen (full SPA unmount).
+        // LoadingScreen sits outside the boundary so it keeps working even if a
+        // page render throws.
         root.render(
-            <ErrorBoundary>
-                <App {...props} />
-            </ErrorBoundary>
+            <>
+                <LoadingScreen />
+                <ErrorBoundary>
+                    <App {...props} />
+                </ErrorBoundary>
+            </>
         );
     },
     progress: {
