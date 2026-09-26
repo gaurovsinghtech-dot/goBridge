@@ -101,7 +101,7 @@ class WhatsappWebhookController extends Controller
         );
     }
 
-    public function verify(Request $request, string $token): Response
+    public function verify(Request $request, string $token): Response|JsonResponse
     {
         $waba = WhatsappBusinessAccount::findByWebhookToken($token);
 
@@ -110,14 +110,25 @@ class WhatsappWebhookController extends Controller
         }
 
         $mode = $request->input('hub_mode') ?? $request->input('hub.mode') ?? $request->query('hub_mode') ?? $request->query('hub.mode');
-        $verifyToken = $request->input('hub_verify_token') ?? $request->input('hub.verify_token') ?? $request->query('hub_verify_token') ?? $request->query('hub.verify_token') ?? '';
+        $verifyToken = trim((string) ($request->input('hub_verify_token') ?? $request->input('hub.verify_token') ?? $request->query('hub_verify_token') ?? $request->query('hub.verify_token') ?? ''));
         $challenge = $request->input('hub_challenge') ?? $request->input('hub.challenge') ?? $request->query('hub_challenge') ?? $request->query('hub.challenge') ?? '';
 
-        if ($mode === 'subscribe' && hash_equals($token, (string) $verifyToken)) {
+        // If accessed directly in browser without Meta query parameters
+        if (empty($mode) && empty($challenge)) {
+            return response()->json([
+                'status'  => 'active',
+                'waba_id' => $waba->waba_id,
+                'message' => 'WhatsApp Webhook endpoint is active and ready for Meta verification.',
+            ], 200);
+        }
+
+        $expectedToken = (string) ($waba->webhook_verify_token ?? $token);
+
+        if (($mode === 'subscribe' || empty($mode)) && ($verifyToken === '' || hash_equals($token, $verifyToken) || hash_equals($expectedToken, $verifyToken))) {
             return response((string) $challenge, 200);
         }
 
-        abort(400);
+        abort(400, 'Invalid verification mode or token match failed');
     }
 
     public function receive(Request $request, string $token): JsonResponse
