@@ -57,7 +57,7 @@ class WhatsappBusinessAccount extends Model
         return hash('sha256', $token);
     }
 
-    /** O(1) lookup for per-WABA webhook routes (token is stored encrypted) with fallback for un-hashed rows. */
+    /** O(1) lookup for per-WABA webhook routes (token is stored encrypted) with fallback for raw/legacy rows. */
     public static function findByWebhookToken(string $token): ?self
     {
         $hash = static::hashWebhookToken($token);
@@ -67,10 +67,17 @@ class WhatsappBusinessAccount extends Model
             return $waba;
         }
 
-        // Fallback for legacy / un-hashed rows in database
+        // Fallback for raw DB unencrypted strings or legacy un-hashed rows
         foreach (static::whereNull('webhook_verify_token_hash')->orWhere('webhook_verify_token_hash', '')->cursor() as $account) {
             try {
-                if ($account->webhook_verify_token && hash_equals((string) $account->webhook_verify_token, $token)) {
+                $rawVal = $account->getRawOriginal('webhook_verify_token');
+                if ($rawVal && hash_equals((string) $rawVal, $token)) {
+                    $account->forceFill(['webhook_verify_token_hash' => $hash])->saveQuietly();
+                    return $account;
+                }
+
+                $decryptedVal = $account->webhook_verify_token;
+                if ($decryptedVal && hash_equals((string) $decryptedVal, $token)) {
                     $account->forceFill(['webhook_verify_token_hash' => $hash])->saveQuietly();
                     return $account;
                 }
