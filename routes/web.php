@@ -39,7 +39,11 @@ Route::get('/use-cases', [LandingController::class, 'useCases'])->name('use-case
 Route::get('/about', [LandingController::class, 'about'])->name('about');
 Route::get('/integrations', [LandingController::class, 'integrations'])->name('integrations');
 
-// CMS pages (e.g. /p/privacy, /p/terms)
+// CMS pages (e.g. /p/privacy, /p/terms) and direct legal page aliases
+Route::get('/privacy', [CmsPageController::class, 'privacyAlias'])->name('privacy');
+Route::get('/privacy-policy', [CmsPageController::class, 'privacyAlias'])->name('privacy-policy');
+Route::get('/terms', [CmsPageController::class, 'termsAlias'])->name('terms');
+Route::get('/terms-of-service', [CmsPageController::class, 'termsAlias'])->name('terms-of-service');
 Route::get('/p/{slug}', [CmsPageController::class, 'show'])->name('cms-page.show');
 
 // Sitemap & robots.txt
