@@ -40,7 +40,7 @@ const CHANNEL_META = {
 };
 
 const inputClass =
-    'mt-1 w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500';
+    'mt-1 w-full rounded-xl border border-neutral-200/90 dark:border-neutral-700/80 bg-white dark:bg-neutral-800/90 px-3.5 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 shadow-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition duration-150';
 
 function FieldError({ message }) {
     if (!message) return null;
@@ -529,45 +529,61 @@ export default function CampaignForm({
         <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
                 {/* ── Main pane ───────────────────────────────────────────── */}
-                <div className="space-y-4">
-                    {/* Step indicator */}
-                    <div className="flex flex-wrap items-center gap-2">
-                        {STEPS.map((stepDef, i) => (
-                            <div key={stepDef.key} className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={async () => { await saveDraft(); setStep(i); }}
-                                    className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold transition cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-brand-400 ${
-                                        i === step
-                                            ? 'bg-brand-600 text-white ring-2 ring-brand-400 ring-offset-1'
-                                            : i < step
-                                              ? 'bg-brand-500 text-white'
-                                              : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 hover:bg-neutral-300 dark:hover:bg-neutral-600'
-                                    }`}
-                                >
-                                    {i < step ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={async () => { await saveDraft(); setStep(i); }}
-                                    className={`text-xs transition cursor-pointer ${
-                                        i === step
-                                            ? 'text-neutral-900 dark:text-neutral-100 font-medium'
-                                            : i < step
-                                              ? 'text-brand-600 dark:text-brand-400 hover:underline'
-                                              : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
-                                    }`}
-                                >
-                                    {t(stepDef.labelKey)}
-                                </button>
-                                {i < STEPS.length - 1 && (
-                                    <div className={`w-6 h-px ${i < step ? 'bg-brand-400' : 'bg-neutral-300 dark:bg-neutral-600'}`} />
-                                )}
-                            </div>
-                        ))}
+                <div className="space-y-6">
+                    {/* Modern Stepper Indicator Card */}
+                    <div className="overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+                        {/* Progress Bar Top Track */}
+                        <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+                            <div
+                                className="h-full bg-gradient-to-r from-brand-600 to-purple-600 transition-all duration-300 ease-out"
+                                style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+                            />
+                        </div>
+
+                        {/* Step Badges */}
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            {STEPS.map((stepDef, i) => {
+                                const isCurrent = i === step;
+                                const isPassed = i < step;
+
+                                return (
+                                    <div key={stepDef.key} className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={async () => { await saveDraft(); setStep(i); }}
+                                            className={`group flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer ${
+                                                isCurrent
+                                                    ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 ring-1 ring-brand-500/30'
+                                                    : isPassed
+                                                      ? 'text-emerald-700 dark:text-emerald-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                                                      : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                                            }`}
+                                        >
+                                            <span
+                                                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition ${
+                                                    isCurrent
+                                                        ? 'bg-brand-600 text-white shadow-xs'
+                                                        : isPassed
+                                                          ? 'bg-emerald-500 text-white shadow-xs'
+                                                          : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 group-hover:bg-neutral-300'
+                                                }`}
+                                            >
+                                                {isPassed ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
+                                            </span>
+                                            <span>{t(stepDef.labelKey)}</span>
+                                        </button>
+
+                                        {i < STEPS.length - 1 && (
+                                            <div className="hidden sm:block h-px w-4 sm:w-6 bg-neutral-200 dark:bg-neutral-700/80" />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
-                    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-4">
+                    {/* Step Card Container */}
+                    <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 sm:p-7 space-y-6 shadow-sm">
                         {step === 0 && (
                             <ChannelStep
                                 data={data}
@@ -622,74 +638,81 @@ export default function CampaignForm({
                         )}
                     </div>
 
-                    {/* Step nav */}
-                    <div className="flex flex-wrap items-center gap-3">
-                        {step > 0 && (
-                            <button
-                                type="button"
-                                onClick={prev}
-                                className="flex items-center gap-1.5 rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
-                            >
-                                <ArrowLeft className="h-4 w-4" /> {t('common.back')}
-                            </button>
-                        )}
-
-                        {/* Draft save indicator */}
-                        {draftStatus === 'saving' && (
-                            <span className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('campaign.saving_draft')}
-                            </span>
-                        )}
-                        {draftStatus === 'saved' && (
-                            <span className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                                <Save className="h-3.5 w-3.5" /> {t('campaign.draft_saved')}
-                            </span>
-                        )}
-                        {draftStatus === 'error' && (
-                            <span className="flex items-center gap-1.5 text-xs text-red-500 dark:text-red-400">
-                                <AlertCircle className="h-3.5 w-3.5" /> {t('campaign.draft_save_failed')}
-                            </span>
-                        )}
-
-                        {step < STEPS.length - 1 ? (
-                            <button
-                                type="button"
-                                onClick={next}
-                                disabled={!isStepValid || draftStatus === 'saving'}
-                                className="ml-auto flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50 transition"
-                            >
-                                {draftStatus === 'saving' ? (
-                                    <><Loader2 className="h-4 w-4 animate-spin" /> {t('campaign.saving')}</>
-                                ) : (
-                                    <>{t('common.next')} <ArrowRight className="h-4 w-4" /></>
-                                )}
-                            </button>
-                        ) : (
-                            <div className="ml-auto flex items-center gap-2">
-                                <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="flex items-center gap-1.5 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 disabled:opacity-60 transition cursor-pointer"
-                                >
-                                    <Save className="h-4 w-4" />
-                                    {processing
-                                        ? t('campaign.saving')
-                                        : mode === 'edit'
-                                          ? t('campaign.save_changes')
-                                          : t('campaign.save_as_draft', 'Save Draft')}
-                                </button>
-
+                    {/* Step Navigation Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <div>
+                            {step > 0 && (
                                 <button
                                     type="button"
-                                    disabled={processing || draftStatus === 'saving'}
-                                    onClick={handleLaunchSubmit}
-                                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-60 transition shadow-sm cursor-pointer"
+                                    onClick={prev}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition shadow-xs cursor-pointer"
                                 >
-                                    <Send className="h-4 w-4" />
-                                    {data.schedule_at ? t('campaign.schedule_and_launch', 'Schedule & Launch') : t('campaign.launch_now', 'Launch Now')}
+                                    <ArrowLeft className="h-4 w-4" /> {t('common.back')}
                                 </button>
-                            </div>
-                        )}
+                            )}
+                        </div>
+
+                        {/* Status Message Indicator */}
+                        <div className="flex items-center gap-2">
+                            {draftStatus === 'saving' && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 px-3 py-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-500" /> {t('campaign.saving_draft')}
+                                </span>
+                            )}
+                            {draftStatus === 'saved' && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                                    <Save className="h-3.5 w-3.5" /> {t('campaign.draft_saved')}
+                                </span>
+                            )}
+                            {draftStatus === 'error' && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 px-3 py-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                                    <AlertCircle className="h-3.5 w-3.5" /> {t('campaign.draft_save_failed')}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Next / Submit Actions */}
+                        <div className="flex items-center gap-2.5">
+                            {step < STEPS.length - 1 ? (
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    disabled={!isStepValid || draftStatus === 'saving'}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:from-brand-500 hover:to-brand-600 active:from-brand-700 active:to-brand-800 disabled:opacity-50 transition cursor-pointer"
+                                >
+                                    {draftStatus === 'saving' ? (
+                                        <><Loader2 className="h-4 w-4 animate-spin" /> {t('campaign.saving')}</>
+                                    ) : (
+                                        <>{t('common.next')} <ArrowRight className="h-4 w-4" /></>
+                                    )}
+                                </button>
+                            ) : (
+                                <div className="flex items-center gap-2.5">
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="inline-flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 disabled:opacity-60 transition shadow-xs cursor-pointer"
+                                    >
+                                        <Save className="h-4 w-4 text-neutral-500" />
+                                        {processing
+                                            ? t('campaign.saving')
+                                            : mode === 'edit'
+                                              ? t('campaign.save_changes')
+                                              : t('campaign.save_as_draft', 'Save Draft')}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        disabled={processing || draftStatus === 'saving'}
+                                        onClick={handleLaunchSubmit}
+                                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:from-emerald-500 hover:to-teal-500 active:from-emerald-700 active:to-teal-700 disabled:opacity-60 transition cursor-pointer"
+                                    >
+                                        <Send className="h-4 w-4" />
+                                        {data.schedule_at ? t('campaign.schedule_and_launch', 'Schedule & Launch') : t('campaign.launch_now', 'Launch Now')}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -1709,65 +1732,107 @@ function PreviewPane({ data, selectedTemplate, slots, contactTokens, audiencePre
     }
 
     return (
-        <aside className="space-y-4">
-            <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                    <Eye className="h-4 w-4" /> {t('campaign.live_preview')}
+        <aside className="space-y-5 lg:sticky lg:top-6 lg:self-start">
+            {/* ── Realistic Device Mockup Card ─────────────────────────── */}
+            <div className="overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+                <div className="flex items-center justify-between pb-3 text-xs font-semibold text-neutral-800 dark:text-neutral-200 border-b border-neutral-100 dark:border-neutral-800">
+                    <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-brand-500" />
+                        <span>{t('campaign.live_preview')}</span>
+                    </div>
+                    <span className="rounded-full bg-brand-50 dark:bg-brand-950/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
+                        {data.channel}
+                    </span>
                 </div>
-                <div className="mt-3">{content}</div>
-                <p className="mt-3 text-xs text-neutral-500">
+
+                {/* Smartphone Mockup */}
+                <div className="mt-4 overflow-hidden rounded-[2rem] border-4 border-neutral-800 dark:border-neutral-700 bg-neutral-900 shadow-xl">
+                    {/* Top Speaker Notch */}
+                    <div className="relative flex h-5 w-full items-center justify-center bg-neutral-900 pt-1">
+                        <div className="h-1.5 w-12 rounded-full bg-neutral-800" />
+                    </div>
+
+                    {/* Chat Header */}
+                    <div className="flex items-center gap-2.5 bg-neutral-800/90 px-3 py-2 text-white border-b border-neutral-700/50">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                            <ChannelBrandIcon channel={data.channel} className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="text-xs font-semibold truncate">{data.name || 'Campaign Preview'}</div>
+                            <div className="text-[10px] text-neutral-400">Recipient View</div>
+                        </div>
+                    </div>
+
+                    {/* Chat Wallpaper Body */}
+                    <div className="min-h-[220px] max-h-[340px] overflow-y-auto bg-neutral-950/90 p-3 text-xs">
+                        {content}
+                    </div>
+                </div>
+
+                <p className="mt-3 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400 text-center">
                     <Trans
                         i18nKey="campaign.variables_hint"
-                        components={{ field: <span className="font-mono" /> }}
+                        components={{ field: <span className="font-mono text-brand-500" /> }}
                     />
                 </p>
             </div>
 
-            <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 space-y-1 text-xs">
-                <div className="font-medium text-neutral-700 dark:text-neutral-200">{t('campaign.at_a_glance')}</div>
-                <div className="flex justify-between">
-                    <span className="text-neutral-500">{t('campaign.col_channel')}</span>
-                    <span className="font-medium text-neutral-800 dark:text-neutral-100">
-                        {CHANNEL_META[data.channel]?.label ?? data.channel}
+            {/* ── At A Glance Summary Panel ───────────────────────────── */}
+            <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 space-y-2.5 text-xs shadow-sm">
+                <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+                    <span>{t('campaign.at_a_glance')}</span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+
+                <div className="flex justify-between items-center py-0.5">
+                    <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.col_channel')}</span>
+                    <span className="inline-flex items-center gap-1.5 font-medium text-neutral-900 dark:text-neutral-100">
+                        <ChannelBrandIcon channel={data.channel} className="h-3.5 w-3.5" />
+                        <span>{CHANNEL_META[data.channel]?.label ?? data.channel}</span>
                     </span>
                 </div>
+
                 {data.channel === 'whatsapp' && data.whatsapp_phone_number_id && (() => {
                     const p = whatsappPhoneNumbers.find((n) => n.phone_number_id === data.whatsapp_phone_number_id);
                     return p ? (
-                        <div className="flex justify-between gap-3">
-                            <span className="text-neutral-500">{t('campaign.from')}</span>
-                            <span className="text-right font-medium text-neutral-800 dark:text-neutral-100">
+                        <div className="flex justify-between items-center py-0.5 gap-2">
+                            <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.from')}</span>
+                            <span className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
                                 {p.display_phone}
                             </span>
                         </div>
                     ) : null;
                 })()}
+
                 {data.channel === 'email' && data.payload_json?.from_email && (
-                    <div className="flex justify-between gap-3">
-                        <span className="text-neutral-500">{t('campaign.from')}</span>
-                        <span className="text-right font-medium text-neutral-800 dark:text-neutral-100 truncate max-w-[10rem]">
+                    <div className="flex justify-between items-center py-0.5 gap-2">
+                        <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.from')}</span>
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100 truncate max-w-[11rem]">
                             {data.payload_json.from_name
                                 ? `${data.payload_json.from_name} <${data.payload_json.from_email}>`
                                 : data.payload_json.from_email}
                         </span>
                     </div>
                 )}
-                <div className="flex justify-between">
-                    <span className="text-neutral-500">{t('campaign.audience')}</span>
-                    <span className="font-medium text-neutral-800 dark:text-neutral-100">
+
+                <div className="flex justify-between items-center py-0.5">
+                    <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.audience')}</span>
+                    <span className="font-medium text-neutral-900 dark:text-neutral-100 capitalize">
                         {data.audience_type}
                     </span>
                 </div>
-                <div className="flex justify-between">
-                    <span className="text-neutral-500">{t('campaign.reachable')}</span>
-                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                        {audiencePreview.deliverable.toLocaleString()}
+
+                <div className="flex justify-between items-center py-0.5">
+                    <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.reachable')}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        {audiencePreview.deliverable.toLocaleString()} contacts
                     </span>
                 </div>
+
                 {data.schedule_at && (
-                    <div className="flex justify-between gap-3">
-                        <span className="text-neutral-500">{t('campaign.step_schedule')}</span>
-                        <span className="text-right font-medium text-neutral-800 dark:text-neutral-100">
+                    <div className="flex justify-between items-center py-0.5 gap-2">
+                        <span className="text-neutral-500 dark:text-neutral-400">{t('campaign.step_schedule')}</span>
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100 text-right">
                             {formatInTz(
                                 tzLocalToUtcIso(data.schedule_at, data.timezone),
                                 data.timezone,
