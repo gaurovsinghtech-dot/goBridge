@@ -35,11 +35,17 @@ class AutoReplyListener
 
     public function handle(MessageReceived $event): void
     {
-        $msgId = $event->message->id ?? null;
+        $message = $event->message;
+        $msgKey = $message->provider_message_id ?: ($message->id ?? null);
 
         // Deduplication: ensure we never auto-reply twice for the same inbound message.
         // Using an atomic cache lock prevents races when webhooks are delivered in parallel.
-        if ($msgId && ! Cache::add("auto_reply_lock:{$msgId}", 1, 60)) {
+        if ($msgKey && ! Cache::add("auto_reply_lock:{$msgKey}", 1, 60)) {
+            return;
+        }
+
+        if ($msgKey && Cache::has("automation_triggered:{$msgKey}")) {
+            Log::info("AutoReplyListener skipped — message {$msgKey} handled by Automation Engine.");
             return;
         }
 
