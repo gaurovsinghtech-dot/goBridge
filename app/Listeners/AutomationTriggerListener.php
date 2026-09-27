@@ -145,7 +145,7 @@ class AutomationTriggerListener
             'started_at' => now(),
         ]);
 
-        dispatch(new ExecuteAutomationRunJob($run->id))->onQueue('automation');
+        ExecuteAutomationRunJob::dispatchSync($run->id);
     }
 
     private function fire(string $triggerType, int $workspaceId, int $contactId, array $context = []): void
@@ -162,20 +162,33 @@ class AutomationTriggerListener
      */
     private function fireWithConfig(string $triggerType, int $workspaceId, int $contactId, array $context, string $messageBody = ''): void
     {
+        $types = [$triggerType];
+        if ($triggerType === 'message.received') {
+            $types = ['message.received', 'message_received', 'inbound_message'];
+        }
+
         $automations = Automation::where('workspace_id', $workspaceId)
             ->where('status', 'active')
-            ->where('trigger_type', $triggerType)
+            ->whereIn('trigger_type', $types)
             ->get();
 
-        $bodyLower = mb_strtolower($messageBody);
+        $bodyLower = mb_strtolower(trim($messageBody));
 
         foreach ($automations as $automation) {
-            $keywords = $automation->trigger_config['keywords'] ?? [];
+            $rawKeywords = $automation->trigger_config['keywords'] ?? [];
+
+            if (is_string($rawKeywords)) {
+                $keywords = array_filter(array_map('trim', explode(',', $rawKeywords)));
+            } elseif (is_array($rawKeywords)) {
+                $keywords = array_filter(array_map('trim', array_map('strval', $rawKeywords)));
+            } else {
+                $keywords = [];
+            }
 
             if (! empty($keywords)) {
                 $matches = false;
                 foreach ($keywords as $kw) {
-                    if (str_contains($bodyLower, mb_strtolower((string) $kw))) {
+                    if ($kw !== '' && str_contains($bodyLower, mb_strtolower($kw))) {
                         $matches = true;
                         break;
                     }

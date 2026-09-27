@@ -105,7 +105,7 @@ class AutomationEngine
             'started_at' => now(),
         ]);
 
-        dispatch(new ExecuteAutomationRunJob($run->id))->onQueue('automation');
+        ExecuteAutomationRunJob::dispatchSync($run->id);
 
         return $run;
     }
@@ -133,7 +133,7 @@ class AutomationEngine
             unset($context['_awaiting_reply'], $context['_reply_var']);
             $run->update(['context' => $context]);
 
-            dispatch(new ExecuteAutomationRunJob($run->id))->onQueue('automation');
+            ExecuteAutomationRunJob::dispatchSync($run->id);
         }
     }
 
