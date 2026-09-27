@@ -169,13 +169,26 @@ class AutomationTriggerListener
 
         $automations = Automation::where('workspace_id', $workspaceId)
             ->where('status', 'active')
-            ->whereIn('trigger_type', $types)
+            ->where(function ($q) use ($types) {
+                $q->whereIn('trigger_type', $types)
+                  ->orWhereNull('trigger_type')
+                  ->orWhere('trigger_type', '');
+            })
             ->get();
 
         $bodyLower = mb_strtolower(trim($messageBody));
 
         foreach ($automations as $automation) {
-            $rawKeywords = $automation->trigger_config['keywords'] ?? [];
+            $nodes = collect($automation->nodes ?? []);
+            $triggerNode = $nodes->first(fn ($n) => in_array($n['type'] ?? '', ['trigger', 'triggerNode'], true) || isset($n['data']['triggerType']));
+            $nodeTriggerType = $triggerNode['data']['triggerType'] ?? $automation->trigger_type;
+
+            if ($nodeTriggerType && ! in_array($nodeTriggerType, $types, true)) {
+                continue;
+            }
+
+            $rawKeywords = $automation->trigger_config['keywords']
+                ?? ($triggerNode['data']['keywords'] ?? ($triggerNode['data']['keyword'] ?? []));
 
             if (is_string($rawKeywords)) {
                 $keywords = array_filter(array_map('trim', explode(',', $rawKeywords)));
@@ -198,6 +211,7 @@ class AutomationTriggerListener
                 }
             }
 
+            \Illuminate\Support\Facades\Log::info("AutomationTriggerListener: Triggering automation #{$automation->id} ({$automation->name}) for contact #{$contactId}");
             $this->engine->triggerForContact($automation, $contactId, $context);
         }
     }

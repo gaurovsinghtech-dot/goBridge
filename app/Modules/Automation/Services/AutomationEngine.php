@@ -157,8 +157,13 @@ class AutomationEngine
             $run->update(['resume_node_id' => null]);
         } else {
             // Find trigger node and start from the first node after it
-            $triggerNode = $nodes->first(fn ($n) => ($n['type'] ?? '') === 'trigger');
+            $isTriggerNode = fn ($n) => in_array($n['type'] ?? '', ['trigger', 'triggerNode'], true)
+                || isset($n['data']['triggerType'])
+                || (($n['data']['nodeType'] ?? '') === 'trigger');
+
+            $triggerNode = $nodes->first($isTriggerNode);
             if (! $triggerNode) {
+                Log::error("AutomationEngine: Run {$run->id} failed — no trigger node found.");
                 $run->update(['status' => 'failed', 'error' => 'No trigger node.', 'completed_at' => now()]);
 
                 return;
@@ -220,7 +225,7 @@ class AutomationEngine
             $context = array_merge($context, $result['context_update'] ?? []);
             $run->update(['context' => $context]);
 
-            $nodeType = $node['type'] ?? 'unknown';
+            $nodeType = $node['data']['nodeType'] ?? $node['type'] ?? 'unknown';
             $category = match ($nodeType) {
                 'trigger' => 'trigger',
                 'condition' => 'condition',
@@ -483,8 +488,8 @@ class AutomationEngine
 
     private function executeNode(array $node, AutomationRun $run, array $context): array
     {
-        $type = $node['type'] ?? 'unknown';
-        $data = $node['data'] ?? [];
+        $type = $node['data']['nodeType'] ?? $node['type'] ?? 'unknown';
+        $data = array_merge($node, is_array($node['data'] ?? null) ? $node['data'] : []);
 
         try {
             return match ($type) {

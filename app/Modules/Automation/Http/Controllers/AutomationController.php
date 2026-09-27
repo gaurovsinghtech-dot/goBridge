@@ -173,6 +173,20 @@ class AutomationController extends Controller
             'edges' => ['nullable', 'array'],
         ]);
 
+        if (! empty($validated['nodes'])) {
+            foreach ($validated['nodes'] as $node) {
+                if (in_array($node['type'] ?? '', ['trigger', 'triggerNode'], true) || ! empty($node['data']['triggerType'])) {
+                    if (empty($validated['trigger_type']) && ! empty($node['data']['triggerType'])) {
+                        $validated['trigger_type'] = $node['data']['triggerType'];
+                    }
+                    if (empty($validated['trigger_config']) && ! empty($node['data']['keywords'])) {
+                        $validated['trigger_config'] = ['keywords' => $node['data']['keywords']];
+                    }
+                    break;
+                }
+            }
+        }
+
         $automation->update($validated);
 
         return back()->with('success', 'Automation saved.');
