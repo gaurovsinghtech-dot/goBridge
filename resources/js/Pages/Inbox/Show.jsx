@@ -715,8 +715,8 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 1: CHANNELS & VIEWS SIDEBAR (LEFT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className="w-52 shrink-0 flex flex-col h-full bg-black border-r border-zinc-800 overflow-y-auto hidden xl:flex">
-                    <div className="p-3.5 border-b border-zinc-800 flex items-center gap-2.5">
+                <div className="w-48 shrink-0 flex flex-col h-full bg-black border-r border-zinc-800 overflow-y-auto hidden xl:flex">
+                    <div className="p-3 border-b border-zinc-800 flex items-center gap-2">
                         <div className="h-7 w-7 rounded-lg bg-white text-black font-black text-xs flex items-center justify-center shadow-xs">
                             GC
                         </div>
@@ -728,7 +728,7 @@ export default function InboxShow({
 
                     {/* Views */}
                     <div className="p-2 space-y-1 border-b border-zinc-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2.5 py-1">Views</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">Views</p>
                         {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
                             const isSelected = (filters.folder || null) === key && !filters.channel;
                             const count = counts[countKey] ?? 0;
@@ -737,17 +737,17 @@ export default function InboxShow({
                                 <button
                                     key={label}
                                     onClick={() => handleFilterChange({ folder: key, channel: null })}
-                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
                                         isSelected
                                             ? 'bg-white text-black font-extrabold shadow-md'
                                             : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <Icon className="h-4 w-4 shrink-0" />
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <Icon className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{label}</span>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
                                         isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
                                     }`}>
                                         {count}
@@ -759,7 +759,7 @@ export default function InboxShow({
 
                     {/* Channels */}
                     <div className="p-2 space-y-1 border-b border-zinc-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2.5 py-1">Channels</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">Channels</p>
                         {CHANNELS.map(ch => {
                             const isSelected = filters.channel === ch.key;
                             const count = counts[ch.countKey] ?? 0;
@@ -768,17 +768,17 @@ export default function InboxShow({
                                 <button
                                     key={ch.key}
                                     onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
-                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
                                         isSelected
                                             ? 'bg-white text-black font-extrabold shadow-md'
                                             : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <ChannelBrandIcon channel={ch.icon} className="h-4 w-4 shrink-0" />
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <ChannelBrandIcon channel={ch.icon} className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{ch.label}</span>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
                                         isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
                                     }`}>
                                         {count}
@@ -792,7 +792,7 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 2: CONVERSATION LIST (CENTER-LEFT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`w-full md:w-80 lg:w-88 flex flex-col border-r border-zinc-800 bg-zinc-950 shrink-0 ${
+                <div className={`w-full md:w-72 lg:w-80 flex flex-col border-r border-zinc-800 bg-zinc-950 shrink-0 ${
                     mobileTab === 'list' ? 'flex' : 'hidden md:flex'
                 }`}>
                     <div className="p-3 border-b border-zinc-800 bg-black">
@@ -833,11 +833,11 @@ export default function InboxShow({
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="relative shrink-0">
-                                            <div className="h-10 w-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-white shadow-xs">
+                                            <div className="h-9 w-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-white shadow-xs">
                                                 {convName[0]?.toUpperCase()}
                                             </div>
-                                            <span className="absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full bg-black border border-zinc-700 flex items-center justify-center shadow-xs">
-                                                <ChannelBrandIcon channel={conv.channel || conv.channel_account?.channel || 'whatsapp'} className="h-3 w-3" />
+                                            <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-black border border-zinc-700 flex items-center justify-center shadow-xs">
+                                                <ChannelBrandIcon channel={conv.channel || conv.channel_account?.channel || 'whatsapp'} className="h-2.5 w-2.5" />
                                             </span>
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -863,12 +863,13 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 3: CONVERSATION STREAM & ACTIONS (CENTER-RIGHT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`flex-1 flex flex-col h-full overflow-hidden bg-black ${
+                <div className={`flex-1 flex flex-col h-full overflow-hidden bg-black min-w-0 ${
                     mobileTab === 'chat' ? 'flex' : 'hidden md:flex'
                 }`}>
-                    {/* Header */}
-                    <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between gap-3 bg-black shrink-0">
-                        <div className="flex items-center gap-3 min-w-0">
+                    {/* Header: Responsive Flex Layout to Prevent Overlapping */}
+                    <div className="p-3 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-2.5 bg-black shrink-0">
+                        {/* Left: Customer Info (shrink-0 guarantees avatar & name never collapse) */}
+                        <div className="flex items-center gap-2.5 shrink-0 min-w-0">
                             <button onClick={() => setMobileTab('list')} className="md:hidden p-1 text-zinc-400 hover:bg-zinc-900 rounded-lg">
                                 <ArrowLeft className="w-4 h-4" />
                             </button>
@@ -877,20 +878,20 @@ export default function InboxShow({
                                 {contactName[0]?.toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <h1 className="text-xs font-bold text-white truncate">{contactName}</h1>
+                                <div className="flex items-center gap-1.5">
+                                    <h1 className="text-xs font-bold text-white truncate max-w-[130px] sm:max-w-none">{contactName}</h1>
                                     <ChannelBrandIcon channel={channel} className="h-3.5 w-3.5 shrink-0" />
                                 </div>
-                                <p className="text-[11px] text-zinc-400 truncate">
+                                <p className="text-[11px] text-zinc-400 truncate max-w-[130px] sm:max-w-none">
                                     {conversation.contact?.phone_e164 || conversation.contact?.email || 'No phone/email'}
                                 </p>
                             </div>
                         </div>
 
-                        {/* Top Controls: AI / Human Control Pill & Actions */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        {/* Right: AI & Quick Action Controls (flex-wrap & shrink-0) */}
+                        <div className="flex items-center gap-1.5 flex-wrap shrink-0">
                             {/* AI Control Header Card */}
-                            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900 border border-zinc-800">
+                            <div className="flex items-center gap-1 p-0.5 rounded-xl bg-zinc-900 border border-zinc-800 shrink-0">
                                 {isAiActive ? (
                                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white text-black text-[11px] font-bold shadow-xs">
                                         <span className="h-2 w-2 rounded-full bg-black animate-pulse" /> AI Assistant ● ACTIVE
@@ -904,7 +905,7 @@ export default function InboxShow({
                                 <button
                                     onClick={() => handleSwitchMode(isAiActive ? 'human' : 'auto')}
                                     disabled={aiLoading}
-                                    className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-zinc-200 hover:bg-zinc-800 transition"
+                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-zinc-200 hover:bg-zinc-800 transition"
                                 >
                                     {isAiActive ? '[ Switch to Human ]' : '[ Enable AI ]'}
                                 </button>
@@ -914,7 +915,7 @@ export default function InboxShow({
                             <select
                                 value={aiMode}
                                 onChange={(e) => handleSwitchMode(e.target.value)}
-                                className="hidden sm:inline-block text-[11px] rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 px-2.5 font-medium text-white focus:outline-none focus:border-white transition"
+                                className="text-[11px] rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 px-2 font-medium text-white focus:outline-none focus:border-white transition shrink-0"
                             >
                                 <option value="auto">Mode: AI Auto Reply</option>
                                 <option value="suggested">Mode: AI Suggested</option>
@@ -925,36 +926,36 @@ export default function InboxShow({
                             {/* Handoff Button */}
                             <button
                                 onClick={() => setShowHandoffModal(true)}
-                                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition shrink-0"
                                 title="Execute Human Handoff"
                             >
                                 <ArrowRightLeft className="w-3.5 h-3.5 text-white" />
-                                <span>Handoff</span>
+                                <span className="hidden xl:inline">Handoff</span>
                             </button>
 
                             {/* Assign User Button */}
                             <button
                                 onClick={() => setShowAssignModal(true)}
-                                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:bg-zinc-800 transition"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:bg-zinc-800 transition shrink-0"
                                 title="Assign Agent"
                             >
                                 <User className="w-3.5 h-3.5 text-white" />
-                                <span>{assignedUser ? assignedUser.name : 'Assign'}</span>
+                                <span className="hidden xl:inline">{assignedUser ? assignedUser.name : 'Assign'}</span>
                             </button>
 
                             {/* Close / Reopen */}
                             <button
                                 onClick={handleToggleStatus}
-                                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition shrink-0"
                             >
                                 <CheckCircle className="w-3.5 h-3.5" />
-                                <span>{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
+                                <span className="hidden xl:inline">{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
                             </button>
 
                             {/* Toggle Right Customer Panel (Desktop) */}
                             <button
                                 onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                                className="hidden lg:flex p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 transition"
+                                className="hidden lg:flex p-1.5 rounded-xl border border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 transition shrink-0"
                                 title="Toggle Customer Info Panel"
                             >
                                 <Info className="w-4 h-4" />
@@ -962,7 +963,7 @@ export default function InboxShow({
 
                             <button
                                 onClick={() => setMobileTab('customer')}
-                                className="md:hidden p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white"
+                                className="md:hidden p-1.5 rounded-xl border border-zinc-800 bg-zinc-900 text-white"
                             >
                                 <Info className="w-4 h-4" />
                             </button>
@@ -1232,7 +1233,7 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 4: CUSTOMER 360 & JOURNEY PANEL (RIGHT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`w-80 shrink-0 border-l border-zinc-800 bg-black flex flex-col h-full overflow-y-auto ${
+                <div className={`w-72 lg:w-80 shrink-0 border-l border-zinc-800 bg-black flex flex-col h-full overflow-y-auto ${
                     showCustomerSidebar ? (mobileTab === 'customer' ? 'flex' : 'hidden lg:flex') : 'hidden'
                 }`}>
                     {/* Header */}
