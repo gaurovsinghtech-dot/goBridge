@@ -273,6 +273,38 @@ class InboxController extends Controller
         ]);
     }
 
+    public function poll(Request $request, Conversation $conversation): JsonResponse
+    {
+        $this->authorise($request, $conversation);
+
+        $afterId = (int) $request->input('after_id', 0);
+
+        $newMessages = $conversation->messages()
+            ->when($afterId > 0, fn ($q) => $q->where('id', '>', $afterId))
+            ->orderBy('sent_at')
+            ->get();
+
+        if ($newMessages->isNotEmpty()) {
+            $conversation->update(['unread_count' => 0]);
+        }
+
+        $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
+
+        $conversations = Conversation::where('workspace_id', $workspaceId)
+            ->with(['contact.tags', 'channelAccount', 'lastMessage', 'labels'])
+            ->orderByDesc('last_message_at')
+            ->take(30)
+            ->get();
+
+        return response()->json([
+            'messages'      => $newMessages,
+            'conversations' => $conversations,
+            'unread_count'  => $conversation->unread_count,
+            'ai_mode'       => $conversation->ai_mode,
+            'status'        => $conversation->status,
+        ]);
+    }
+
     public function reply(Request $request, Conversation $conversation): JsonResponse|RedirectResponse
     {
         $this->authorise($request, $conversation);

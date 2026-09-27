@@ -561,20 +561,54 @@ export default function InboxShow({
         scrollToBottom();
     }, [messages, voiceCalls]);
 
-    // WebSocket real-time events
+    // Real-time live updates: WebSockets (Laravel Echo) + 3-second background polling fallback
     useEffect(() => {
-        if (!window.Echo) return;
-        const ch = window.Echo.private(`conversation.${conversation.id}`);
-        ch.listen('.MessageReceived', (e) => {
-            setMessages(prev => prev.some(m => m.id === e.id) ? prev : [...prev, e]);
-        }).listen('.MessageSent', (e) => {
-            setMessages(prev => prev.some(m => m.id === e.id) ? prev.map(m => m.id === e.id ? { ...m, ...e } : m) : [...prev, e]);
-        }).listen('.MessageStatusUpdated', (e) => {
-            setMessages(prev => prev.map(m => m.id === e.id ? { ...m, status: e.status } : m));
-        });
+        if (!conversation?.uuid) return;
 
-        return () => { window.Echo.leave(`conversation.${conversation.id}`); };
-    }, [conversation.id]);
+        // 1. Background fast-polling (3 seconds)
+        const pollInterval = setInterval(async () => {
+            try {
+                const lastId = messages.length > 0 ? messages[messages.length - 1].id : 0;
+                const res = await axios.get(route('client.inbox.poll', conversation.uuid), {
+                    params: { after_id: lastId }
+                });
+
+                if (res.data?.messages && Array.isArray(res.data.messages) && res.data.messages.length > 0) {
+                    setMessages(prev => {
+                        const existingIds = new Set(prev.map(m => m.id));
+                        const incoming = res.data.messages.filter(m => !existingIds.has(m.id));
+                        return incoming.length > 0 ? [...prev, ...incoming] : prev;
+                    });
+                }
+
+                if (res.data?.conversations) {
+                    setConversations(res.data.conversations);
+                }
+            } catch (err) {
+                // Ignore silent poll error
+            }
+        }, 3000);
+
+        // 2. WebSockets / Echo listeners
+        if (window.Echo && conversation?.id) {
+            const channelName = `conversation.${conversation.id}`;
+            const ch = window.Echo.private(channelName);
+            ch.listen('.MessageReceived', (e) => {
+                setMessages(prev => prev.some(m => m.id === e.id) ? prev : [...prev, e]);
+            }).listen('.MessageSent', (e) => {
+                setMessages(prev => prev.some(m => m.id === e.id) ? prev.map(m => m.id === e.id ? { ...m, ...e } : m) : [...prev, e]);
+            }).listen('.MessageStatusUpdated', (e) => {
+                setMessages(prev => prev.map(m => m.id === e.id ? { ...m, status: e.status } : m));
+            });
+        }
+
+        return () => {
+            clearInterval(pollInterval);
+            if (window.Echo && conversation?.id) {
+                window.Echo.leave(`conversation.${conversation.id}`);
+            }
+        };
+    }, [conversation.uuid, conversation.id, messages]);
 
     const handleFilterChange = (newFilters) => {
         router.get(
