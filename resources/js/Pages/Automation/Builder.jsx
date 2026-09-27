@@ -424,7 +424,7 @@ const FIELD_COMPONENTS = {
     google_forms: GoogleFormsFields,
 };
 
-function ConfigPanel({ node, onClose, onChange }) {
+function ConfigPanel({ node, onClose, onChange, onDelete }) {
     const { t } = useTranslation();
     if (!node) return null;
     const { nodeType } = node.data;
@@ -457,7 +457,7 @@ function ConfigPanel({ node, onClose, onChange }) {
             </div>
 
             {/* Fields */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 16, paddingBottom: 64 }} className="space-y-4">
+            <div style={{ flex: 1, overflowY: 'auto', padding: 16 }} className="space-y-4">
                 {/* Label */}
                 <Field label={t('automation.node_label_optional')}>
                     <input className={inputCls} value={d.label ?? ''} onChange={e => set('label', e.target.value)} placeholder={defLabel} />
@@ -470,6 +470,39 @@ function ConfigPanel({ node, onClose, onChange }) {
                 <div style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, padding: '8px 10px', fontSize: 10, color: '#a1a1aa' }}>
                     <strong style={{ color: '#ffffff' }}>{t('automation.available_tokens')}</strong> <code>{'{{contact.name}}'}</code>, <code>{'{{contact.email}}'}</code>, <code>{'{{contact.phone}}'}</code>, <code>{'{{message.body}}'}</code>, <code>{'{{context.key}}'}</code>
                 </div>
+            </div>
+
+            {/* Drawer Footer: Save & Delete Actions */}
+            <div style={{
+                padding: '12px 16px', borderTop: '1px solid #27272a',
+                background: '#121215', display: 'flex', gap: 8, alignItems: 'center'
+            }}>
+                <button
+                    onClick={onClose}
+                    style={{
+                        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        background: '#ffffff', color: '#000000', border: '1px solid #ffffff', borderRadius: 10,
+                        padding: '9px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(255,255,255,0.15)', transition: 'all 0.15s'
+                    }}
+                >
+                    <Check size={14} /> {t('common.save')}
+                </button>
+                {onDelete && (
+                    <button
+                        onClick={onDelete}
+                        title={t('automation.delete_node')}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 36, height: 36, background: '#18181b', border: '1px solid #27272a', borderRadius: 10,
+                            color: '#a1a1aa', cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#27272a'; e.currentTarget.style.color = '#ffffff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#18181b'; e.currentTarget.style.color = '#a1a1aa'; }}
+                    >
+                        <Trash2 size={15} />
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -566,6 +599,24 @@ function TriggerConfigPanel({ automation, onTypeChange, onConfigChange, webhookU
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Drawer Footer: Save Action */}
+            <div style={{
+                padding: '12px 16px', borderTop: '1px solid #27272a',
+                background: '#121215', display: 'flex', gap: 8, alignItems: 'center'
+            }}>
+                <button
+                    onClick={onClose}
+                    style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        background: '#ffffff', color: '#000000', border: '1px solid #ffffff', borderRadius: 10,
+                        padding: '9px 0', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(255,255,255,0.15)', transition: 'all 0.15s'
+                    }}
+                >
+                    <Check size={14} /> {t('common.save')}
+                </button>
             </div>
         </div>
     );
@@ -1918,21 +1969,8 @@ function AutomationBuilderInner({ automation: initial }) {
                                 node={selectedNode}
                                 onClose={() => setSelectedNode(null)}
                                 onChange={updateNodeData}
+                                onDelete={() => deleteNode(selectedNode.id)}
                             />
-                            <button
-                                onClick={() => deleteNode(selectedNode.id)}
-                                style={{
-                                    position: 'absolute', bottom: 16, left: 16, right: 16,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    background: '#18181b', border: '1px solid #27272a', borderRadius: 10,
-                                    padding: '9px 0', fontSize: 12, fontWeight: 600, color: '#ffffff',
-                                    cursor: 'pointer', zIndex: 11,
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.background = '#27272a'; e.currentTarget.style.borderColor = '#ffffff'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = '#18181b'; e.currentTarget.style.borderColor = '#27272a'; }}
-                            >
-                                <Trash2 size={13} /> {t('automation.delete_node')}
-                            </button>
                         </div>
                     </>
                 )}
