@@ -866,10 +866,10 @@ export default function InboxShow({
                 <div className={`flex-1 flex flex-col h-full overflow-hidden bg-black min-w-0 ${
                     mobileTab === 'chat' ? 'flex' : 'hidden md:flex'
                 }`}>
-                    {/* Header: Responsive Flex Layout to Prevent Overlapping */}
-                    <div className="p-3 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-2.5 bg-black shrink-0">
-                        {/* Left: Customer Info (shrink-0 guarantees avatar & name never collapse) */}
-                        <div className="flex items-center gap-2.5 shrink-0 min-w-0">
+                    {/* Header: Horizontally Scrollable Controls to Prevent Clipping */}
+                    <div className="p-3 border-b border-zinc-800 flex items-center justify-between gap-3 bg-black shrink-0">
+                        {/* Left: Customer Info */}
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <button onClick={() => setMobileTab('list')} className="md:hidden p-1 text-zinc-400 hover:bg-zinc-900 rounded-lg">
                                 <ArrowLeft className="w-4 h-4" />
                             </button>
@@ -879,25 +879,25 @@ export default function InboxShow({
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <h1 className="text-xs font-bold text-white truncate max-w-[130px] sm:max-w-none">{contactName}</h1>
+                                    <h1 className="text-xs font-bold text-white truncate max-w-[120px] sm:max-w-none">{contactName}</h1>
                                     <ChannelBrandIcon channel={channel} className="h-3.5 w-3.5 shrink-0" />
                                 </div>
-                                <p className="text-[11px] text-zinc-400 truncate max-w-[130px] sm:max-w-none">
+                                <p className="text-[11px] text-zinc-400 truncate max-w-[120px] sm:max-w-none">
                                     {conversation.contact?.phone_e164 || conversation.contact?.email || 'No phone/email'}
                                 </p>
                             </div>
                         </div>
 
-                        {/* Right: AI & Quick Action Controls (flex-wrap & shrink-0) */}
-                        <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                        {/* Right: Horizontally Scrollable Controls */}
+                        <div className="flex-1 min-w-0 flex items-center justify-end gap-1.5 overflow-x-auto py-1 scrollbar-none whitespace-nowrap">
                             {/* AI Control Header Card */}
                             <div className="flex items-center gap-1 p-0.5 rounded-xl bg-zinc-900 border border-zinc-800 shrink-0">
                                 {isAiActive ? (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white text-black text-[11px] font-bold shadow-xs">
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white text-black text-[11px] font-bold shadow-xs shrink-0">
                                         <span className="h-2 w-2 rounded-full bg-black animate-pulse" /> AI Assistant ● ACTIVE
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-bold shadow-xs">
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-bold shadow-xs shrink-0">
                                         <span className="h-2 w-2 rounded-full bg-zinc-500" /> AI Assistant ○ PAUSED
                                     </div>
                                 )}
@@ -905,7 +905,7 @@ export default function InboxShow({
                                 <button
                                     onClick={() => handleSwitchMode(isAiActive ? 'human' : 'auto')}
                                     disabled={aiLoading}
-                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-zinc-200 hover:bg-zinc-800 transition"
+                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-zinc-200 hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
                                 >
                                     {isAiActive ? '[ Switch to Human ]' : '[ Enable AI ]'}
                                 </button>
@@ -915,7 +915,7 @@ export default function InboxShow({
                             <select
                                 value={aiMode}
                                 onChange={(e) => handleSwitchMode(e.target.value)}
-                                className="text-[11px] rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 px-2 font-medium text-white focus:outline-none focus:border-white transition shrink-0"
+                                className="text-[11px] rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 px-2.5 font-medium text-white focus:outline-none focus:border-white transition shrink-0 cursor-pointer"
                             >
                                 <option value="auto">Mode: AI Auto Reply</option>
                                 <option value="suggested">Mode: AI Suggested</option>
@@ -926,36 +926,36 @@ export default function InboxShow({
                             {/* Handoff Button */}
                             <button
                                 onClick={() => setShowHandoffModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition shrink-0"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
                                 title="Execute Human Handoff"
                             >
-                                <ArrowRightLeft className="w-3.5 h-3.5 text-white" />
-                                <span className="hidden xl:inline">Handoff</span>
+                                <ArrowRightLeft className="w-3.5 h-3.5 text-white shrink-0" />
+                                <span>Handoff</span>
                             </button>
 
                             {/* Assign User Button */}
                             <button
                                 onClick={() => setShowAssignModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:bg-zinc-800 transition shrink-0"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
                                 title="Assign Agent"
                             >
-                                <User className="w-3.5 h-3.5 text-white" />
-                                <span className="hidden xl:inline">{assignedUser ? assignedUser.name : 'Assign'}</span>
+                                <User className="w-3.5 h-3.5 text-white shrink-0" />
+                                <span>{assignedUser ? assignedUser.name : 'Assign'}</span>
                             </button>
 
                             {/* Close / Reopen */}
                             <button
                                 onClick={handleToggleStatus}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition shrink-0"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
                             >
-                                <CheckCircle className="w-3.5 h-3.5" />
-                                <span className="hidden xl:inline">{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
+                                <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                                <span>{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
                             </button>
 
                             {/* Toggle Right Customer Panel (Desktop) */}
                             <button
                                 onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                                className="hidden lg:flex p-1.5 rounded-xl border border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 transition shrink-0"
+                                className="hidden lg:flex p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 transition shrink-0"
                                 title="Toggle Customer Info Panel"
                             >
                                 <Info className="w-4 h-4" />
@@ -963,7 +963,7 @@ export default function InboxShow({
 
                             <button
                                 onClick={() => setMobileTab('customer')}
-                                className="md:hidden p-1.5 rounded-xl border border-zinc-800 bg-zinc-900 text-white"
+                                className="md:hidden p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white shrink-0"
                             >
                                 <Info className="w-4 h-4" />
                             </button>
