@@ -561,12 +561,21 @@ export default function InboxShow({
         scrollToBottom();
     }, [messages, voiceCalls]);
 
-    // Real-time live updates: WebSockets (Laravel Echo) + 3-second background polling fallback
+    // Real-time live updates: Priority to WebSockets (0 API calls); adaptive fallback when disconnected
     useEffect(() => {
         if (!conversation?.uuid) return;
 
-        // 1. Background fast-polling (3 seconds)
+        // Check if WebSockets (Pusher/Echo) are actively connected
+        const isWsConnected = () => {
+            return window.Echo?.connector?.pusher?.connection?.state === 'connected';
+        };
+
+        // 1. Adaptive Fallback Polling (only if WS is disconnected and tab is visible)
         const pollInterval = setInterval(async () => {
+            if (isWsConnected() || document.hidden) {
+                return; // Skip API calls completely when WebSockets are active or tab is hidden
+            }
+
             try {
                 const lastId = messages.length > 0 ? messages[messages.length - 1].id : 0;
                 const res = await axios.get(route('client.inbox.poll', conversation.uuid), {
@@ -587,9 +596,9 @@ export default function InboxShow({
             } catch (err) {
                 // Ignore silent poll error
             }
-        }, 3000);
+        }, 8000);
 
-        // 2. WebSockets / Echo listeners
+        // 2. WebSockets / Echo listeners (instant event pushing with 0 API calls)
         if (window.Echo && conversation?.id) {
             const channelName = `conversation.${conversation.id}`;
             const ch = window.Echo.private(channelName);
