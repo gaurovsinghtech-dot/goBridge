@@ -298,7 +298,9 @@ class InboxController extends Controller
 
         return response()->json([
             'messages'      => $newMessages,
-            'conversations' => $conversations,
+            'conversations' => [
+                'data' => $conversations,
+            ],
             'unread_count'  => $conversation->unread_count,
             'ai_mode'       => $conversation->ai_mode,
             'status'        => $conversation->status,

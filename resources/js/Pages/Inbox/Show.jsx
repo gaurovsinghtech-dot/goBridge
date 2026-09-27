@@ -720,7 +720,9 @@ export default function InboxShow({
         ? `${conversation.contact.first_name ?? ''} ${conversation.contact.last_name ?? ''}`.trim()
         : conversation.contact?.phone_e164 ?? conversation.contact?.email ?? 'Customer';
 
-    const convList = conversations?.data ?? [];
+    const convList = Array.isArray(conversations)
+        ? conversations
+        : (Array.isArray(conversations?.data) ? conversations.data : []);
     const assignedUser = teamMembers.find(m => m.id === assignedUserId);
 
     return (

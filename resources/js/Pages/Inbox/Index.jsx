@@ -161,7 +161,9 @@ export default function InboxIndex({
 
     const activeFolder = filters.folder || null;
     const activeChannel = filters.channel || null;
-    const convList = conversations?.data ?? [];
+    const convList = Array.isArray(conversations)
+        ? conversations
+        : (Array.isArray(conversations?.data) ? conversations.data : []);
 
     return (
         <InboxLayout>
