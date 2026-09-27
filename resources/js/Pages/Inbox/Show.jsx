@@ -596,7 +596,7 @@ export default function InboxShow({
             } catch (err) {
                 // Ignore silent poll error
             }
-        }, 8000);
+        }, 3000);
 
         // 2. WebSockets / Echo listeners (instant event pushing with 0 API calls)
         if (window.Echo && conversation?.id) {
