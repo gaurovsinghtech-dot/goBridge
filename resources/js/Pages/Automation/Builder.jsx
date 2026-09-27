@@ -194,7 +194,6 @@ function BaseNode({ id, data, selected }) {
     const { nodeType, label, configured } = data;
     const def = NODE_DEFS[nodeType];
     const defLabel = getNodeDefLabel(nodeType, t);
-    const defColor = def?.color ?? '#6366f1';
     const isCondition = nodeType === 'condition';
 
     const hasLabel = label && label !== defLabel;
@@ -203,41 +202,41 @@ function BaseNode({ id, data, selected }) {
     return (
         <div
             style={{
-                background: '#0f172a',
-                border: `1.5px solid ${selected ? defColor : '#1e293b'}`,
+                background: '#09090b',
+                border: `1.5px solid ${selected ? '#ffffff' : '#27272a'}`,
                 borderRadius: 14,
                 minWidth: 230,
                 boxShadow: selected
-                    ? `0 0 0 3px ${defColor}33, 0 12px 28px rgba(0,0,0,0.4)`
-                    : '0 4px 16px rgba(0,0,0,0.25)',
+                    ? '0 0 0 2px #ffffff, 0 12px 28px rgba(255,255,255,0.15)'
+                    : '0 4px 16px rgba(0,0,0,0.6)',
                 transition: 'all 0.15s ease-in-out',
                 overflow: 'hidden',
                 position: 'relative',
             }}
         >
-            {/* Top accent bar */}
-            <div style={{ height: 3, background: defColor }} />
+            {/* Top White Accent Bar */}
+            <div style={{ height: 3, background: selected ? '#ffffff' : '#3f3f46' }} />
 
-            <Handle type="target" position={Position.Top} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${defColor}` }} />
+            <Handle type="target" position={Position.Top} style={{ background: '#000000', width: 10, height: 10, border: '2px solid #ffffff' }} />
 
             {/* Row: icon chip · text · actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
                 <span style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                    background: `${defColor}1a`, color: defColor,
-                    border: `1px solid ${defColor}33`,
+                    background: '#18181b', color: '#ffffff',
+                    border: '1px solid #27272a',
                 }}>
                     <NodeIcon nodeType={nodeType} size={16} />
                 </span>
 
                 <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f8fafc', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#ffffff', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {defLabel}
                     </div>
                     <div style={{
                         fontSize: 11, lineHeight: 1.3, marginTop: 2,
-                        color: summary ? '#94a3b8' : '#64748b',
+                        color: summary ? '#a1a1aa' : '#71717a',
                         fontStyle: summary ? 'normal' : 'italic',
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
@@ -253,11 +252,11 @@ function BaseNode({ id, data, selected }) {
                         style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             width: 24, height: 24, padding: 0, borderRadius: 6, border: 'none',
-                            background: 'transparent', color: '#64748b', cursor: 'pointer',
+                            background: 'transparent', color: '#a1a1aa', cursor: 'pointer',
                             transition: 'all 0.15s',
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.color = '#e2e8f0'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#27272a'; e.currentTarget.style.color = '#ffffff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a1a1aa'; }}
                     >
                         <Settings size={13} />
                     </button>
@@ -268,11 +267,11 @@ function BaseNode({ id, data, selected }) {
                         style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             width: 24, height: 24, padding: 0, borderRadius: 6, border: 'none',
-                            background: 'transparent', color: '#64748b', cursor: 'pointer',
+                            background: 'transparent', color: '#a1a1aa', cursor: 'pointer',
                             transition: 'all 0.15s',
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#450a0a'; e.currentTarget.style.color = '#f87171'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#27272a'; e.currentTarget.style.color = '#ffffff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a1a1aa'; }}
                     >
                         <Trash2 size={13} />
                     </button>
@@ -283,14 +282,14 @@ function BaseNode({ id, data, selected }) {
             {isCondition ? (
                 <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 14px 8px', fontSize: 10, fontWeight: 700 }}>
-                        <span style={{ color: '#34d399' }}>✓ {t('common.yes')}</span>
-                        <span style={{ color: '#f87171' }}>✗ {t('common.no')}</span>
+                        <span style={{ color: '#ffffff' }}>✓ {t('common.yes')}</span>
+                        <span style={{ color: '#a1a1aa' }}>✗ {t('common.no')}</span>
                     </div>
-                    <Handle type="source" id="true"  position={Position.Bottom} style={{ left: '30%', background: '#0f172a', width: 10, height: 10, border: '2px solid #34d399' }} />
-                    <Handle type="source" id="false" position={Position.Bottom} style={{ left: '70%', background: '#0f172a', width: 10, height: 10, border: '2px solid #f87171' }} />
+                    <Handle type="source" id="true"  position={Position.Bottom} style={{ left: '30%', background: '#000000', width: 10, height: 10, border: '2px solid #ffffff' }} />
+                    <Handle type="source" id="false" position={Position.Bottom} style={{ left: '70%', background: '#000000', width: 10, height: 10, border: '2px solid #52525b' }} />
                 </>
             ) : (
-                <Handle type="source" position={Position.Bottom} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${defColor}` }} />
+                <Handle type="source" position={Position.Bottom} style={{ background: '#000000', width: 10, height: 10, border: '2px solid #ffffff' }} />
             )}
         </div>
     );
@@ -299,44 +298,43 @@ function BaseNode({ id, data, selected }) {
 function TriggerNode({ data, selected }) {
     const { t } = useTranslation();
     const trigger = TRIGGER_TYPES.find(tr => tr.value === data.triggerType);
-    const accent = '#f59e0b';
     const label = getTriggerDefLabel(trigger, t);
 
     return (
         <div style={{
-            background: '#0f172a',
-            border: `1.5px solid ${selected ? accent : '#f59e0b40'}`,
+            background: '#09090b',
+            border: `1.5px solid ${selected ? '#ffffff' : '#3f3f46'}`,
             borderRadius: 14,
             minWidth: 230,
             boxShadow: selected
-                ? `0 0 0 3px ${accent}33, 0 12px 28px rgba(245,158,11,0.15)`
-                : '0 4px 16px rgba(0,0,0,0.25)',
+                ? '0 0 0 2px #ffffff, 0 12px 28px rgba(255,255,255,0.15)'
+                : '0 4px 16px rgba(0,0,0,0.6)',
             transition: 'all 0.15s ease-in-out',
             overflow: 'hidden',
         }}>
-            {/* Top Amber Accent Bar */}
-            <div style={{ height: 3, background: accent }} />
+            {/* Top White Accent Bar */}
+            <div style={{ height: 3, background: '#ffffff' }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
                 <span style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                    background: '#78350f33', color: accent,
-                    border: '1px solid #78350f66',
+                    background: '#ffffff', color: '#000000',
+                    border: '1px solid #ffffff',
                 }}>
                     <Zap size={16} />
                 </span>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 800, color: '#f59e0b', letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.3 }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, color: '#ffffff', letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.3 }}>
                         {t('automation.trigger')}
                     </div>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {trigger?.Icon && <trigger.Icon size={13} style={{ color: accent, flexShrink: 0 }} />}
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {trigger?.Icon && <trigger.Icon size={13} style={{ color: '#a1a1aa', flexShrink: 0 }} />}
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
                     </div>
                 </div>
             </div>
-            <Handle type="source" position={Position.Bottom} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${accent}` }} />
+            <Handle type="source" position={Position.Bottom} style={{ background: '#000000', width: 10, height: 10, border: '2px solid #ffffff' }} />
         </div>
     );
 }
@@ -439,21 +437,21 @@ function ConfigPanel({ node, onClose, onChange }) {
     return (
         <div style={{
             position: 'absolute', top: 0, right: 0, bottom: 0, width: 320,
-            background: '#fff', borderLeft: '1px solid #e5e7eb',
-            boxShadow: '-4px 0 24px rgba(0,0,0,0.08)',
+            background: '#09090b', borderLeft: '1px solid #27272a',
+            boxShadow: '-4px 0 24px rgba(0,0,0,0.8)',
             zIndex: 10, display: 'flex', flexDirection: 'column',
             borderRadius: '0 0 12px 0',
         }}>
             {/* Header */}
             <div style={{
-                background: def?.color ?? '#6366f1', padding: '14px 16px',
+                background: '#18181b', borderBottom: '1px solid #27272a', padding: '14px 16px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: '#fff' }}><NodeIcon nodeType={nodeType} size={15} /></span>
-                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{defLabel}</span>
+                    <span style={{ color: '#ffffff' }}><NodeIcon nodeType={nodeType} size={15} /></span>
+                    <span style={{ color: '#ffffff', fontWeight: 700, fontSize: 13 }}>{defLabel}</span>
                 </div>
-                <button onClick={onClose} style={{ color: '#ffffff99', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+                <button onClick={onClose} style={{ color: '#a1a1aa', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
                     <X size={16} />
                 </button>
             </div>
@@ -469,18 +467,18 @@ function ConfigPanel({ node, onClose, onChange }) {
                 {Fields && <Fields d={d} set={set} />}
 
                 {/* Token hint */}
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 10px', fontSize: 10, color: '#64748b' }}>
-                    <strong>{t('automation.available_tokens')}</strong> <code>{'{{contact.name}}'}</code>, <code>{'{{contact.email}}'}</code>, <code>{'{{contact.phone}}'}</code>, <code>{'{{message.body}}'}</code>, <code>{'{{context.key}}'}</code>
+                <div style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, padding: '8px 10px', fontSize: 10, color: '#a1a1aa' }}>
+                    <strong style={{ color: '#ffffff' }}>{t('automation.available_tokens')}</strong> <code>{'{{contact.name}}'}</code>, <code>{'{{contact.email}}'}</code>, <code>{'{{contact.phone}}'}</code>, <code>{'{{message.body}}'}</code>, <code>{'{{context.key}}'}</code>
                 </div>
             </div>
         </div>
     );
 }
 
-const inputCls = "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition";
-const textareaCls = "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition resize-none";
-const selectCls = "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition";
-const labelCls = "block text-xs font-semibold text-gray-600 mb-1";
+const inputCls = "w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition";
+const textareaCls = "w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition resize-none";
+const selectCls = "w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition";
+const labelCls = "block text-xs font-semibold text-zinc-300 mb-1";
 
 function Field({ label, children }) {
     return <div><label className={labelCls}>{label}</label>{children}</div>;
@@ -499,25 +497,25 @@ function TriggerConfigPanel({ automation, onTypeChange, onConfigChange, webhookU
     return (
         <div style={{
             position: 'absolute', top: 0, right: 0, bottom: 0, width: 320,
-            background: '#fff', borderLeft: '1px solid #e5e7eb',
-            boxShadow: '-4px 0 24px rgba(0,0,0,0.08)',
+            background: '#09090b', borderLeft: '1px solid #27272a',
+            boxShadow: '-4px 0 24px rgba(0,0,0,0.8)',
             zIndex: 10, display: 'flex', flexDirection: 'column',
             borderRadius: '0 0 12px 0',
         }}>
             {/* Header */}
-            <div style={{ background: '#1e293b', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: '#18181b', borderBottom: '1px solid #27272a', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Zap size={15} color="#f59e0b" />
-                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{t('automation.trigger')}</span>
+                    <Zap size={15} color="#ffffff" />
+                    <span style={{ color: '#ffffff', fontWeight: 700, fontSize: 13 }}>{t('automation.trigger')}</span>
                 </div>
-                <button onClick={onClose} style={{ color: '#ffffff99', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+                <button onClick={onClose} style={{ color: '#a1a1aa', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
                     <X size={16} />
                 </button>
             </div>
 
             {/* Fields */}
             <div style={{ flex: 1, overflowY: 'auto', padding: 16 }} className="space-y-4">
-                <p style={{ fontSize: 11, color: '#64748b' }}>{t('automation.trigger_panel_intro')}</p>
+                <p style={{ fontSize: 11, color: '#a1a1aa' }}>{t('automation.trigger_panel_intro')}</p>
 
                 <Field label={t('automation.trigger')}>
                     <select className={selectCls} value={triggerType} onChange={e => onTypeChange(e.target.value)}>
@@ -1411,19 +1409,19 @@ function withTriggerNode(nodes, triggerType) {
 }
 
 /* ─── Test & AI Generate modals ──────────────────────────────── */
-const overlayStyle = { position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 };
-const modalStyle = { background: '#fff', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.25)', maxWidth: '92vw', overflow: 'hidden' };
-const modalHeaderStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #f0f0f0' };
-const modalFooterStyle = { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, padding: '12px 16px', borderTop: '1px solid #f0f0f0', background: '#fafafa' };
-const iconBtnStyle = { background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', display: 'flex' };
-const ghostBtnStyle = { borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' };
-const primaryBtnStyle = { display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, border: 'none', background: '#6366f1', color: '#fff', cursor: 'pointer' };
-const chipBtnStyle = { borderRadius: 999, padding: '5px 10px', fontSize: 10.5, fontWeight: 500, border: '1px solid #e5e7eb', background: '#fff', color: '#475569', cursor: 'pointer' };
+const overlayStyle = { position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 };
+const modalStyle = { background: '#09090b', borderRadius: 16, border: '1px solid #27272a', boxShadow: '0 20px 60px rgba(0,0,0,0.8)', maxWidth: '92vw', overflow: 'hidden' };
+const modalHeaderStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #27272a', background: '#18181b' };
+const modalFooterStyle = { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, padding: '12px 16px', borderTop: '1px solid #27272a', background: '#121215' };
+const iconBtnStyle = { background: 'none', border: 'none', cursor: 'pointer', color: '#a1a1aa', display: 'flex' };
+const ghostBtnStyle = { borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, border: '1px solid #27272a', background: '#18181b', color: '#ffffff', cursor: 'pointer' };
+const primaryBtnStyle = { display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 700, border: '1px solid #ffffff', background: '#ffffff', color: '#000000', cursor: 'pointer' };
+const chipBtnStyle = { borderRadius: 999, padding: '5px 10px', fontSize: 10.5, fontWeight: 500, border: '1px solid #27272a', background: '#18181b', color: '#a1a1aa', cursor: 'pointer' };
 
 const RESULT_META = {
-    ok:      { Icon: CheckCircle2, color: '#16a34a' },
-    skipped: { Icon: MinusCircle,  color: '#6b7280' },
-    error:   { Icon: AlertCircle,  color: '#dc2626' },
+    ok:      { Icon: CheckCircle2, color: '#ffffff' },
+    skipped: { Icon: MinusCircle,  color: '#71717a' },
+    error:   { Icon: AlertCircle,  color: '#ffffff' },
 };
 
 function TestResultModal({ result, loading, onClose, onRerun }) {
@@ -1433,10 +1431,10 @@ function TestResultModal({ result, loading, onClose, onRerun }) {
             <div onClick={e => e.stopPropagation()} style={{ ...modalStyle, width: 560, maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={modalHeaderStyle}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ display: 'flex', width: 30, height: 30, borderRadius: 8, background: '#eef2ff', color: '#6366f1', alignItems: 'center', justifyContent: 'center' }}><FlaskConical size={16} /></span>
+                        <span style={{ display: 'flex', width: 30, height: 30, borderRadius: 8, background: '#18181b', color: '#ffffff', border: '1px solid #27272a', alignItems: 'center', justifyContent: 'center' }}><FlaskConical size={16} /></span>
                         <div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{t('automation.test_title')}</div>
-                            <div style={{ fontSize: 11, color: '#6b7280' }}>{t('automation.test_subtitle')}</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#ffffff' }}>{t('automation.test_title')}</div>
+                            <div style={{ fontSize: 11, color: '#a1a1aa' }}>{t('automation.test_subtitle')}</div>
                         </div>
                     </div>
                     <button onClick={onClose} style={iconBtnStyle}><X size={18} /></button>
@@ -1445,42 +1443,42 @@ function TestResultModal({ result, loading, onClose, onRerun }) {
                 <div style={{ padding: 16, overflowY: 'auto', flex: 1 }}>
                     {loading ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '36px 0' }}>
-                            <Loader2 size={22} className="animate-spin" style={{ color: '#6366f1' }} />
-                            <span style={{ fontSize: 12, color: '#6b7280', marginTop: 8 }}>{t('automation.test_running')}</span>
+                            <Loader2 size={22} className="animate-spin" style={{ color: '#ffffff' }} />
+                            <span style={{ fontSize: 12, color: '#a1a1aa', marginTop: 8 }}>{t('automation.test_running')}</span>
                         </div>
                     ) : !result ? null : !result.ok ? (
-                        <div style={{ display: 'flex', gap: 8, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '12px 14px', fontSize: 12.5, color: '#9a3412' }}>
-                            <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} /> {result.error}
+                        <div style={{ display: 'flex', gap: 8, background: '#18181b', border: '1px solid #27272a', borderRadius: 10, padding: '12px 14px', fontSize: 12.5, color: '#ffffff' }}>
+                            <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1, color: '#ffffff' }} /> {result.error}
                         </div>
                     ) : (
                         <>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontSize: 11.5, color: '#475569', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 10px' }}>
-                                <span>{t('automation.test_steps_count', { count: result.steps.length })}</span>
-                                {result.contact && <span style={{ color: '#94a3b8' }}>· {t('automation.test_sample_contact', { name: result.contact.name })}</span>}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontSize: 11.5, color: '#a1a1aa', background: '#18181b', border: '1px solid #27272a', borderRadius: 8, padding: '8px 10px' }}>
+                                <span style={{ color: '#ffffff' }}>{t('automation.test_steps_count', { count: result.steps.length })}</span>
+                                {result.contact && <span style={{ color: '#a1a1aa' }}>· {t('automation.test_sample_contact', { name: result.contact.name })}</span>}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                 {result.steps.map((s, i) => {
                                     const meta = RESULT_META[s.result] ?? RESULT_META.ok;
                                     const def = NODE_DEFS[s.node_type];
                                     return (
-                                        <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', border: '1px solid #eef0f2', borderRadius: 10, background: '#fff' }}>
+                                        <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', border: '1px solid #27272a', borderRadius: 10, background: '#18181b' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 18 }}>
-                                                <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af' }}>{i + 1}</span>
-                                                <span style={{ marginTop: 4, color: def?.color ?? '#6b7280', display: 'flex' }}><NodeIcon nodeType={s.node_type} size={15} /></span>
+                                                <span style={{ fontSize: 9, fontWeight: 700, color: '#71717a' }}>{i + 1}</span>
+                                                <span style={{ marginTop: 4, color: '#ffffff', display: 'flex' }}><NodeIcon nodeType={s.node_type} size={15} /></span>
                                             </div>
                                             <div style={{ flex: 1, minWidth: 0 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                    <span style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>{s.label || (def ? t(def.labelKey) : s.node_type)}</span>
-                                                    {s.branch && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 999, background: s.branch === 'true' ? '#dcfce7' : '#fee2e2', color: s.branch === 'true' ? '#166534' : '#991b1b' }}>{s.branch === 'true' ? t('common.yes') : t('common.no')}</span>}
+                                                    <span style={{ fontSize: 12, fontWeight: 600, color: '#ffffff' }}>{s.label || (def ? t(def.labelKey) : s.node_type)}</span>
+                                                    {s.branch && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 999, background: s.branch === 'true' ? '#ffffff' : '#27272a', color: s.branch === 'true' ? '#000000' : '#a1a1aa' }}>{s.branch === 'true' ? t('common.yes') : t('common.no')}</span>}
                                                 </div>
-                                                <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2, wordBreak: 'break-word' }}>{s.message}</div>
+                                                <div style={{ fontSize: 11, color: '#a1a1aa', marginTop: 2, wordBreak: 'break-word' }}>{s.message}</div>
                                             </div>
                                             <meta.Icon size={16} style={{ color: meta.color, flexShrink: 0, marginTop: 2 }} />
                                         </div>
                                     );
                                 })}
                             </div>
-                            <div style={{ display: 'flex', gap: 6, marginTop: 14, fontSize: 10.5, color: '#94a3b8', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', gap: 6, marginTop: 14, fontSize: 10.5, color: '#71717a', alignItems: 'flex-start' }}>
                                 <AlertCircle size={13} style={{ flexShrink: 0, marginTop: 1 }} /> {t('automation.test_disclaimer')}
                             </div>
                         </>
@@ -1514,15 +1512,15 @@ function ConfirmDeleteModal({ target, onCancel, onConfirm }) {
         <div onClick={onCancel} style={overlayStyle}>
             <div onClick={e => e.stopPropagation()} style={{ ...modalStyle, width: 384 }}>
                 <div style={{ padding: '20px 20px 4px', display: 'flex', gap: 12 }}>
-                    <span style={{ display: 'flex', width: 38, height: 38, borderRadius: 10, background: '#fef2f2', color: '#dc2626', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Trash2 size={18} /></span>
+                    <span style={{ display: 'flex', width: 38, height: 38, borderRadius: 10, background: '#18181b', border: '1px solid #27272a', color: '#ffffff', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Trash2 size={18} /></span>
                     <div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{t('automation.delete_node_confirm_title')}</div>
-                        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.5 }}>{body}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#ffffff' }}>{t('automation.delete_node_confirm_title')}</div>
+                        <div style={{ fontSize: 12, color: '#a1a1aa', marginTop: 4, lineHeight: 1.5 }}>{body}</div>
                     </div>
                 </div>
                 <div style={modalFooterStyle}>
                     <button onClick={onCancel} style={ghostBtnStyle}>{t('common.cancel')}</button>
-                    <button onClick={onConfirm} style={{ ...primaryBtnStyle, background: '#dc2626' }}><Trash2 size={13} /> {t('common.delete')}</button>
+                    <button onClick={onConfirm} style={{ ...primaryBtnStyle, background: '#ffffff', color: '#000000' }}><Trash2 size={13} /> {t('common.delete')}</button>
                 </div>
             </div>
         </div>
@@ -1538,10 +1536,10 @@ function AiGenerateModal({ prompt, setPrompt, loading, error, onClose, onGenerat
             <div onClick={e => e.stopPropagation()} style={{ ...modalStyle, width: 520 }}>
                 <div style={modalHeaderStyle}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ display: 'flex', width: 30, height: 30, borderRadius: 8, background: '#faf5ff', color: '#7c3aed', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={16} /></span>
+                        <span style={{ display: 'flex', width: 30, height: 30, borderRadius: 8, background: '#ffffff', color: '#000000', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={16} /></span>
                         <div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{t('automation.ai_title')}</div>
-                            <div style={{ fontSize: 11, color: '#6b7280' }}>{t('automation.ai_subtitle')}</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#ffffff' }}>{t('automation.ai_title')}</div>
+                            <div style={{ fontSize: 11, color: '#a1a1aa' }}>{t('automation.ai_subtitle')}</div>
                         </div>
                     </div>
                     <button onClick={onClose} disabled={loading} style={iconBtnStyle}><X size={18} /></button>
@@ -1553,12 +1551,12 @@ function AiGenerateModal({ prompt, setPrompt, loading, error, onClose, onGenerat
                             <button key={k} disabled={loading} onClick={() => setPrompt(t(k))} style={chipBtnStyle}>{t(k)}</button>
                         ))}
                     </div>
-                    {error && <div style={{ display: 'flex', gap: 8, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '8px 10px', fontSize: 11.5, color: '#b91c1c' }}><AlertTriangle size={14} style={{ flexShrink: 0, marginTop: 1 }} />{error}</div>}
-                    <div style={{ fontSize: 10.5, color: '#94a3b8', display: 'flex', gap: 6, alignItems: 'flex-start' }}><AlertCircle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{t('automation.ai_disclaimer')}</div>
+                    {error && <div style={{ display: 'flex', gap: 8, background: '#18181b', border: '1px solid #27272a', borderRadius: 8, padding: '8px 10px', fontSize: 11.5, color: '#ffffff' }}><AlertTriangle size={14} style={{ flexShrink: 0, marginTop: 1 }} />{error}</div>}
+                    <div style={{ fontSize: 10.5, color: '#71717a', display: 'flex', gap: 6, alignItems: 'flex-start' }}><AlertCircle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{t('automation.ai_disclaimer')}</div>
                 </div>
                 <div style={modalFooterStyle}>
                     <button onClick={onClose} disabled={loading} style={ghostBtnStyle}>{t('common.cancel')}</button>
-                    <button onClick={onGenerate} disabled={loading || !prompt.trim()} className="ai-glow" style={{ ...primaryBtnStyle, background: '#7c3aed', opacity: (loading || !prompt.trim()) ? 0.6 : 1 }}>
+                    <button onClick={onGenerate} disabled={loading || !prompt.trim()} style={{ ...primaryBtnStyle, opacity: (loading || !prompt.trim()) ? 0.6 : 1 }}>
                         {loading ? <><Loader2 size={13} className="animate-spin" /> {t('automation.ai_generating')}</> : <><Sparkles size={13} /> {t('automation.ai_generate')}</>}
                     </button>
                 </div>
@@ -1577,8 +1575,8 @@ function AutomationBuilderInner({ automation: initial }) {
         (initial.edges ?? []).map(e => ({
             ...e,
             animated: true,
-            style: { stroke: e.sourceHandle === 'false' ? '#ef4444' : '#6366f1', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: e.sourceHandle === 'false' ? '#ef4444' : '#6366f1' },
+            style: { stroke: e.sourceHandle === 'false' ? '#a1a1aa' : '#ffffff', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: e.sourceHandle === 'false' ? '#a1a1aa' : '#ffffff' },
         }))
     );
     const [saving, setSaving] = useState(false);
@@ -1619,16 +1617,14 @@ function AutomationBuilderInner({ automation: initial }) {
         setEdges(eds => addEdge({
             ...params,
             animated: true,
-            style: { stroke: isNo ? '#ef4444' : '#6366f1', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: isNo ? '#ef4444' : '#6366f1' },
+            style: { stroke: isNo ? '#a1a1aa' : '#ffffff', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: isNo ? '#a1a1aa' : '#ffffff' },
         }, eds));
     }, []);
 
     const { screenToFlowPosition, deleteElements } = useReactFlow();
 
     // Single confirmation gate for every delete path (node trash icon, panel button, Delete key).
-    // deleteElements + the Delete key both run through onBeforeDelete, so we resolve its promise
-    // from the modal: confirm → proceed, cancel → abort. Edge-only deletions are not confirmed.
     const onBeforeDelete = useCallback(({ nodes: delNodes, edges: delEdges }) => {
         if (!delNodes || delNodes.length === 0) return Promise.resolve(true);
         return new Promise((resolve) => setConfirmDelete({ nodes: delNodes, edges: delEdges, resolve }));
@@ -1668,19 +1664,15 @@ function AutomationBuilderInner({ automation: initial }) {
         setSelectedNode(prev => prev?.id === nodeId ? { ...prev, data: newData } : prev);
     };
 
-    // Routes through deleteElements so it hits onBeforeDelete (the confirmation gate); ReactFlow
-    // also removes any edges connected to the node automatically.
     const deleteNode = (nodeId) => {
         deleteElements({ nodes: [{ id: nodeId }] });
     };
 
-    // Opens the config panel for a node by id (used by the on-node settings icon).
     const configureNode = (nodeId) => {
         const node = nodes.find(n => n.id === nodeId);
         if (node) setSelectedNode(node);
     };
 
-    // Trigger lives on the canvas as a node; trigger_type/trigger_config stay the saved source of truth.
     const setTriggerType = (value) => {
         setAutomation(a => ({ ...a, trigger_type: value }));
         setNodes(nds => nds.map(n => n.type === 'triggerNode' ? { ...n, data: { ...n.data, triggerType: value } } : n));
@@ -1711,7 +1703,6 @@ function AutomationBuilderInner({ automation: initial }) {
         });
     };
 
-    // Dry-run the live canvas through the engine and show a step-by-step trace (no real sends).
     const runTest = () => {
         setShowTest(true);
         setTesting(true);
@@ -1727,14 +1718,13 @@ function AutomationBuilderInner({ automation: initial }) {
             .finally(() => setTesting(false));
     };
 
-    // Replace the canvas with an AI-generated (or otherwise supplied) graph for review before saving.
     const applyGraph = (graph) => {
         setNodes(withTriggerNode(deserializeNodes(graph.nodes ?? []), graph.trigger_type ?? ''));
         setEdges((graph.edges ?? []).map(e => ({
             ...e,
             animated: true,
-            style: { stroke: e.sourceHandle === 'false' ? '#ef4444' : '#6366f1', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: e.sourceHandle === 'false' ? '#ef4444' : '#6366f1' },
+            style: { stroke: e.sourceHandle === 'false' ? '#a1a1aa' : '#ffffff', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: e.sourceHandle === 'false' ? '#a1a1aa' : '#ffffff' },
         })));
         setAutomation(a => ({ ...a, trigger_type: graph.trigger_type ?? a.trigger_type, trigger_config: graph.trigger_config ?? a.trigger_config, name: graph.name || a.name }));
         setSelectedNode(null);
@@ -1765,15 +1755,20 @@ function AutomationBuilderInner({ automation: initial }) {
         ),
     })).filter(g => g.items.length > 0);
 
+    const defaultEdgeOptions = {
+        style: { stroke: '#ffffff', strokeWidth: 2 },
+        animated: true,
+    };
+
     return (
         <NodeActionsContext.Provider value={{ onConfigure: configureNode, onDelete: deleteNode }}>
-        <div style={{ display: 'flex', height: 'calc(100vh - 140px)', borderRadius: 18, overflow: 'hidden', border: '1px solid #1e293b', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', background: '#090d16' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 140px)', borderRadius: 18, overflow: 'hidden', border: '1px solid #27272a', boxShadow: '0 8px 32px rgba(0,0,0,0.8)', background: '#000000' }}>
             {/* ── Sidebar Palette ── */}
-            <div style={{ width: 250, display: 'flex', flexDirection: 'column', background: '#090d16', borderRight: '1px solid #1e293b', overflowY: 'auto' }}>
+            <div style={{ width: 250, display: 'flex', flexDirection: 'column', background: '#000000', borderRight: '1px solid #27272a', overflowY: 'auto' }}>
                 {/* Node palette */}
                 <div style={{ padding: 14, flex: 1 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: '#64748b', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('automation.add_node')}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#475569', marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: '#a1a1aa', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('automation.add_node')}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#71717a', marginBottom: 10 }}>
                         <GripVertical size={11} /> {t('automation.drag_node_hint')}
                     </div>
 
@@ -1782,15 +1777,15 @@ function AutomationBuilderInner({ automation: initial }) {
                         onChange={e => setSearch(e.target.value)}
                         placeholder={t('automation.search_nodes')}
                         style={{
-                            width: '100%', borderRadius: 10, border: '1px solid #1e293b',
-                            background: '#0f172a', color: '#f8fafc', padding: '7px 10px',
+                            width: '100%', borderRadius: 10, border: '1px solid #27272a',
+                            background: '#09090b', color: '#ffffff', padding: '7px 10px',
                             fontSize: 11.5, marginBottom: 14, boxSizing: 'border-box', outline: 'none',
                         }}
                     />
 
                     {grouped.map(({ cat, items }) => (
                         <div key={cat} style={{ marginBottom: 14 }}>
-                            <div style={{ fontSize: 9.5, fontWeight: 800, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                            <div style={{ fontSize: 9.5, fontWeight: 800, color: '#71717a', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
                                 {t(`automation.category_${cat}`)}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -1805,22 +1800,22 @@ function AutomationBuilderInner({ automation: initial }) {
                                             title={t('automation.drag_node_hint')}
                                             style={{
                                                 display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px',
-                                                borderRadius: 10, border: '1px solid #1e293b', background: '#0f172a',
-                                                cursor: 'grab', textAlign: 'left', fontSize: 11.5, color: '#e2e8f0',
-                                                transition: 'all 0.15s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                                borderRadius: 10, border: '1px solid #27272a', background: '#09090b',
+                                                cursor: 'grab', textAlign: 'left', fontSize: 11.5, color: '#ffffff',
+                                                transition: 'all 0.15s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
                                             }}
-                                            onMouseEnter={e => { e.currentTarget.style.borderColor = def.color; e.currentTarget.style.background = '#1e293b'; }}
-                                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e293b'; e.currentTarget.style.background = '#0f172a'; }}
+                                            onMouseEnter={e => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.background = '#18181b'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#27272a'; e.currentTarget.style.background = '#09090b'; }}
                                         >
                                             <span style={{
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                 width: 24, height: 24, borderRadius: 7, flexShrink: 0,
-                                                background: `${def.color}1a`, color: def.color,
+                                                background: '#18181b', color: '#ffffff', border: '1px solid #27272a',
                                             }}>
                                                 <NodeIcon nodeType={type} size={13} />
                                             </span>
                                             <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{itemLabel}</span>
-                                            <GripVertical size={11} style={{ marginLeft: 'auto', color: '#475569', flexShrink: 0 }} />
+                                            <GripVertical size={11} style={{ marginLeft: 'auto', color: '#71717a', flexShrink: 0 }} />
                                         </button>
                                     );
                                 })}
@@ -1846,38 +1841,38 @@ function AutomationBuilderInner({ automation: initial }) {
                     fitView
                     deleteKeyCode="Delete"
                 >
-                    <Background color="#334155" gap={20} size={1} />
-                    <Controls style={{ bottom: 20, left: 20, background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, fill: '#94a3b8' }} />
+                    <Background color="#27272a" gap={20} size={1} />
+                    <Controls style={{ bottom: 20, left: 20, background: '#09090b', border: '1px solid #27272a', borderRadius: 12, fill: '#ffffff' }} />
                     <MiniMap
-                        nodeColor={n => NODE_DEFS[n.data?.nodeType]?.color ?? '#6366f1'}
-                        style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12 }}
+                        nodeColor="#ffffff"
+                        maskColor="rgba(0, 0, 0, 0.7)"
+                        style={{ background: '#09090b', border: '1px solid #27272a', borderRadius: 12 }}
                     />
 
                     {/* Top toolbar */}
                     <Panel position="top-right">
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: 8,
-                            background: '#090d16', borderRadius: 14, border: '1px solid #1e293b',
-                            padding: '8px 12px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                            background: '#09090b', borderRadius: 14, border: '1px solid #27272a',
+                            padding: '8px 12px', boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 10, borderRight: '1px solid #1e293b' }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: automation.status === 'active' ? '#10b981' : '#f59e0b', boxShadow: automation.status === 'active' ? '0 0 10px #10b981' : 'none' }} />
-                                <span style={{ fontSize: 11.5, color: automation.status === 'active' ? '#34d399' : '#fbbf24', fontWeight: 600 }}>{t(`automation.status_${automation.status}`)}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 10, borderRight: '1px solid #27272a' }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: automation.status === 'active' ? '#ffffff' : '#71717a', boxShadow: automation.status === 'active' ? '0 0 8px #ffffff' : 'none' }} />
+                                <span style={{ fontSize: 11.5, color: automation.status === 'active' ? '#ffffff' : '#a1a1aa', fontWeight: 600 }}>{t(`automation.status_${automation.status}`)}</span>
                             </div>
 
                             <button onClick={() => { setAiError(null); setAiOpen(true); }} title={t('automation.ai_title')} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
-                                background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', padding: '7px 13px', fontSize: 12, fontWeight: 700,
-                                color: '#fff', border: 'none', cursor: 'pointer', transition: 'all 0.15s',
-                                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+                                background: '#18181b', padding: '7px 13px', fontSize: 12, fontWeight: 600,
+                                color: '#ffffff', border: '1px solid #27272a', cursor: 'pointer', transition: 'all 0.15s',
                             }}>
                                 <Sparkles size={14} /> {t('automation.ai_generate_short')}
                             </button>
 
                             <button onClick={runTest} disabled={testing} title={t('automation.test_title')} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
-                                background: '#1e293b', padding: '7px 13px', fontSize: 12, fontWeight: 600,
-                                color: '#a5b4fc', border: '1px solid #334155', cursor: testing ? 'not-allowed' : 'pointer',
+                                background: '#18181b', padding: '7px 13px', fontSize: 12, fontWeight: 600,
+                                color: '#ffffff', border: '1px solid #27272a', cursor: testing ? 'not-allowed' : 'pointer',
                                 opacity: testing ? 0.7 : 1, transition: 'all 0.15s',
                             }}>
                                 {testing ? <Loader2 size={14} className="animate-spin" /> : <FlaskConical size={14} />} {t('automation.test')}
@@ -1885,20 +1880,18 @@ function AutomationBuilderInner({ automation: initial }) {
 
                             <button onClick={save} disabled={saving} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
-                                background: '#4f46e5', padding: '7px 15px', fontSize: 12, fontWeight: 700,
-                                color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+                                background: '#ffffff', padding: '7px 15px', fontSize: 12, fontWeight: 700,
+                                color: '#000000', border: '1px solid #ffffff', cursor: saving ? 'not-allowed' : 'pointer',
                                 opacity: saving ? 0.7 : 1, transition: 'all 0.15s',
-                                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                                boxShadow: '0 2px 8px rgba(255,255,255,0.2)',
                             }}>
                                 <Save size={14} /> {saving ? t('automation.saving') : t('common.save')}
                             </button>
 
                             <button onClick={toggleStatus} style={{
                                 display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
-                                padding: '7px 13px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                                background: automation.status === 'active' ? '#78350f40' : '#064e3b40',
-                                color: automation.status === 'active' ? '#fbbf24' : '#34d399',
-                                border: `1px solid ${automation.status === 'active' ? '#78350f' : '#064e3b'}`,
+                                padding: '7px 13px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                                background: '#18181b', color: '#ffffff', border: '1px solid #27272a',
                                 transition: 'all 0.15s',
                             }}>
                                 {automation.status === 'active'
@@ -1910,7 +1903,7 @@ function AutomationBuilderInner({ automation: initial }) {
 
                     {/* Hint */}
                     <Panel position="bottom-center">
-                        <div style={{ fontSize: 11, color: '#94a3b8', background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '5px 16px', border: '1px solid #1e293b' }}>
+                        <div style={{ fontSize: 11, color: '#a1a1aa', background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '5px 16px', border: '1px solid #27272a' }}>
                             {t('automation.canvas_hint')}
                         </div>
                     </Panel>
@@ -1931,10 +1924,12 @@ function AutomationBuilderInner({ automation: initial }) {
                                 style={{
                                     position: 'absolute', bottom: 16, left: 16, right: 16,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    background: '#450a0a', border: '1px solid #7f1d1d', borderRadius: 10,
-                                    padding: '9px 0', fontSize: 12, fontWeight: 600, color: '#f87171',
+                                    background: '#18181b', border: '1px solid #27272a', borderRadius: 10,
+                                    padding: '9px 0', fontSize: 12, fontWeight: 600, color: '#ffffff',
                                     cursor: 'pointer', zIndex: 11,
                                 }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#27272a'; e.currentTarget.style.borderColor = '#ffffff'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#18181b'; e.currentTarget.style.borderColor = '#27272a'; }}
                             >
                                 <Trash2 size={13} /> {t('automation.delete_node')}
                             </button>
@@ -1978,22 +1973,22 @@ export default function AutomationBuilder({ automation }) {
         <ClientLayout title={automation.name}>
             <Head title={`${automation.name} · ${t('automation.builder')}`} />
             <div className="space-y-4">
-                <div className="flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl px-5 py-3.5 shadow-xl">
+                <div className="flex items-center justify-between bg-black/90 backdrop-blur-md border border-zinc-800 rounded-2xl px-5 py-3.5 shadow-xl">
                     <div className="flex items-center gap-3.5">
-                        <Link href={route('client.automations.index')} className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition shadow-sm">
+                        <Link href={route('client.automations.index')} className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition shadow-sm">
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
                         <div>
                             <div className="flex items-center gap-2.5">
-                                <h2 className="text-base font-bold text-slate-100 leading-tight">{automation.name}</h2>
-                                <span className="px-2.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+                                <h2 className="text-base font-bold text-white leading-tight">{automation.name}</h2>
+                                <span className="px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-300 uppercase tracking-wider">
                                     Workflow Builder
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link href={route('client.automations.runs', automation.uuid)} className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                        <Link href={route('client.automations.runs', automation.uuid)} className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
                             {t('automation.view_runs_arrow')}
                         </Link>
                     </div>
