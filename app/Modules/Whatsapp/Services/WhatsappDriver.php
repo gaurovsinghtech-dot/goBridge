@@ -229,21 +229,67 @@ class WhatsappDriver implements ChannelDriverInterface
             throw new \RuntimeException("Duplicate webhook skipped (concurrent): {$msgId}");
         }
 
-        $phoneId = $value['metadata']['phone_number_id'] ?? '';
-        $fromPhone = $msg['from'] ?? '';
+        $phoneId = (string) ($value['metadata']['phone_number_id'] ?? '');
+        $displayPhone = (string) ($value['metadata']['display_phone_number'] ?? '');
+        $fromPhone = (string) ($msg['from'] ?? '');
 
-        $channelAccount = ChannelAccount::where('phone_number_id', $phoneId)
-            ->where('channel', 'whatsapp')
+        $channelAccount = ChannelAccount::where('channel', 'whatsapp')
+            ->where(function ($q) use ($phoneId, $displayPhone) {
+                if ($phoneId !== '') {
+                    $q->where('phone_number_id', $phoneId);
+                }
+                if ($displayPhone !== '') {
+                    $q->orWhere('display_name', 'like', "%{$displayPhone}%");
+                }
+            })
             ->first();
+
+        if (! $channelAccount) {
+            // Fallback 1: Match WABA by verify token passed from webhook
+            $waba = $verifyToken !== '' ? WhatsappBusinessAccount::findByWebhookToken($verifyToken) : null;
+
+            // Fallback 2: Match by WhatsappPhoneNumber table
+            if (! $waba && $phoneId !== '') {
+                $phoneNum = WhatsappPhoneNumber::where('phone_number_id', $phoneId)->first();
+                if ($phoneNum) {
+                    $waba = WhatsappBusinessAccount::find($phoneNum->waba_id_fk);
+                }
+            }
+
+            // Fallback 3: Fall back to first active WABA
+            if (! $waba) {
+                $waba = WhatsappBusinessAccount::first();
+            }
+
+            if ($waba) {
+                $channelAccount = ChannelAccount::firstOrCreate(
+                    [
+                        'workspace_id'    => $waba->workspace_id,
+                        'channel'         => 'whatsapp',
+                        'phone_number_id' => $phoneId ?: 'default',
+                    ],
+                    [
+                        'provider'            => 'meta',
+                        'business_account_id' => $waba->waba_id,
+                        'display_name'        => $displayPhone ?: 'WhatsApp',
+                        'status'              => 'active',
+                    ]
+                );
+            }
+        }
 
         if (! $channelAccount) {
             Log::warning('WhatsApp inbound dropped — no channel_account match', [
                 'phone_number_id' => $phoneId,
-                'from' => $fromPhone,
-                'msg_id' => $msg['id'] ?? null,
+                'from'            => $fromPhone,
+                'msg_id'          => $msg['id'] ?? null,
             ]);
 
             throw new \RuntimeException("No channel_account found for phone_number_id={$phoneId}");
+        }
+
+        if ($channelAccount && empty($channelAccount->phone_number_id) && $phoneId !== '') {
+            $channelAccount->update(['phone_number_id' => $phoneId]);
         }
 
         $workspaceId = (int) $channelAccount->workspace_id;
@@ -273,10 +319,26 @@ class WhatsappDriver implements ChannelDriverInterface
 
         $contact = $this->contactService->upsert($workspaceId, $contactPayload);
 
-        $conversation = Conversation::firstOrCreate(
-            ['workspace_id' => $workspaceId, 'contact_id' => $contact->id, 'channel_account_id' => $channelAccount?->id],
-            ['status' => 'open', 'external_thread_id' => $fromPhone]
-        );
+        $conversation = Conversation::where('workspace_id', $workspaceId)
+            ->where('contact_id', $contact->id)
+            ->first();
+
+        if ($conversation) {
+            $conversation->update(array_filter([
+                'channel'            => $conversation->channel ?: 'whatsapp',
+                'channel_account_id' => $conversation->channel_account_id ?: $channelAccount?->id,
+                'status'             => 'open',
+            ]));
+        } else {
+            $conversation = Conversation::create([
+                'workspace_id'       => $workspaceId,
+                'contact_id'         => $contact->id,
+                'channel'            => 'whatsapp',
+                'channel_account_id' => $channelAccount?->id,
+                'status'             => 'open',
+                'external_thread_id' => $fromPhone,
+            ]);
+        }
 
         $type = $msg['type'] ?? 'text';
         $interactive = is_array($msg['interactive'] ?? null) ? $msg['interactive'] : [];

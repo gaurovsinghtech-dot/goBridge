@@ -97,7 +97,7 @@ class WhatsappWebhookController extends Controller
         ]);
 
         return $this->flushWebhookOkThen(
-            fn () => ProcessInboundMessageJob::dispatch($payload, '')->onQueue('whatsapp')
+            fn () => ProcessInboundMessageJob::dispatchSync($payload, '')
         );
     }
 
@@ -186,7 +186,7 @@ class WhatsappWebhookController extends Controller
         ]);
 
         return $this->flushWebhookOkThen(
-            fn () => ProcessInboundMessageJob::dispatch($payload, $token)->onQueue('whatsapp')
+            fn () => ProcessInboundMessageJob::dispatchSync($payload, $token)
         );
     }
 
