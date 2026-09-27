@@ -58,54 +58,89 @@ const CATEGORY_ORDER = ['send', 'listen', 'logic', 'ai', 'contact', 'engage', 'c
 
 const NODE_DEFS = {
     // ── SEND ──────────────────────────────────────────────────────────────
-    send_whatsapp:       { labelKey: 'automation.node_send_whatsapp',       color: '#25D366', bg: '#f0fdf4', icon: 'whatsapp',        category: 'send' },
-    send_instagram:      { labelKey: 'automation.node_send_instagram',      color: '#E1306C', bg: '#fdf2f8', icon: 'instagram',       category: 'send' },
-    send_messenger:      { labelKey: 'automation.node_send_messenger',      color: '#0084FF', bg: '#eff6ff', icon: 'messenger',       category: 'send' },
-    send_template:       { labelKey: 'automation.node_send_template',       color: '#16a34a', bg: '#f0fdf4', icon: LayoutTemplate,    category: 'send' },
-    send_media:          { labelKey: 'automation.node_send_media',          color: '#0d9488', bg: '#f0fdfa', icon: Image,             category: 'send' },
-    send_sequence:       { labelKey: 'automation.node_send_sequence',       color: '#0891b2', bg: '#ecfeff', icon: Layers,            category: 'send' },
-    quick_replies:       { labelKey: 'automation.node_quick_replies',       color: '#7c3aed', bg: '#faf5ff', icon: MousePointerClick, category: 'send' },
-    list_message:        { labelKey: 'automation.node_list_message',        color: '#6d28d9', bg: '#f5f3ff', icon: List,              category: 'send' },
-    send_sms:            { labelKey: 'automation.node_send_sms',            color: '#6366f1', bg: '#eef2ff', icon: Phone,             category: 'send' },
-    send_email:          { labelKey: 'automation.node_send_email',          color: '#0ea5e9', bg: '#f0f9ff', icon: Mail,              category: 'send' },
+    send_whatsapp:       { labelKey: 'automation.node_send_whatsapp',       defaultLabel: 'Send WhatsApp',       color: '#25D366', bg: '#064e3b', icon: 'whatsapp',        category: 'send' },
+    send_instagram:      { labelKey: 'automation.node_send_instagram',      defaultLabel: 'Send Instagram',      color: '#E1306C', bg: '#701a75', icon: 'instagram',       category: 'send' },
+    send_messenger:      { labelKey: 'automation.node_send_messenger',      defaultLabel: 'Send Messenger',      color: '#0084FF', bg: '#1e3a8a', icon: 'messenger',       category: 'send' },
+    send_template:       { labelKey: 'automation.node_send_template',       defaultLabel: 'Send Template',       color: '#16a34a', bg: '#064e3b', icon: LayoutTemplate,    category: 'send' },
+    send_media:          { labelKey: 'automation.node_send_media',          defaultLabel: 'Send Media',          color: '#0d9488', bg: '#134e4a', icon: Image,             category: 'send' },
+    send_sequence:       { labelKey: 'automation.node_send_sequence',       defaultLabel: 'Send Sequence',       color: '#0891b2', bg: '#164e63', icon: Layers,            category: 'send' },
+    quick_replies:       { labelKey: 'automation.node_quick_replies',       defaultLabel: 'Quick Replies',       color: '#a855f7', bg: '#581c87', icon: MousePointerClick, category: 'send' },
+    list_message:        { labelKey: 'automation.node_list_message',        defaultLabel: 'List Message',        color: '#9333ea', bg: '#581c87', icon: List,              category: 'send' },
+    send_sms:            { labelKey: 'automation.node_send_sms',            defaultLabel: 'Send SMS',            color: '#6366f1', bg: '#312e81', icon: Phone,             category: 'send' },
+    send_email:          { labelKey: 'automation.node_send_email',          defaultLabel: 'Send Email',          color: '#0ea5e9', bg: '#0c4a6e', icon: Mail,              category: 'send' },
     // ── LISTEN ────────────────────────────────────────────────────────────
-    ask_question:        { labelKey: 'automation.node_ask_question',        color: '#ea580c', bg: '#fff7ed', icon: HelpCircle,        category: 'listen' },
+    ask_question:        { labelKey: 'automation.node_ask_question',        defaultLabel: 'Ask Question',        color: '#f97316', bg: '#7c2d12', icon: HelpCircle,        category: 'listen' },
     // ── LOGIC ─────────────────────────────────────────────────────────────
-    condition:           { labelKey: 'automation.node_condition',           color: '#8b5cf6', bg: '#f5f3ff', icon: GitBranch,         category: 'logic' },
-    wait:                { labelKey: 'automation.node_wait',                color: '#f59e0b', bg: '#fffbeb', icon: Clock,             category: 'logic' },
-    goal_reached:        { labelKey: 'automation.node_goal_reached',        color: '#059669', bg: '#ecfdf5', icon: CheckCircle2,      category: 'logic' },
-    webhook:             { labelKey: 'automation.node_webhook',             color: '#64748b', bg: '#f8fafc', icon: Webhook,           category: 'logic' },
-    run_subflow:         { labelKey: 'automation.node_run_subflow',         color: '#475569', bg: '#f8fafc', icon: Workflow,          category: 'logic' },
+    condition:           { labelKey: 'automation.node_condition',           defaultLabel: 'Condition (If/Else)', color: '#a855f7', bg: '#581c87', icon: GitBranch,         category: 'logic' },
+    wait:                { labelKey: 'automation.node_wait',                defaultLabel: 'Wait / Delay',        color: '#f59e0b', bg: '#78350f', icon: Clock,             category: 'logic' },
+    goal_reached:        { labelKey: 'automation.node_goal_reached',        defaultLabel: 'Goal Reached',        color: '#10b981', bg: '#064e3b', icon: CheckCircle2,      category: 'logic' },
+    webhook:             { labelKey: 'automation.node_webhook',             defaultLabel: 'Outgoing Webhook',    color: '#64748b', bg: '#1e293b', icon: Webhook,           category: 'logic' },
+    run_subflow:         { labelKey: 'automation.node_run_subflow',         defaultLabel: 'Run Sub-flow',        color: '#64748b', bg: '#1e293b', icon: Workflow,          category: 'logic' },
     // ── AI ────────────────────────────────────────────────────────────────
-    ai_reply:            { labelKey: 'automation.node_ai_reply',            color: '#7c3aed', bg: '#faf5ff', icon: Sparkles,          category: 'ai' },
-    ai_detect_intent:    { labelKey: 'automation.node_ai_detect_intent',    color: '#9333ea', bg: '#faf5ff', icon: Sparkles,          category: 'ai' },
-    voice_call:          { labelKey: 'automation.node_voice_call',          color: '#2563eb', bg: '#eff6ff', icon: Phone,             category: 'ai' },
+    ai_reply:            { labelKey: 'automation.node_ai_reply',            defaultLabel: 'AI Auto-Reply',       color: '#c084fc', bg: '#581c87', icon: Sparkles,          category: 'ai' },
+    ai_detect_intent:    { labelKey: 'automation.node_ai_detect_intent',    defaultLabel: 'AI Intent Classifier',color: '#e879f9', bg: '#701a75', icon: Sparkles,          category: 'ai' },
+    voice_call:          { labelKey: 'automation.node_voice_call',          defaultLabel: 'Trigger AI Voice Call',color: '#3b82f6', bg: '#1e3a8a', icon: Phone,            category: 'ai' },
     // ── CONTACT ───────────────────────────────────────────────────────────
-    add_tag:             { labelKey: 'automation.node_add_tag',             color: '#10b981', bg: '#ecfdf5', icon: Tag,               category: 'contact' },
-    remove_tag:          { labelKey: 'automation.node_remove_tag',          color: '#f43f5e', bg: '#fff1f2', icon: Scissors,          category: 'contact' },
-    update_contact:      { labelKey: 'automation.node_update_contact',      color: '#0ea5e9', bg: '#f0f9ff', icon: UserCog,           category: 'contact' },
-    assign_agent:        { labelKey: 'automation.node_assign_agent',        color: '#0284c7', bg: '#f0f9ff', icon: UserCheck,         category: 'contact' },
-    human_handoff:       { labelKey: 'automation.node_human_handoff',       color: '#ea580c', bg: '#fff7ed', icon: UserCheck,         category: 'contact' },
-    create_task:         { labelKey: 'automation.node_create_task',         color: '#0284c7', bg: '#f0f9ff', icon: ClipboardCheck,    category: 'contact' },
-    add_note:            { labelKey: 'automation.node_add_note',            color: '#475569', bg: '#f8fafc', icon: FileText,          category: 'contact' },
-    add_to_campaign:     { labelKey: 'automation.node_add_to_campaign',     color: '#f97316', bg: '#fff7ed', icon: Megaphone,         category: 'contact' },
+    add_tag:             { labelKey: 'automation.node_add_tag',             defaultLabel: 'Add Tag',             color: '#10b981', bg: '#064e3b', icon: Tag,               category: 'contact' },
+    remove_tag:          { labelKey: 'automation.node_remove_tag',          defaultLabel: 'Remove Tag',          color: '#f43f5e', bg: '#881337', icon: Scissors,          category: 'contact' },
+    update_contact:      { labelKey: 'automation.node_update_contact',      defaultLabel: 'Update Contact',      color: '#0ea5e9', bg: '#0c4a6e', icon: UserCog,           category: 'contact' },
+    assign_agent:        { labelKey: 'automation.node_assign_agent',        defaultLabel: 'Assign Agent',        color: '#38bdf8', bg: '#0c4a6e', icon: UserCheck,         category: 'contact' },
+    human_handoff:       { labelKey: 'automation.node_human_handoff',       defaultLabel: 'Human Handoff',       color: '#f97316', bg: '#7c2d12', icon: UserCheck,         category: 'contact' },
+    create_task:         { labelKey: 'automation.node_create_task',         defaultLabel: 'Create CRM Task',     color: '#38bdf8', bg: '#0c4a6e', icon: ClipboardCheck,    category: 'contact' },
+    add_note:            { labelKey: 'automation.node_add_note',            defaultLabel: 'Add Contact Note',    color: '#64748b', bg: '#1e293b', icon: FileText,          category: 'contact' },
+    add_to_campaign:     { labelKey: 'automation.node_add_to_campaign',     defaultLabel: 'Add to Campaign',     color: '#f97316', bg: '#7c2d12', icon: Megaphone,         category: 'contact' },
     // ── ENGAGE ────────────────────────────────────────────────────────────
-    cta_button:          { labelKey: 'automation.node_cta_button',          color: '#e11d48', bg: '#fff1f2', icon: ExternalLink,      category: 'engage' },
-    send_location:       { labelKey: 'automation.node_send_location',       color: '#dc2626', bg: '#fef2f2', icon: MapPin,            category: 'engage' },
-    send_poll:           { labelKey: 'automation.node_send_poll',           color: '#9333ea', bg: '#faf5ff', icon: BarChart3,         category: 'engage' },
-    run_chatbot:         { labelKey: 'automation.node_run_chatbot',         color: '#7c3aed', bg: '#faf5ff', icon: Bot,               category: 'engage' },
-    book_appointment:    { labelKey: 'automation.node_book_appointment',    color: '#2563eb', bg: '#eff6ff', icon: CalendarClock,     category: 'engage' },
-    google_meet:         { labelKey: 'automation.node_google_meet',         color: '#16a34a', bg: '#f0fdf4', icon: Video,             category: 'engage' },
-    whatsapp_form:       { labelKey: 'automation.node_whatsapp_form',       color: '#0891b2', bg: '#ecfeff', icon: ClipboardList,     category: 'engage' },
+    cta_button:          { labelKey: 'automation.node_cta_button',          defaultLabel: 'CTA Link Button',     color: '#f43f5e', bg: '#881337', icon: ExternalLink,      category: 'engage' },
+    send_location:       { labelKey: 'automation.node_send_location',       defaultLabel: 'Send Location',       color: '#ef4444', bg: '#7f1d1d', icon: MapPin,            category: 'engage' },
+    send_poll:           { labelKey: 'automation.node_send_poll',           defaultLabel: 'Send Interactive Poll',color: '#c084fc', bg: '#581c87', icon: BarChart3,        category: 'engage' },
+    run_chatbot:         { labelKey: 'automation.node_run_chatbot',         defaultLabel: 'Run Chatbot Agent',   color: '#a855f7', bg: '#581c87', icon: Bot,               category: 'engage' },
+    book_appointment:    { labelKey: 'automation.node_book_appointment',    defaultLabel: 'Book Appointment',    color: '#3b82f6', bg: '#1e3a8a', icon: CalendarClock,     category: 'engage' },
+    google_meet:         { labelKey: 'automation.node_google_meet',         defaultLabel: 'Create Google Meet',  color: '#22c55e', bg: '#064e3b', icon: Video,             category: 'engage' },
+    whatsapp_form:       { labelKey: 'automation.node_whatsapp_form',       defaultLabel: 'Send WhatsApp Form',  color: '#06b6d4', bg: '#164e63', icon: ClipboardList,     category: 'engage' },
     // ── COMMERCE ──────────────────────────────────────────────────────────
-    whatsapp_catalog:    { labelKey: 'automation.node_whatsapp_catalog',    color: '#16a34a', bg: '#f0fdf4', icon: ShoppingBag,       category: 'commerce' },
-    woocommerce_product: { labelKey: 'automation.node_woocommerce_product', color: '#7f54b3', bg: '#f5f3ff', icon: ShoppingCart,      category: 'commerce' },
-    shopify_product:     { labelKey: 'automation.node_shopify_product',     color: '#5a8a35', bg: '#f7fee7', icon: Store,             category: 'commerce' },
+    whatsapp_catalog:    { labelKey: 'automation.node_whatsapp_catalog',    defaultLabel: 'Send WhatsApp Catalog',color: '#22c55e', bg: '#064e3b', icon: ShoppingBag,       category: 'commerce' },
+    woocommerce_product: { labelKey: 'automation.node_woocommerce_product', defaultLabel: 'WooCommerce Product', color: '#a855f7', bg: '#581c87', icon: ShoppingCart,      category: 'commerce' },
+    shopify_product:     { labelKey: 'automation.node_shopify_product',     defaultLabel: 'Shopify Product',     color: '#84cc16', bg: '#365314', icon: Store,             category: 'commerce' },
     // ── INTEGRATIONS ──────────────────────────────────────────────────────
-    google_sheets:       { labelKey: 'automation.node_google_sheets',       color: '#0f9d58', bg: '#f0fdf4', icon: Sheet,             category: 'integrations' },
-    google_docs:         { labelKey: 'automation.node_google_docs',         color: '#4285f4', bg: '#eff6ff', icon: FileText,          category: 'integrations' },
-    google_forms:        { labelKey: 'automation.node_google_forms',        color: '#7248b9', bg: '#f5f3ff', icon: ClipboardCheck,    category: 'integrations' },
+    google_sheets:       { labelKey: 'automation.node_google_sheets',       defaultLabel: 'Google Sheets Sync',  color: '#10b981', bg: '#064e3b', icon: Sheet,             category: 'integrations' },
+    google_docs:         { labelKey: 'automation.node_google_docs',         defaultLabel: 'Generate Google Doc', color: '#3b82f6', bg: '#1e3a8a', icon: FileText,          category: 'integrations' },
+    google_forms:        { labelKey: 'automation.node_google_forms',        defaultLabel: 'Google Forms Sync',   color: '#a855f7', bg: '#581c87', icon: ClipboardCheck,    category: 'integrations' },
 };
+
+function getNodeDefLabel(type, t) {
+    const def = NODE_DEFS[type];
+    if (!def) return type;
+    const tr = t(def.labelKey);
+    if (tr && tr !== def.labelKey && !tr.startsWith('automation.node_')) {
+        return tr;
+    }
+    return def.defaultLabel || type;
+}
+
+function getTriggerDefLabel(trigger, t) {
+    if (!trigger) return t('automation.select_trigger');
+    const tr = t(trigger.labelKey);
+    if (tr && tr !== trigger.labelKey && !tr.startsWith('automation.trigger_')) {
+        return tr;
+    }
+    const fallbacks = {
+        'contact.created': 'Contact Created',
+        'contact.tag_added': 'Tag Added to Contact',
+        'message.received': 'Message Received',
+        'campaign.sent': 'Broadcast Campaign Sent',
+        'campaign.reply': 'Campaign Reply Received',
+        'lead.stage_changed': 'Lead Stage Changed',
+        'voice.call_completed': 'AI Call Completed',
+        'form.submitted': 'Form Submitted',
+        'webhook.received': 'Webhook Trigger Received',
+        'order.placed': 'Ecommerce Order Placed',
+        'order.fulfilled': 'Ecommerce Order Fulfilled',
+        'order.cancelled': 'Ecommerce Order Cancelled',
+        'cart.abandoned': 'Cart Abandoned',
+        'customer.created': 'New Customer Created',
+    };
+    return fallbacks[trigger.value] || trigger.value;
+}
 
 const CONDITION_FIELDS = [
     { value: 'contact.name',      labelKey: 'automation.cond_field_contact_name' },
@@ -158,53 +193,51 @@ function BaseNode({ id, data, selected }) {
     const { onConfigure, onDelete } = useContext(NodeActionsContext);
     const { nodeType, label, configured } = data;
     const def = NODE_DEFS[nodeType];
-    const defLabel = def ? t(def.labelKey) : nodeType;
-    const defColor = def?.color ?? '#6b7280';
+    const defLabel = getNodeDefLabel(nodeType, t);
+    const defColor = def?.color ?? '#6366f1';
     const isCondition = nodeType === 'condition';
 
     const hasLabel = label && label !== defLabel;
     const summary = hasLabel ? label : (configured ? summarizeConfig(data, t) : '');
 
-    const actionBtnStyle = {
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 22, height: 22, padding: 0, borderRadius: 6, border: 'none',
-        background: 'transparent', color: '#9ca3af', cursor: 'pointer',
-        transition: 'background 0.12s, color 0.12s',
-    };
-
     return (
         <div
             style={{
-                background: '#fff',
-                border: `1px solid ${selected ? defColor : '#e5e7eb'}`,
-                borderRadius: 12,
-                minWidth: 210,
+                background: '#0f172a',
+                border: `1.5px solid ${selected ? defColor : '#1e293b'}`,
+                borderRadius: 14,
+                minWidth: 230,
                 boxShadow: selected
-                    ? `0 0 0 3px ${defColor}1f, 0 8px 20px rgba(0,0,0,0.08)`
-                    : '0 1px 3px rgba(0,0,0,0.06)',
-                transition: 'box-shadow 0.15s, border-color 0.15s',
+                    ? `0 0 0 3px ${defColor}33, 0 12px 28px rgba(0,0,0,0.4)`
+                    : '0 4px 16px rgba(0,0,0,0.25)',
+                transition: 'all 0.15s ease-in-out',
                 overflow: 'hidden',
+                position: 'relative',
             }}
         >
-            <Handle type="target" position={Position.Top} style={{ background: '#fff', width: 9, height: 9, border: `2px solid ${defColor}` }} />
+            {/* Top accent bar */}
+            <div style={{ height: 3, background: defColor }} />
+
+            <Handle type="target" position={Position.Top} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${defColor}` }} />
 
             {/* Row: icon chip · text · actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
                 <span style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                    background: def?.bg ?? '#f3f4f6', color: defColor,
+                    width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+                    background: `${defColor}1a`, color: defColor,
+                    border: `1px solid ${defColor}33`,
                 }}>
-                    <NodeIcon nodeType={nodeType} size={15} />
+                    <NodeIcon nodeType={nodeType} size={16} />
                 </span>
 
                 <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#111827', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f8fafc', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {defLabel}
                     </div>
                     <div style={{
-                        fontSize: 10.5, lineHeight: 1.3, marginTop: 1,
-                        color: summary ? '#6b7280' : '#9ca3af',
+                        fontSize: 11, lineHeight: 1.3, marginTop: 2,
+                        color: summary ? '#94a3b8' : '#64748b',
                         fontStyle: summary ? 'normal' : 'italic',
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
@@ -212,14 +245,19 @@ function BaseNode({ id, data, selected }) {
                     </div>
                 </div>
 
-                <div className="nodrag" style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+                <div className="nodrag" style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
                     <button
                         className="nodrag"
                         title={t('common.settings')}
                         onClick={(e) => { e.stopPropagation(); onConfigure(id); }}
-                        style={actionBtnStyle}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#4b5563'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#9ca3af'; }}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 24, height: 24, padding: 0, borderRadius: 6, border: 'none',
+                            background: 'transparent', color: '#64748b', cursor: 'pointer',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.color = '#e2e8f0'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                     >
                         <Settings size={13} />
                     </button>
@@ -227,9 +265,14 @@ function BaseNode({ id, data, selected }) {
                         className="nodrag"
                         title={t('common.delete')}
                         onClick={(e) => { e.stopPropagation(); onDelete(id); }}
-                        style={actionBtnStyle}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#ef4444'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#9ca3af'; }}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 24, height: 24, padding: 0, borderRadius: 6, border: 'none',
+                            background: 'transparent', color: '#64748b', cursor: 'pointer',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#450a0a'; e.currentTarget.style.color = '#f87171'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                     >
                         <Trash2 size={13} />
                     </button>
@@ -239,15 +282,15 @@ function BaseNode({ id, data, selected }) {
             {/* Handles */}
             {isCondition ? (
                 <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 12px 7px', fontSize: 9, fontWeight: 600 }}>
-                        <span style={{ color: '#10b981' }}>✓ {t('common.yes')}</span>
-                        <span style={{ color: '#ef4444' }}>✗ {t('common.no')}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 14px 8px', fontSize: 10, fontWeight: 700 }}>
+                        <span style={{ color: '#34d399' }}>✓ {t('common.yes')}</span>
+                        <span style={{ color: '#f87171' }}>✗ {t('common.no')}</span>
                     </div>
-                    <Handle type="source" id="true"  position={Position.Bottom} style={{ left: '30%', background: '#fff', width: 9, height: 9, border: '2px solid #10b981' }} />
-                    <Handle type="source" id="false" position={Position.Bottom} style={{ left: '70%', background: '#fff', width: 9, height: 9, border: '2px solid #ef4444' }} />
+                    <Handle type="source" id="true"  position={Position.Bottom} style={{ left: '30%', background: '#0f172a', width: 10, height: 10, border: '2px solid #34d399' }} />
+                    <Handle type="source" id="false" position={Position.Bottom} style={{ left: '70%', background: '#0f172a', width: 10, height: 10, border: '2px solid #f87171' }} />
                 </>
             ) : (
-                <Handle type="source" position={Position.Bottom} style={{ background: '#fff', width: 9, height: 9, border: `2px solid ${defColor}` }} />
+                <Handle type="source" position={Position.Bottom} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${defColor}` }} />
             )}
         </div>
     );
@@ -256,34 +299,44 @@ function BaseNode({ id, data, selected }) {
 function TriggerNode({ data, selected }) {
     const { t } = useTranslation();
     const trigger = TRIGGER_TYPES.find(tr => tr.value === data.triggerType);
-    const accent = '#6366f1';
+    const accent = '#f59e0b';
+    const label = getTriggerDefLabel(trigger, t);
+
     return (
         <div style={{
-            background: '#fff',
-            border: `1px solid ${selected ? accent : '#e5e7eb'}`,
-            borderRadius: 12,
-            minWidth: 210,
-            boxShadow: selected ? `0 0 0 3px ${accent}1f, 0 8px 20px rgba(0,0,0,0.08)` : '0 1px 3px rgba(0,0,0,0.06)',
-            transition: 'box-shadow 0.15s, border-color 0.15s',
+            background: '#0f172a',
+            border: `1.5px solid ${selected ? accent : '#f59e0b40'}`,
+            borderRadius: 14,
+            minWidth: 230,
+            boxShadow: selected
+                ? `0 0 0 3px ${accent}33, 0 12px 28px rgba(245,158,11,0.15)`
+                : '0 4px 16px rgba(0,0,0,0.25)',
+            transition: 'all 0.15s ease-in-out',
             overflow: 'hidden',
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 10px' }}>
+            {/* Top Amber Accent Bar */}
+            <div style={{ height: 3, background: accent }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
                 <span style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                    background: '#fffbeb', color: '#f59e0b',
+                    width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+                    background: '#78350f33', color: accent,
+                    border: '1px solid #78350f66',
                 }}>
-                    <Zap size={15} />
+                    <Zap size={16} />
                 </span>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.07em', textTransform: 'uppercase', lineHeight: 1.3 }}>{t('automation.trigger')}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: trigger ? '#111827' : '#9ca3af', display: 'flex', alignItems: 'center', gap: 5, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {trigger?.Icon && <trigger.Icon size={12} style={{ color: accent, flexShrink: 0 }} />}
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{trigger ? t(trigger.labelKey) : t('automation.select_trigger')}</span>
+                    <div style={{ fontSize: 9.5, fontWeight: 800, color: '#f59e0b', letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1.3 }}>
+                        {t('automation.trigger')}
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {trigger?.Icon && <trigger.Icon size={13} style={{ color: accent, flexShrink: 0 }} />}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
                     </div>
                 </div>
             </div>
-            <Handle type="source" position={Position.Bottom} style={{ background: '#fff', width: 9, height: 9, border: `2px solid ${accent}` }} />
+            <Handle type="source" position={Position.Bottom} style={{ background: '#0f172a', width: 10, height: 10, border: `2px solid ${accent}` }} />
         </div>
     );
 }
@@ -1714,52 +1767,63 @@ function AutomationBuilderInner({ automation: initial }) {
 
     return (
         <NodeActionsContext.Provider value={{ onConfigure: configureNode, onDelete: deleteNode }}>
-        <div style={{ display: 'flex', height: 'calc(100vh - 130px)', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', boxShadow: '0 4px 24px rgba(0,0,0,0.07)' }}>
-            {/* ── Sidebar ── */}
-            <div style={{ width: 234, display: 'flex', flexDirection: 'column', background: '#fafafa', borderRight: '1px solid #e5e7eb', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 140px)', borderRadius: 18, overflow: 'hidden', border: '1px solid #1e293b', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', background: '#090d16' }}>
+            {/* ── Sidebar Palette ── */}
+            <div style={{ width: 250, display: 'flex', flexDirection: 'column', background: '#090d16', borderRight: '1px solid #1e293b', overflowY: 'auto' }}>
                 {/* Node palette */}
-                <div style={{ padding: 12, flex: 1 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>{t('automation.add_node')}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, color: '#94a3b8', marginBottom: 8 }}>
-                        <GripVertical size={10} /> {t('automation.drag_node_hint')}
+                <div style={{ padding: 14, flex: 1 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: '#64748b', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('automation.add_node')}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#475569', marginBottom: 10 }}>
+                        <GripVertical size={11} /> {t('automation.drag_node_hint')}
                     </div>
 
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder={t('automation.search_nodes')}
-                        style={{ width: '100%', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', padding: '6px 9px', fontSize: 11, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }}
+                        style={{
+                            width: '100%', borderRadius: 10, border: '1px solid #1e293b',
+                            background: '#0f172a', color: '#f8fafc', padding: '7px 10px',
+                            fontSize: 11.5, marginBottom: 14, boxSizing: 'border-box', outline: 'none',
+                        }}
                     />
 
                     {grouped.map(({ cat, items }) => (
-                        <div key={cat} style={{ marginBottom: 12 }}>
-                            <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>
+                        <div key={cat} style={{ marginBottom: 14 }}>
+                            <div style={{ fontSize: 9.5, fontWeight: 800, color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
                                 {t(`automation.category_${cat}`)}
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                {items.map(([type, def]) => (
-                                    <button
-                                        key={type}
-                                        draggable
-                                        onDragStart={e => onDragStart(e, type)}
-                                        onClick={() => addNode(type)}
-                                        title={t('automation.drag_node_hint')}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px',
-                                            borderRadius: 8, border: '1px solid transparent', background: 'white',
-                                            cursor: 'grab', textAlign: 'left', fontSize: 11, color: '#374151',
-                                            transition: 'all 0.12s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                                        }}
-                                        onMouseEnter={e => { e.currentTarget.style.borderColor = def.color; e.currentTarget.style.background = def.bg; }}
-                                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'white'; }}
-                                    >
-                                        <span style={{ color: def.color, display: 'flex', flexShrink: 0 }}>
-                                            <NodeIcon nodeType={type} size={13} />
-                                        </span>
-                                        <span style={{ fontWeight: 500 }}>{t(def.labelKey)}</span>
-                                        <GripVertical size={11} style={{ marginLeft: 'auto', color: '#d1d5db', flexShrink: 0 }} />
-                                    </button>
-                                ))}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {items.map(([type, def]) => {
+                                    const itemLabel = getNodeDefLabel(type, t);
+                                    return (
+                                        <button
+                                            key={type}
+                                            draggable
+                                            onDragStart={e => onDragStart(e, type)}
+                                            onClick={() => addNode(type)}
+                                            title={t('automation.drag_node_hint')}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px',
+                                                borderRadius: 10, border: '1px solid #1e293b', background: '#0f172a',
+                                                cursor: 'grab', textAlign: 'left', fontSize: 11.5, color: '#e2e8f0',
+                                                transition: 'all 0.15s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                            }}
+                                            onMouseEnter={e => { e.currentTarget.style.borderColor = def.color; e.currentTarget.style.background = '#1e293b'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e293b'; e.currentTarget.style.background = '#0f172a'; }}
+                                        >
+                                            <span style={{
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                width: 24, height: 24, borderRadius: 7, flexShrink: 0,
+                                                background: `${def.color}1a`, color: def.color,
+                                            }}>
+                                                <NodeIcon nodeType={type} size={13} />
+                                            </span>
+                                            <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{itemLabel}</span>
+                                            <GripVertical size={11} style={{ marginLeft: 'auto', color: '#475569', flexShrink: 0 }} />
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}
@@ -1782,60 +1846,71 @@ function AutomationBuilderInner({ automation: initial }) {
                     fitView
                     deleteKeyCode="Delete"
                 >
-                    <Background color="#e5e7eb" gap={20} />
-                    <Controls style={{ bottom: 20, left: 20 }} />
+                    <Background color="#334155" gap={20} size={1} />
+                    <Controls style={{ bottom: 20, left: 20, background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, fill: '#94a3b8' }} />
                     <MiniMap
                         nodeColor={n => NODE_DEFS[n.data?.nodeType]?.color ?? '#6366f1'}
-                        style={{ background: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: 8 }}
+                        style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12 }}
                     />
 
                     {/* Top toolbar */}
                     <Panel position="top-right">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb', padding: '8px 12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 8, borderRight: '1px solid #f0f0f0' }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: automation.status === 'active' ? '#10b981' : '#f59e0b' }} />
-                                <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>{t(`automation.status_${automation.status}`)}</span>
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            background: '#090d16', borderRadius: 14, border: '1px solid #1e293b',
+                            padding: '8px 12px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 10, borderRight: '1px solid #1e293b' }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: automation.status === 'active' ? '#10b981' : '#f59e0b', boxShadow: automation.status === 'active' ? '0 0 10px #10b981' : 'none' }} />
+                                <span style={{ fontSize: 11.5, color: automation.status === 'active' ? '#34d399' : '#fbbf24', fontWeight: 600 }}>{t(`automation.status_${automation.status}`)}</span>
                             </div>
+
                             <button onClick={() => { setAiError(null); setAiOpen(true); }} title={t('automation.ai_title')} style={{
-                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8,
-                                background: '#faf5ff', padding: '6px 12px', fontSize: 12, fontWeight: 600,
-                                color: '#7c3aed', border: '1px solid #e9d5ff', cursor: 'pointer', transition: 'all 0.15s',
+                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
+                                background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', padding: '7px 13px', fontSize: 12, fontWeight: 700,
+                                color: '#fff', border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
                             }}>
-                                <Sparkles size={13} /> {t('automation.ai_generate_short')}
+                                <Sparkles size={14} /> {t('automation.ai_generate_short')}
                             </button>
+
                             <button onClick={runTest} disabled={testing} title={t('automation.test_title')} style={{
-                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8,
-                                background: '#eef2ff', padding: '6px 12px', fontSize: 12, fontWeight: 600,
-                                color: '#4f46e5', border: '1px solid #e0e7ff', cursor: testing ? 'not-allowed' : 'pointer',
+                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
+                                background: '#1e293b', padding: '7px 13px', fontSize: 12, fontWeight: 600,
+                                color: '#a5b4fc', border: '1px solid #334155', cursor: testing ? 'not-allowed' : 'pointer',
                                 opacity: testing ? 0.7 : 1, transition: 'all 0.15s',
                             }}>
-                                {testing ? <Loader2 size={13} className="animate-spin" /> : <FlaskConical size={13} />} {t('automation.test')}
+                                {testing ? <Loader2 size={14} className="animate-spin" /> : <FlaskConical size={14} />} {t('automation.test')}
                             </button>
+
                             <button onClick={save} disabled={saving} style={{
-                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8,
-                                background: '#6366f1', padding: '6px 14px', fontSize: 12, fontWeight: 600,
+                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
+                                background: '#4f46e5', padding: '7px 15px', fontSize: 12, fontWeight: 700,
                                 color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
                                 opacity: saving ? 0.7 : 1, transition: 'all 0.15s',
+                                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
                             }}>
-                                <Save size={13} /> {saving ? t('automation.saving') : t('common.save')}
+                                <Save size={14} /> {saving ? t('automation.saving') : t('common.save')}
                             </button>
+
                             <button onClick={toggleStatus} style={{
-                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8,
-                                padding: '6px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                                background: automation.status === 'active' ? '#fef3c7' : '#dcfce7',
-                                color: automation.status === 'active' ? '#92400e' : '#166534',
+                                display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10,
+                                padding: '7px 13px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                                background: automation.status === 'active' ? '#78350f40' : '#064e3b40',
+                                color: automation.status === 'active' ? '#fbbf24' : '#34d399',
+                                border: `1px solid ${automation.status === 'active' ? '#78350f' : '#064e3b'}`,
                                 transition: 'all 0.15s',
                             }}>
                                 {automation.status === 'active'
-                                    ? <><Pause size={13} /> {t('automation.pause')}</>
-                                    : <><Play size={13} /> {t('automation.activate')}</>}
+                                    ? <><Pause size={14} /> {t('automation.pause')}</>
+                                    : <><Play size={14} /> {t('automation.activate')}</>}
                             </button>
                         </div>
                     </Panel>
 
                     {/* Hint */}
                     <Panel position="bottom-center">
-                        <div style={{ fontSize: 10, color: '#9ca3af', background: '#fff', borderRadius: 999, padding: '4px 12px', border: '1px solid #f0f0f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                        <div style={{ fontSize: 11, color: '#94a3b8', background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '5px 16px', border: '1px solid #1e293b' }}>
                             {t('automation.canvas_hint')}
                         </div>
                     </Panel>
@@ -1856,8 +1931,8 @@ function AutomationBuilderInner({ automation: initial }) {
                                 style={{
                                     position: 'absolute', bottom: 16, left: 16, right: 16,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                    background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8,
-                                    padding: '8px 0', fontSize: 12, fontWeight: 600, color: '#dc2626',
+                                    background: '#450a0a', border: '1px solid #7f1d1d', borderRadius: 10,
+                                    padding: '9px 0', fontSize: 12, fontWeight: 600, color: '#f87171',
                                     cursor: 'pointer', zIndex: 11,
                                 }}
                             >
@@ -1902,17 +1977,23 @@ export default function AutomationBuilder({ automation }) {
     return (
         <ClientLayout title={automation.name}>
             <Head title={`${automation.name} · ${t('automation.builder')}`} />
-            <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                    <Link href={route('client.automations.index')} className="flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 shadow-sm transition">
-                        <ArrowLeft className="h-4 w-4" />
-                    </Link>
-                    <div>
-                        <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 leading-tight">{automation.name}</h2>
-                        <p className="text-xs text-neutral-500">{t('automation.builder')}</p>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl px-5 py-3.5 shadow-xl">
+                    <div className="flex items-center gap-3.5">
+                        <Link href={route('client.automations.index')} className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition shadow-sm">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Link>
+                        <div>
+                            <div className="flex items-center gap-2.5">
+                                <h2 className="text-base font-bold text-slate-100 leading-tight">{automation.name}</h2>
+                                <span className="px-2.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+                                    Workflow Builder
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="ml-auto flex items-center gap-2">
-                        <Link href={route('client.automations.runs', automation.uuid)} className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-700 transition">
+                    <div className="flex items-center gap-3">
+                        <Link href={route('client.automations.runs', automation.uuid)} className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition">
                             {t('automation.view_runs_arrow')}
                         </Link>
                     </div>
