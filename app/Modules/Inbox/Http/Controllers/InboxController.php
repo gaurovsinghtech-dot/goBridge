@@ -124,7 +124,7 @@ class InboxController extends Controller
         $this->authorise($request, $conversation);
 
         $conversation->load(['contact.tags', 'channelAccount', 'labels']);
-        $messages = $conversation->messages()->with('conversation')->orderBy('sent_at')->get();
+        $messages = $conversation->messages()->with('conversation')->orderBy('sent_at')->orderBy('id')->get();
 
         // Mark as read
         $conversation->update(['unread_count' => 0]);

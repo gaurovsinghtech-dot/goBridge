@@ -141,7 +141,7 @@ class Conversation extends Model
 
     public function lastMessage()
     {
-        return $this->hasOne(Message::class)->latestOfMany('sent_at');
+        return $this->hasOne(Message::class)->latestOfMany(['sent_at', 'id']);
     }
 
     public function internalNotes(): HasMany

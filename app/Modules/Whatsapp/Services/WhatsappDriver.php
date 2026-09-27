@@ -55,7 +55,12 @@ class WhatsappDriver implements ChannelDriverInterface
         $payload = $message->payload ?? [];
 
         $resp = match ($message->type) {
-            'template' => $client->sendTemplate($phone, $payload['template']['name'] ?? '', $payload['template']['language'] ?? 'en', $payload['template']['components'] ?? []),
+            'template' => $client->sendTemplate(
+                $phone,
+                $payload['template']['name'] ?? $payload['name'] ?? '',
+                $payload['template']['language'] ?? $payload['language'] ?? 'en',
+                $payload['template']['components'] ?? $payload['components'] ?? []
+            ),
             'interactive' => $client->sendInteractive($phone, $payload['interactive'] ?? []),
             'image' => $client->sendMedia($phone, 'image', $payload['media_id'] ?? '', $payload['caption'] ?? null, null, $payload['link'] ?? null),
             'video' => $client->sendMedia($phone, 'video', $payload['media_id'] ?? '', $payload['caption'] ?? null, null, $payload['link'] ?? null),
