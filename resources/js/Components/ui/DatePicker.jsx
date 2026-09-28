@@ -1,33 +1,18 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock, X, Check, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 /**
- * Custom calendar date picker — a drop-in replacement for the native
- * `<input type="date">` / `<input type="datetime-local">` controls so the UI
- * stays consistent across browsers and matches the design system.
+ * Custom calendar date & time picker — redesigned for effortless date & time selection.
  *
- * Value format mirrors the native inputs it replaces:
+ * Value format mirrors native inputs:
  *   mode="date"     → "yyyy-mm-dd"
  *   mode="datetime" → "yyyy-mm-ddThh:mm"
- *
- * Props:
- *   value       current value string (same format as the native input)
- *   onChange    (value: string) => void  — emits the same format ('' when cleared)
- *   mode        'date' (default) | 'datetime'
- *   min, max    optional bounds in "yyyy-mm-dd" (or datetime) format
- *   placeholder trigger placeholder text
- *   error       shows error styling when truthy
- *   disabled    disables the control
- *   className    applied to the root wrapper (controls width/layout)
- *   id, name, required, ...rest  forwarded to a hidden input for forms
  */
 
 const pad2 = (n) => String(n).padStart(2, '0');
-
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/;
 
-// Parse a value string into local date parts without UTC shifting.
 function parseValue(str) {
     if (!str) return null;
     const m = DATE_RE.exec(str);
@@ -37,7 +22,7 @@ function parseValue(str) {
         year: +y,
         month: +mo - 1,
         day: +d,
-        hour: h != null ? +h : 0,
+        hour: h != null ? +h : 9, // Default to 9 AM if no time provided
         minute: mi != null ? +mi : 0,
     };
 }
@@ -52,9 +37,21 @@ function formatValue(p, mode) {
     return date;
 }
 
-// Day-granularity number for min/max comparison (yyyymmdd).
 function dayKey(year, month, day) {
     return year * 10000 + month * 100 + day;
+}
+
+function to12Hour(hour24) {
+    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+    let hour12 = hour24 % 12;
+    if (hour12 === 0) hour12 = 12;
+    return { hour12, ampm };
+}
+
+function to24Hour(hour12, ampm) {
+    let h24 = (hour12 % 12);
+    if (ampm === 'PM') h24 += 12;
+    return h24;
 }
 
 export default function DatePicker({
@@ -83,7 +80,6 @@ export default function DatePicker({
 
     const selected = useMemo(() => parseValue(value), [value]);
 
-    // Month currently shown in the calendar.
     const [cursor, setCursor] = useState(() => {
         const base = selected || null;
         const now = new Date();
@@ -93,7 +89,6 @@ export default function DatePicker({
         };
     });
 
-    // Open the popover, jumping the calendar to the selected month (or today).
     const openPicker = () => {
         const now = new Date();
         setCursor({
@@ -108,12 +103,12 @@ export default function DatePicker({
         const p = parseValue(min);
         return p ? dayKey(p.year, p.month, p.day) : null;
     }, [min]);
+
     const maxKey = useMemo(() => {
         const p = parseValue(max);
         return p ? dayKey(p.year, p.month, p.day) : null;
     }, [max]);
 
-    // Close on outside click.
     useEffect(() => {
         if (!open) return;
         const handler = (e) => {
@@ -126,7 +121,6 @@ export default function DatePicker({
         return () => document.removeEventListener('mousedown', handler);
     }, [open]);
 
-    // Close on Escape.
     useEffect(() => {
         if (!open) return;
         const handler = (e) => {
@@ -139,18 +133,15 @@ export default function DatePicker({
         return () => document.removeEventListener('keydown', handler);
     }, [open]);
 
-    // Flip the popover above the trigger when it would overflow the viewport.
     useEffect(() => {
         if (!open || !containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
-        const estimated = mode === 'datetime' ? 430 : 360;
+        const estimated = mode === 'datetime' ? 460 : 380;
         setDropUp(rect.bottom + estimated > window.innerHeight && rect.top > estimated);
     }, [open, mode]);
 
-    // Localized weekday narrow labels, week starting Sunday.
     const weekdays = useMemo(() => {
         const fmt = new Intl.DateTimeFormat(lang, { weekday: 'narrow' });
-        // 2023-01-01 was a Sunday.
         return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2023, 0, 1 + i)));
     }, [lang]);
 
@@ -178,7 +169,6 @@ export default function DatePicker({
         return new Intl.DateTimeFormat(lang, opts).format(partsToDate(selected));
     }, [selected, mode, lang, placeholder, t]);
 
-    // Build a 6-row grid of cells for the cursor month.
     const cells = useMemo(() => {
         const firstDow = new Date(cursor.year, cursor.month, 1).getDay();
         const start = new Date(cursor.year, cursor.month, 1 - firstDow);
@@ -215,7 +205,7 @@ export default function DatePicker({
             year: c.year,
             month: c.month,
             day: c.day,
-            hour: selected ? selected.hour : now.getHours(),
+            hour: selected ? selected.hour : (now.getHours() < 23 ? now.getHours() + 1 : 9),
             minute: selected ? selected.minute : 0,
         };
         emit(next);
@@ -226,20 +216,47 @@ export default function DatePicker({
         }
     };
 
-    const setTime = (hour, minute) => {
+    const setTimePart = (h24, mi) => {
         const base = selected || (() => {
             const now = new Date();
-            return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate(), hour: 0, minute: 0 };
+            return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate(), hour: 9, minute: 0 };
         })();
-        emit({ ...base, hour, minute });
+        emit({ ...base, hour: h24, minute: mi });
     };
 
-    const goToToday = () => {
-        const now = new Date();
-        const c = { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
+    const setHour12 = (h12) => {
+        const currentH24 = selected ? selected.hour : 9;
+        const { ampm } = to12Hour(currentH24);
+        const newH24 = to24Hour(h12, ampm);
+        setTimePart(newH24, selected ? selected.minute : 0);
+    };
+
+    const setAmPm = (ampm) => {
+        const currentH24 = selected ? selected.hour : 9;
+        const { hour12 } = to12Hour(currentH24);
+        const newH24 = to24Hour(hour12, ampm);
+        setTimePart(newH24, selected ? selected.minute : 0);
+    };
+
+    const setMinute = (mi) => {
+        const currentH24 = selected ? selected.hour : 9;
+        setTimePart(currentH24, mi);
+    };
+
+    const selectPresetDate = (daysFromNow) => {
+        const d = new Date();
+        d.setDate(d.getDate() + daysFromNow);
+        const c = { year: d.getFullYear(), month: d.getMonth(), day: d.getDate() };
         if (isDisabledDay(c)) return;
         selectDay(c);
-        setCursor({ year: c.year, month: c.month });
+    };
+
+    const applyTimePreset = (h24, mi) => {
+        if (!selected) {
+            const now = new Date();
+            selectDay({ year: now.getFullYear(), month: now.getMonth(), day: now.getDate() });
+        }
+        setTimePart(h24, mi);
     };
 
     const stepMonth = (delta) => {
@@ -255,18 +272,18 @@ export default function DatePicker({
     }, []);
 
     const selectedKey = selected ? dayKey(selected.year, selected.month, selected.day) : null;
+    const { hour12, ampm } = useMemo(() => to12Hour(selected ? selected.hour : 9), [selected]);
 
     const triggerClasses = [
-        'w-full flex items-center gap-2 rounded-soft border bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-left shadow-inner transition duration-150 focus:outline-none focus:ring-2',
+        'w-full flex items-center gap-2.5 rounded-xl border bg-white dark:bg-neutral-900 px-3.5 py-2.5 text-xs text-left shadow-xs transition duration-150 focus:outline-none focus:ring-2',
         error
             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-soft border-neutral-300 dark:border-neutral-600 focus:border-brand-500 focus:ring-brand-500/20',
+            : 'border-neutral-200 dark:border-neutral-700/80 focus:border-blue-600 focus:ring-blue-600/20 hover:border-neutral-300 dark:hover:border-neutral-600',
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
     ].join(' ');
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
-            {/* Hidden input keeps native form submission / validation working. */}
             <input type="hidden" id={id} name={name} value={value || ''} required={required} {...rest} />
 
             <button
@@ -277,8 +294,8 @@ export default function DatePicker({
                 aria-haspopup="dialog"
                 aria-expanded={open}
             >
-                <Calendar className="h-4 w-4 shrink-0 text-neutral-400" />
-                <span className={`flex-1 truncate ${selected ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400 dark:text-neutral-500'}`}>
+                <Calendar className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                <span className={`flex-1 truncate font-medium ${selected ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-400 dark:text-neutral-500'}`}>
                     {triggerLabel}
                 </span>
                 {selected && !disabled && (
@@ -286,7 +303,7 @@ export default function DatePicker({
                         role="button"
                         tabIndex={-1}
                         onClick={(e) => { e.stopPropagation(); emit(null); }}
-                        className="shrink-0 rounded p-0.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                        className="shrink-0 rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-600 dark:hover:text-neutral-300 transition"
                         aria-label={t('ui.date_clear', 'Clear')}
                     >
                         <X className="h-3.5 w-3.5" />
@@ -297,15 +314,56 @@ export default function DatePicker({
             {open && (
                 <div
                     ref={popoverRef}
-                    className={`absolute z-50 w-[17rem] rounded-soft-lg border border-soft border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-soft-lg ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 rtl:left-auto rtl:right-0`}
+                    className={`absolute z-50 w-80 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-xl ${
+                        dropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+                    } left-0 rtl:left-auto rtl:right-0 space-y-3.5`}
                     role="dialog"
                 >
-                    {/* Header */}
-                    <div className="mb-2 flex items-center justify-between">
+                    {/* Top Preset Chips */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                        <button
+                            type="button"
+                            onClick={() => selectPresetDate(0)}
+                            className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-blue-50 dark:hover:bg-neutral-700 hover:text-blue-600 transition shrink-0"
+                        >
+                            Today
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => selectPresetDate(1)}
+                            className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-blue-50 dark:hover:bg-neutral-700 hover:text-blue-600 transition shrink-0"
+                        >
+                            Tomorrow
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => selectPresetDate(2)}
+                            className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-blue-50 dark:hover:bg-neutral-700 hover:text-blue-600 transition shrink-0"
+                        >
+                            In 2 Days
+                        </button>
+                        {mode === 'datetime' && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const now = new Date();
+                                    now.setHours(now.getHours() + 1);
+                                    selectDay({ year: now.getFullYear(), month: now.getMonth(), day: now.getDate() });
+                                    setTimePart(now.getHours(), 0);
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition shrink-0 flex items-center gap-1"
+                            >
+                                <Sparkles className="w-3 h-3" /> +1 Hr
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Month / Year Header */}
+                    <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-2.5">
                         <button
                             type="button"
                             onClick={() => setView((v) => (v === 'days' ? 'months' : 'days'))}
-                            className="rounded-soft px-2 py-1 text-sm font-semibold text-neutral-800 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                            className="rounded-lg px-2.5 py-1 text-xs font-bold text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                         >
                             {view === 'days' ? headerLabel : cursor.year}
                         </button>
@@ -313,7 +371,7 @@ export default function DatePicker({
                             <button
                                 type="button"
                                 onClick={() => (view === 'days' ? stepMonth(-1) : setCursor((c) => ({ ...c, year: c.year - 1 })))}
-                                className="rounded-soft p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                                className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                                 aria-label={t('ui.date_prev', 'Previous')}
                             >
                                 <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
@@ -321,7 +379,7 @@ export default function DatePicker({
                             <button
                                 type="button"
                                 onClick={() => (view === 'days' ? stepMonth(1) : setCursor((c) => ({ ...c, year: c.year + 1 })))}
-                                className="rounded-soft p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                                className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                                 aria-label={t('ui.date_next', 'Next')}
                             >
                                 <ChevronRight className="h-4 w-4 rtl:rotate-180" />
@@ -329,11 +387,12 @@ export default function DatePicker({
                         </div>
                     </div>
 
+                    {/* Day Grid view */}
                     {view === 'days' ? (
-                        <>
-                            <div className="grid grid-cols-7 gap-0.5">
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-7 gap-1">
                                 {weekdays.map((w, i) => (
-                                    <div key={i} className="py-1 text-center text-xs font-medium text-neutral-400">
+                                    <div key={i} className="py-1 text-center text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                                         {w}
                                     </div>
                                 ))}
@@ -349,15 +408,15 @@ export default function DatePicker({
                                             disabled={disabledDay}
                                             onClick={() => selectDay(c)}
                                             className={[
-                                                'h-8 w-8 mx-auto flex items-center justify-center rounded-soft text-sm transition',
+                                                'h-8 w-8 mx-auto flex items-center justify-center rounded-xl text-xs font-semibold transition-all',
                                                 isSelected
-                                                    ? 'bg-brand-500 text-white font-semibold hover:bg-brand-600'
+                                                    ? 'bg-blue-600 text-white font-bold shadow-xs scale-105'
                                                     : disabledDay
-                                                        ? 'text-neutral-300 dark:text-neutral-600 cursor-not-allowed'
+                                                        ? 'text-neutral-300 dark:text-neutral-700 cursor-not-allowed'
                                                         : c.inMonth
-                                                            ? 'text-neutral-700 dark:text-neutral-200 hover:bg-brand-50 dark:hover:bg-neutral-800'
-                                                            : 'text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800',
-                                                !isSelected && isToday ? 'ring-1 ring-brand-400 font-semibold' : '',
+                                                            ? 'text-neutral-800 dark:text-neutral-200 hover:bg-blue-50 dark:hover:bg-neutral-800 hover:text-blue-600'
+                                                            : 'text-neutral-400 dark:text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-800',
+                                                !isSelected && isToday ? 'ring-1 ring-blue-500 text-blue-600 dark:text-blue-400 font-bold' : '',
                                             ].join(' ')}
                                         >
                                             {c.day}
@@ -366,47 +425,114 @@ export default function DatePicker({
                                 })}
                             </div>
 
+                            {/* Redesigned 12-Hour Time Selector for mode="datetime" */}
                             {mode === 'datetime' && (
-                                <div className="mt-3 flex items-center gap-2 border-t border-soft border-neutral-100 dark:border-neutral-800 pt-3">
-                                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                        {t('ui.date_time', 'Time')}
-                                    </span>
-                                    <select
-                                        value={selected ? selected.hour : ''}
-                                        onChange={(e) => setTime(+e.target.value, selected ? selected.minute : 0)}
-                                        className="rounded-soft border border-soft border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-2 py-1 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                                    >
-                                        {!selected && <option value="">--</option>}
-                                        {Array.from({ length: 24 }, (_, h) => (
-                                            <option key={h} value={h}>{pad2(h)}</option>
+                                <div className="border-t border-neutral-100 dark:border-neutral-800 pt-3 space-y-2.5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                                            <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                            {t('ui.date_time', 'Set Time')}
+                                        </span>
+                                        <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-lg">
+                                            {pad2(hour12)}:{pad2(selected ? selected.minute : 0)} {ampm}
+                                        </span>
+                                    </div>
+
+                                    {/* Quick Time Presets */}
+                                    <div className="grid grid-cols-4 gap-1.5 text-[10px]">
+                                        {[
+                                            { label: '9:00 AM', h: 9, m: 0 },
+                                            { label: '12:00 PM', h: 12, m: 0 },
+                                            { label: '3:00 PM', h: 15, m: 0 },
+                                            { label: '6:00 PM', h: 18, m: 0 },
+                                        ].map((tPreset) => (
+                                            <button
+                                                key={tPreset.label}
+                                                type="button"
+                                                onClick={() => applyTimePreset(tPreset.h, tPreset.m)}
+                                                className="py-1 rounded-lg border border-neutral-200 dark:border-neutral-700/60 bg-neutral-50 dark:bg-neutral-800/60 text-neutral-700 dark:text-neutral-300 font-semibold hover:bg-blue-50 dark:hover:bg-neutral-700 hover:text-blue-600 transition"
+                                            >
+                                                {tPreset.label}
+                                            </button>
                                         ))}
-                                    </select>
-                                    <span className="text-neutral-400">:</span>
-                                    <select
-                                        value={selected ? selected.minute : ''}
-                                        onChange={(e) => setTime(selected ? selected.hour : new Date().getHours(), +e.target.value)}
-                                        className="rounded-soft border border-soft border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-2 py-1 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                                    >
-                                        {!selected && <option value="">--</option>}
-                                        {Array.from({ length: 60 }, (_, mi) => (
-                                            <option key={mi} value={mi}>{pad2(mi)}</option>
-                                        ))}
-                                    </select>
+                                    </div>
+
+                                    {/* Interactive 12-Hour Time Controls */}
+                                    <div className="flex items-center gap-2 bg-neutral-50 dark:bg-neutral-800/60 p-2 rounded-xl border border-neutral-200 dark:border-neutral-700/60">
+                                        {/* Hour Dropdown (1..12) */}
+                                        <div className="flex-1">
+                                            <select
+                                                value={hour12}
+                                                onChange={(e) => setHour12(+e.target.value)}
+                                                className="w-full text-xs font-bold rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 py-1.5 px-2 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 cursor-pointer"
+                                            >
+                                                {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                                                    <option key={h} value={h}>
+                                                        {pad2(h)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <span className="text-sm font-bold text-neutral-400">:</span>
+
+                                        {/* Minute Step Dropdown (00..55 in steps of 5) */}
+                                        <div className="flex-1">
+                                            <select
+                                                value={selected ? selected.minute : 0}
+                                                onChange={(e) => setMinute(+e.target.value)}
+                                                className="w-full text-xs font-bold rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 py-1.5 px-2 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 cursor-pointer"
+                                            >
+                                                {Array.from({ length: 60 }, (_, mi) => mi).map((mi) => (
+                                                    <option key={mi} value={mi}>
+                                                        {pad2(mi)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* AM / PM Segmented Toggle */}
+                                        <div className="flex p-0.5 rounded-lg bg-neutral-200 dark:bg-neutral-700 shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => setAmPm('AM')}
+                                                className={`px-2 py-1 rounded-md text-[11px] font-extrabold transition ${
+                                                    ampm === 'AM'
+                                                        ? 'bg-blue-600 text-white shadow-xs'
+                                                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+                                                }`}
+                                            >
+                                                AM
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setAmPm('PM')}
+                                                className={`px-2 py-1 rounded-md text-[11px] font-extrabold transition ${
+                                                    ampm === 'PM'
+                                                        ? 'bg-blue-600 text-white shadow-xs'
+                                                        : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+                                                }`}
+                                            >
+                                                PM
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
-                        </>
+                        </div>
                     ) : (
-                        <div className="grid grid-cols-3 gap-1.5">
+                        /* Month Selector Grid */
+                        <div className="grid grid-cols-3 gap-2 py-2">
                             {monthNames.map((mName, i) => (
                                 <button
                                     type="button"
                                     key={i}
                                     onClick={() => { setCursor((c) => ({ ...c, month: i })); setView('days'); }}
                                     className={[
-                                        'rounded-soft py-2 text-sm transition',
+                                        'rounded-xl py-2 text-xs font-bold transition',
                                         i === cursor.month
-                                            ? 'bg-brand-500 text-white font-semibold'
-                                            : 'text-neutral-700 dark:text-neutral-200 hover:bg-brand-50 dark:hover:bg-neutral-800',
+                                            ? 'bg-blue-600 text-white shadow-xs'
+                                            : 'text-neutral-700 dark:text-neutral-200 hover:bg-blue-50 dark:hover:bg-neutral-800 hover:text-blue-600',
                                     ].join(' ')}
                                 >
                                     {mName}
@@ -415,21 +541,28 @@ export default function DatePicker({
                         </div>
                     )}
 
-                    {/* Footer */}
-                    <div className="mt-3 flex items-center justify-between border-t border-soft border-neutral-100 dark:border-neutral-800 pt-2">
+                    {/* Popover Footer: Clear / Apply Actions */}
+                    <div className="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 pt-3">
                         <button
                             type="button"
-                            onClick={() => emit(null)}
-                            className="text-sm font-medium text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition"
+                            onClick={() => { emit(null); setOpen(false); }}
+                            className="text-xs font-bold text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 transition"
                         >
                             {t('ui.date_clear', 'Clear')}
                         </button>
+
                         <button
                             type="button"
-                            onClick={goToToday}
-                            className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition"
+                            onClick={() => {
+                                if (!selected) {
+                                    const now = new Date();
+                                    selectDay({ year: now.getFullYear(), month: now.getMonth(), day: now.getDate() });
+                                }
+                                setOpen(false);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition"
                         >
-                            {t('ui.date_today', 'Today')}
+                            <Check className="w-3.5 h-3.5" /> Done
                         </button>
                     </div>
                 </div>
