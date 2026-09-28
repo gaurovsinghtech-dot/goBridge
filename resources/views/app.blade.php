@@ -73,17 +73,15 @@
             // Reject anything not on the whitelist — the slug is interpolated into a
             // stylesheet URL below, and the family name into a CSS declaration.
             $brandFont  = $branding['font_family'] ?? null;
-            $fontSlug   = ($brandFont && array_key_exists($brandFont, $fonts)) ? $brandFont : config('saas.branding.font_family', 'space-grotesk');
-            $fontFamily = $fonts[$fontSlug] ?? 'Space Grotesk';
+            $fontSlug   = ($brandFont && array_key_exists($brandFont, $fonts)) ? $brandFont : config('saas.branding.font_family', 'inter');
+            $fontFamily = $fonts[$fontSlug] ?? 'Inter';
         @endphp
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700|manrope:600,700,800&display=swap" rel="stylesheet" />
         <link href="https://fonts.bunny.net/css?family={{ urlencode($fontSlug) }}:400,500,600,700&display=swap" rel="stylesheet" />
-        {{-- Anek Bangla for Bengali script. The Bengali glyph files are lazy-loaded
-             by unicode-range, so they're only fetched when bn text actually renders
-             (i.e. html[lang="bn"]); keeping the link unconditional means a client-side
-             locale switch picks it up without a full page reload. --}}
+        {{-- Anek Bangla for Bengali script --}}
         <link href="https://fonts.bunny.net/css?family=anek-bangla:400,500,600,700&display=swap" rel="stylesheet" />
 
         @if(config('services.onesignal.app_id'))

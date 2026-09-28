@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
-import { Dropdown } from '@/Components/ui';
 import { useTheme } from '@/context/ThemeContext';
 import { useLocale } from '@/hooks/useLocale';
 import { useBranding } from '@/hooks/useBranding';
-import { Globe, ChevronDown, Sparkles, MessageSquare, Bot, PhoneCall, Mail, BarChart3, Plug, ArrowRight } from 'lucide-react';
+import { ChevronDown, MessageSquare, Bot, PhoneCall, ArrowRight } from 'lucide-react';
 
 function SunIcon({ className }) {
     return (
@@ -38,6 +37,15 @@ function XIcon({ className }) {
         </svg>
     );
 }
+
+const NAV_LINKS = [
+    { label: 'Features', href: '/#features' },
+    { label: 'Use Cases', href: '/use-cases' },
+    { label: 'Integrations', href: '/integrations' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+];
 
 export default function LandingLayout({ children }) {
     const { t } = useTranslation();
@@ -89,9 +97,9 @@ export default function LandingLayout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#020f0b] text-neutral-100 flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-emerald-500 selection:text-black">
+        <div className="min-h-screen bg-[#FAFAF9] text-[#171717] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#2563EB] selection:text-white">
             {/* ── Header / Navbar ── */}
-            <header className="sticky top-0 z-50 w-full border-b border-emerald-900/30 bg-[#03130e]/90 backdrop-blur-xl transition-colors">
+            <header className="sticky top-0 z-50 w-full border-b border-[#E5E5E5] bg-white/90 backdrop-blur-md transition-colors">
                 <nav className="w-full">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 box-border">
                         {/* Brand Logo */}
@@ -100,11 +108,11 @@ export default function LandingLayout({ children }) {
                                 <img src={logoUrl} alt={appName} className="h-9 w-auto max-w-[180px] object-contain" />
                             ) : (
                                 <div className="flex items-center gap-2.5">
-                                    <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-200">
-                                        <span className="text-xl font-black text-black leading-none tracking-tight">G</span>
+                                    <div className="h-9 w-9 rounded-lg bg-[#2563EB] flex items-center justify-center shadow-sm group-hover:bg-[#1D4ED8] transition-colors">
+                                        <span className="text-xl font-bold text-white leading-none tracking-tight">G</span>
                                     </div>
-                                    <span className="text-lg font-bold text-white tracking-tight">
-                                        Growbridge <span className="text-emerald-400 font-semibold">Connect</span>
+                                    <span className="text-lg font-bold text-[#171717] tracking-tight">
+                                        Growbridge <span className="text-[#2563EB]">Connect</span>
                                     </span>
                                 </div>
                             )}
@@ -114,31 +122,31 @@ export default function LandingLayout({ children }) {
                         <div className="hidden lg:flex items-center gap-1 xl:gap-2">
                             {/* Features dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('features')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                     <span>Features</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-neutral-400 group-hover:text-emerald-400 transition-transform group-hover:rotate-180 duration-200" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-[#737373] group-hover:text-[#2563EB] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'features' && (
-                                    <div className="absolute top-full left-0 w-72 bg-[#062219] border border-emerald-800/40 rounded-2xl p-2 shadow-2xl shadow-black/80 backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-150">
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white transition">
-                                            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><MessageSquare className="h-4 w-4" /></div>
+                                    <div className="absolute top-full left-0 w-72 bg-white border border-[#E5E5E5] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#171717] transition">
+                                            <div className="p-2 rounded-lg bg-blue-50 text-[#2563EB]"><MessageSquare className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">Unified Inbox</div>
-                                                <div className="text-xs text-neutral-400">All channels in one place</div>
+                                                <div className="text-xs text-[#737373]">All channels in one place</div>
                                             </div>
                                         </Link>
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white transition">
-                                            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400"><Bot className="h-4 w-4" /></div>
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#171717] transition">
+                                            <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600"><Bot className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">AI Automation</div>
-                                                <div className="text-xs text-neutral-400">24/7 intelligent workflows</div>
+                                                <div className="text-xs text-[#737373]">24/7 intelligent workflows</div>
                                             </div>
                                         </Link>
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white transition">
-                                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400"><PhoneCall className="h-4 w-4" /></div>
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#171717] transition">
+                                            <div className="p-2 rounded-lg bg-[#FAFAF9] text-[#2563EB]"><PhoneCall className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">AI Voice Agents</div>
-                                                <div className="text-xs text-neutral-400">Twilio voice calling</div>
+                                                <div className="text-xs text-[#737373]">Twilio voice calling</div>
                                             </div>
                                         </Link>
                                     </div>
@@ -147,26 +155,26 @@ export default function LandingLayout({ children }) {
 
                             {/* Channels dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('channels')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                     <span>Channels</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-neutral-400 group-hover:text-emerald-400 transition-transform group-hover:rotate-180 duration-200" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-[#737373] group-hover:text-[#2563EB] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'channels' && (
-                                    <div className="absolute top-full left-0 w-64 bg-[#062219] border border-emerald-800/40 rounded-2xl p-2 shadow-2xl shadow-black/80 backdrop-blur-2xl">
-                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
-                                            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                                    <div className="absolute top-full left-0 w-64 bg-white border border-[#E5E5E5] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
+                                            <span className="h-2 w-2 rounded-full bg-emerald-500" />
                                             WhatsApp Cloud API
                                         </Link>
-                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
-                                            <span className="h-2 w-2 rounded-full bg-pink-400" />
+                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
+                                            <span className="h-2 w-2 rounded-full bg-pink-500" />
                                             Instagram Graph API
                                         </Link>
-                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
-                                            <span className="h-2 w-2 rounded-full bg-blue-400" />
+                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
+                                            <span className="h-2 w-2 rounded-full bg-[#2563EB]" />
                                             Facebook Messenger
                                         </Link>
-                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
-                                            <span className="h-2 w-2 rounded-full bg-purple-400" />
+                                        <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
+                                            <span className="h-2 w-2 rounded-full bg-purple-500" />
                                             Email (SMTP / SendGrid)
                                         </Link>
                                     </div>
@@ -175,51 +183,51 @@ export default function LandingLayout({ children }) {
 
                             {/* Solutions dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('solutions')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                     <span>Solutions</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-neutral-400 group-hover:text-emerald-400 transition-transform group-hover:rotate-180 duration-200" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-[#737373] group-hover:text-[#2563EB] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'solutions' && (
-                                    <div className="absolute top-full left-0 w-64 bg-[#062219] border border-emerald-800/40 rounded-2xl p-2 shadow-2xl shadow-black/80 backdrop-blur-2xl">
-                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
+                                    <div className="absolute top-full left-0 w-64 bg-white border border-[#E5E5E5] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
                                             Lead Generation & Sales
                                         </Link>
-                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
+                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
                                             Customer Support 24/7
                                         </Link>
-                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
+                                        <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
                                             E-commerce Notifications
                                         </Link>
                                     </div>
                                 )}
                             </div>
 
-                            <Link href="/pricing" className="px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                            <Link href="/pricing" className="px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                 Pricing
                             </Link>
 
                             {/* Resources dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('resources')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                     <span>Resources</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-neutral-400 group-hover:text-emerald-400 transition-transform group-hover:rotate-180 duration-200" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-[#737373] group-hover:text-[#2563EB] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'resources' && (
-                                    <div className="absolute top-full left-0 w-56 bg-[#062219] border border-emerald-800/40 rounded-2xl p-2 shadow-2xl shadow-black/80 backdrop-blur-2xl">
-                                        <Link href="/integrations" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
+                                    <div className="absolute top-full left-0 w-56 bg-white border border-[#E5E5E5] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <Link href="/integrations" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
                                             Integrations
                                         </Link>
-                                        <Link href="/faq" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-emerald-900/30 text-neutral-200 hover:text-white text-sm font-medium transition">
+                                        <Link href="/faq" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#171717] text-sm font-medium transition">
                                             FAQ & Guides
                                         </Link>
                                     </div>
                                 )}
                             </div>
 
-                            <Link href="/about" className="px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                            <Link href="/about" className="px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                 About
                             </Link>
-                            <Link href="/contact" className="px-3 py-2 text-sm text-neutral-300 hover:text-white font-medium transition-colors">
+                            <Link href="/contact" className="px-3 py-2 text-sm text-[#737373] hover:text-[#171717] font-medium transition-colors">
                                 Contact
                             </Link>
                         </div>
@@ -230,7 +238,7 @@ export default function LandingLayout({ children }) {
                                 <div className="flex items-center gap-2.5">
                                     <Link
                                         href={route('client.dashboard')}
-                                        className="rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm px-5 py-2.5 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+                                        className="rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm px-5 py-2.5 shadow-sm transition-all flex items-center gap-1.5"
                                     >
                                         <span>Dashboard</span>
                                         <ArrowRight className="h-4 w-4" />
@@ -239,7 +247,7 @@ export default function LandingLayout({ children }) {
                                         type="button"
                                         onClick={handleSignOut}
                                         disabled={isSigningOut}
-                                        className="rounded-full border border-neutral-700 hover:border-neutral-500 bg-neutral-900/60 px-4 py-2 text-sm text-neutral-300 hover:text-white transition font-medium"
+                                        className="rounded-lg border border-[#E5E5E5] bg-white hover:bg-neutral-50 px-4 py-2.5 text-sm text-[#171717] transition font-medium"
                                     >
                                         {isSigningOut ? 'Signing out...' : 'Sign Out'}
                                     </button>
@@ -248,13 +256,13 @@ export default function LandingLayout({ children }) {
                                 <div className="flex items-center gap-2.5">
                                     <Link
                                         href={signinHref}
-                                        className="rounded-full border border-neutral-700/80 hover:border-emerald-500/50 bg-[#062219]/60 hover:bg-[#082e22] px-5 py-2 text-sm font-medium text-white transition-all duration-200"
+                                        className="rounded-lg border border-[#E5E5E5] bg-white hover:bg-neutral-50 px-4.5 py-2.5 text-sm font-semibold text-[#171717] transition-all"
                                     >
                                         {signinLabel}
                                     </Link>
                                     <Link
                                         href={getStartedHref}
-                                        className="rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm px-5 py-2 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex items-center gap-1.5 group"
+                                        className="rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-sm px-5 py-2.5 shadow-sm transition-all flex items-center gap-1.5 group"
                                     >
                                         <span>{getStartedLabel}</span>
                                         <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
@@ -265,7 +273,7 @@ export default function LandingLayout({ children }) {
                             {/* Mobile Hamburger */}
                             <button
                                 type="button"
-                                className="lg:hidden flex items-center justify-center rounded-xl p-2 text-neutral-300 hover:text-white hover:bg-white/10 transition"
+                                className="lg:hidden flex items-center justify-center rounded-lg p-2 text-[#737373] hover:text-[#171717] hover:bg-neutral-100 transition"
                                 onClick={() => setMobileOpen(!mobileOpen)}
                                 aria-label="Toggle Menu"
                             >
@@ -276,13 +284,13 @@ export default function LandingLayout({ children }) {
 
                     {/* Mobile & Tablet Drawer Menu */}
                     {mobileOpen && (
-                        <div className="lg:hidden border-t border-white/10 bg-brand-950/98 backdrop-blur-xl px-4 py-4 space-y-1 shadow-2xl">
+                        <div className="lg:hidden border-t border-[#E5E5E5] bg-white px-4 py-4 space-y-1 shadow-lg">
                             {NAV_LINKS.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setMobileOpen(false)}
-                                    className="block rounded-soft px-3.5 py-2.5 text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition"
+                                    className="block rounded-lg px-3.5 py-2.5 text-sm font-medium text-[#171717] hover:bg-neutral-100 transition"
                                 >
                                     {link.label}
                                 </Link>
@@ -290,8 +298,8 @@ export default function LandingLayout({ children }) {
 
                             {/* Mobile Language Switcher */}
                             {localeEntries.length > 1 && (
-                                <div className="pt-2 pb-1 border-t border-white/10">
-                                    <div className="px-3.5 py-1 text-xs font-semibold text-white/50 uppercase tracking-wider">
+                                <div className="pt-2 pb-1 border-t border-[#E5E5E5]">
+                                    <div className="px-3.5 py-1 text-xs font-semibold text-[#737373] uppercase tracking-wider">
                                         {t('topbar.language', { defaultValue: 'Language' })}
                                     </div>
                                     <div className="grid grid-cols-2 gap-1 px-2 mt-1">
@@ -305,8 +313,8 @@ export default function LandingLayout({ children }) {
                                                 }}
                                                 className={`text-left rounded px-2.5 py-1.5 text-xs font-medium transition ${
                                                     currentLocale === code
-                                                        ? 'bg-brand-600 text-white font-semibold'
-                                                        : 'text-white/70 hover:bg-white/10 hover:text-white'
+                                                        ? 'bg-[#2563EB] text-white font-semibold'
+                                                        : 'text-[#737373] hover:bg-neutral-100 hover:text-[#171717]'
                                                 }`}
                                             >
                                                 {label}
@@ -317,13 +325,13 @@ export default function LandingLayout({ children }) {
                             )}
 
                             {/* Mobile Auth & Action Links */}
-                            <div className="pt-3 border-t border-white/10 space-y-1.5">
+                            <div className="pt-3 border-t border-[#E5E5E5] space-y-1.5">
                                 {auth?.user ? (
                                     <>
                                         <Link
                                             href={route('client.dashboard')}
                                             onClick={() => setMobileOpen(false)}
-                                            className="block rounded-soft px-3.5 py-2.5 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 transition"
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-medium text-[#171717] hover:bg-neutral-100 transition"
                                         >
                                             {t('nav.dashboard', { defaultValue: 'Dashboard' })}
                                         </Link>
@@ -334,7 +342,7 @@ export default function LandingLayout({ children }) {
                                                 handleSignOut(e);
                                             }}
                                             disabled={isSigningOut}
-                                            className="block w-full text-left rounded-soft px-3.5 py-2.5 text-sm font-medium text-red-300 hover:bg-red-500/20 hover:text-red-200 transition disabled:opacity-50"
+                                            className="block w-full text-left rounded-lg px-3.5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition disabled:opacity-50"
                                         >
                                             {isSigningOut ? t('nav.signing_out', { defaultValue: 'Signing out...' }) : t('nav.sign_out', { defaultValue: 'Sign Out' })}
                                         </button>
@@ -342,46 +350,19 @@ export default function LandingLayout({ children }) {
                                 ) : (
                                     <>
                                         <Link
-                                            href={route('client.dashboard')}
+                                            href={signinHref}
                                             onClick={() => setMobileOpen(false)}
-                                            className="block rounded-soft px-3.5 py-2.5 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 transition"
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-medium text-[#171717] hover:bg-neutral-100 transition"
                                         >
-                                            {t('nav.dashboard', { defaultValue: 'Dashboard' })}
+                                            {signinLabel}
                                         </Link>
-                                        {signinIsExternal ? (
-                                            <a
-                                                href={signinHref}
-                                                onClick={() => setMobileOpen(false)}
-                                                className="block rounded-soft px-3.5 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition"
-                                            >
-                                                {signinLabel}
-                                            </a>
-                                        ) : (
-                                            <Link
-                                                href={signinHref}
-                                                onClick={() => setMobileOpen(false)}
-                                                className="block rounded-soft px-3.5 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition"
-                                            >
-                                                {signinLabel}
-                                            </Link>
-                                        )}
-                                        {getStartedIsExternal ? (
-                                            <a
-                                                href={getStartedHref}
-                                                onClick={() => setMobileOpen(false)}
-                                                className="block rounded-soft bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 transition text-center shadow-sm"
-                                            >
-                                                {getStartedLabel}
-                                            </a>
-                                        ) : (
-                                            <Link
-                                                href={getStartedHref}
-                                                onClick={() => setMobileOpen(false)}
-                                                className="block rounded-soft bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 transition text-center shadow-sm"
-                                            >
-                                                {getStartedLabel}
-                                            </Link>
-                                        )}
+                                        <Link
+                                            href={getStartedHref}
+                                            onClick={() => setMobileOpen(false)}
+                                            className="block rounded-lg bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition text-center shadow-sm"
+                                        >
+                                            {getStartedLabel}
+                                        </Link>
                                     </>
                                 )}
                             </div>
@@ -394,7 +375,7 @@ export default function LandingLayout({ children }) {
             <main className="flex-1 w-full max-w-full">{children}</main>
 
             {/* ── Footer ── */}
-            <footer className="w-full" style={{ background: 'rgb(var(--brand-950))', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <footer className="w-full bg-[#FAFAF9] border-t border-[#E5E5E5]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 box-border">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
                         {/* Brand */}
@@ -404,16 +385,16 @@ export default function LandingLayout({ children }) {
                                     <img src={logoUrl} alt={appName} className="h-9 w-auto max-w-[180px] object-contain" />
                                 ) : (
                                     <div className="flex items-center gap-2.5">
-                                        <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                                            <span className="text-lg font-black text-black leading-none tracking-tight">G</span>
+                                        <div className="h-8 w-8 rounded-lg bg-[#2563EB] flex items-center justify-center shadow-sm">
+                                            <span className="text-lg font-bold text-white leading-none tracking-tight">G</span>
                                         </div>
-                                        <span className="text-base font-bold text-white tracking-tight">
-                                            Growbridge <span className="text-emerald-400 font-semibold">Connect</span>
+                                        <span className="text-base font-bold text-[#171717] tracking-tight">
+                                            Growbridge <span className="text-[#2563EB]">Connect</span>
                                         </span>
                                     </div>
                                 )}
                             </Link>
-                            <p className="text-sm text-neutral-400 leading-relaxed max-w-xs">
+                            <p className="text-sm text-[#737373] leading-relaxed max-w-xs">
                                 {t('landing.footer_tagline', { defaultValue: 'Connect. Engage. Automate. Grow.' })}
                             </p>
                             {/* Social icons */}
@@ -423,7 +404,7 @@ export default function LandingLayout({ children }) {
                                     { label: 'Facebook', path: 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z' },
                                     { label: 'Instagram', path: 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z' },
                                 ].map((s) => (
-                                    <a key={s.label} href="#" aria-label={s.label} className="h-8 w-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-white transition-colors" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                                    <a key={s.label} href="#" aria-label={s.label} className="h-8 w-8 rounded-lg flex items-center justify-center text-[#737373] hover:text-[#171717] hover:bg-neutral-200/60 transition-colors bg-white border border-[#E5E5E5]">
                                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d={s.path} />
                                         </svg>
@@ -434,7 +415,7 @@ export default function LandingLayout({ children }) {
 
                         {/* Company */}
                         <div>
-                            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-4">{t('landing_page_admin.footer_company', { defaultValue: 'Company' })}</h4>
+                            <h4 className="text-xs font-semibold text-[#171717] uppercase tracking-wider mb-4">{t('landing_page_admin.footer_company', { defaultValue: 'Company' })}</h4>
                             <ul className="space-y-2.5">
                                 {[
                                     { label: t('landing_page_admin.footer_about', { defaultValue: 'About' }), href: '/about' },
@@ -443,7 +424,7 @@ export default function LandingLayout({ children }) {
                                     { label: t('nav.contact', { defaultValue: 'Contact' }), href: '/contact' },
                                 ].map((l) => (
                                     <li key={l.href}>
-                                        <Link href={l.href} className="text-sm text-neutral-400 hover:text-white transition">{l.label}</Link>
+                                        <Link href={l.href} className="text-sm text-[#737373] hover:text-[#171717] transition">{l.label}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -451,7 +432,7 @@ export default function LandingLayout({ children }) {
 
                         {/* Legal */}
                         <div>
-                            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-4">{t('landing_page_admin.footer_legal', { defaultValue: 'Legal' })}</h4>
+                            <h4 className="text-xs font-semibold text-[#171717] uppercase tracking-wider mb-4">{t('landing_page_admin.footer_legal', { defaultValue: 'Legal' })}</h4>
                             <ul className="space-y-2.5">
                                 {[
                                     { label: t('landing_page_admin.footer_privacy', { defaultValue: 'Privacy Policy' }), href: '/p/privacy' },
@@ -460,7 +441,7 @@ export default function LandingLayout({ children }) {
                                     { label: t('landing_page_admin.footer_gdpr', { defaultValue: 'GDPR' }), href: '/p/gdpr' },
                                 ].map((l) => (
                                     <li key={l.href}>
-                                        <Link href={l.href} className="text-sm text-neutral-400 hover:text-white transition">{l.label}</Link>
+                                        <Link href={l.href} className="text-sm text-[#737373] hover:text-[#171717] transition">{l.label}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -468,7 +449,7 @@ export default function LandingLayout({ children }) {
 
                         {/* Product */}
                         <div>
-                            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-4">{t('landing_page_admin.footer_product', { defaultValue: 'Product' })}</h4>
+                            <h4 className="text-xs font-semibold text-[#171717] uppercase tracking-wider mb-4">{t('landing_page_admin.footer_product', { defaultValue: 'Product' })}</h4>
                             <ul className="space-y-2.5">
                                 {[
                                     { label: t('nav.features', { defaultValue: 'Features' }), href: '/#features' },
@@ -477,21 +458,21 @@ export default function LandingLayout({ children }) {
                                     { label: t('nav.faq', { defaultValue: 'FAQ' }), href: '/faq' },
                                 ].map((l) => (
                                     <li key={l.href}>
-                                        <Link href={l.href} className="text-sm text-neutral-400 hover:text-white transition">{l.label}</Link>
+                                        <Link href={l.href} className="text-sm text-[#737373] hover:text-[#171717] transition">{l.label}</Link>
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     </div>
 
-                    <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                        <p className="text-xs text-neutral-500">
+                    <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E5E5E5]">
+                        <p className="text-xs text-[#737373]">
                             &copy; {new Date().getFullYear()} {appName}. {t('nav.all_rights_reserved', { defaultValue: 'All rights reserved.' })}
                         </p>
                         <button
                             type="button"
                             onClick={handleThemeToggle}
-                            className="text-xs text-neutral-500 hover:text-neutral-300 flex items-center gap-1.5 transition"
+                            className="text-xs text-[#737373] hover:text-[#171717] flex items-center gap-1.5 transition"
                         >
                             {theme === 'dark' ? <SunIcon className="h-3.5 w-3.5" /> : <MoonIcon className="h-3.5 w-3.5" />}
                             {theme === 'dark' ? t('nav.light_mode', { defaultValue: 'Light mode' }) : t('nav.dark_mode', { defaultValue: 'Dark mode' })}

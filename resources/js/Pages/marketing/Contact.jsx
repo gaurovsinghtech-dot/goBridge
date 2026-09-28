@@ -8,15 +8,15 @@ import { useBranding } from '@/hooks/useBranding';
 function Badge({ text }) {
     if (!text) return null;
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/15 text-brand-500 text-xs font-semibold px-3 py-1 border border-brand-500/30">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-500 inline-block" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-[#2563EB] text-xs font-semibold px-3 py-1 border border-blue-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2563EB] inline-block" />
             {text}
         </span>
     );
 }
 
 const inputClass =
-    'w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30';
+    'w-full rounded-lg border border-[#E5E5E5] bg-white px-4 py-2.5 text-sm text-[#171717] placeholder:text-[#737373] transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-blue-100';
 
 export default function Contact({ landing = {} }) {
     const { t } = useTranslation();
@@ -64,30 +64,27 @@ export default function Contact({ landing = {} }) {
             />
 
             {/* Hero */}
-            <section
-                className="relative overflow-hidden"
-                style={{ background: 'radial-gradient(ellipse 70% 65% at 50% 0%, rgb(var(--brand-400) / 0.18) 0%, transparent 60%), rgb(var(--brand-950))' }}
-            >
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
+            <section className="py-20 bg-[#FAFAF9] border-b border-[#E5E5E5] text-center">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-center mb-6">
                         <Badge text={t('contact_page.badge', { defaultValue: 'Get in touch' })} />
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
+                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-[#171717] max-w-3xl mx-auto leading-tight">
                         {t('contact_page.title', { defaultValue: 'Contact Us' })}
                     </h1>
-                    <p className="mt-6 text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed">
+                    <p className="mt-6 text-lg text-[#737373] max-w-2xl mx-auto leading-relaxed">
                         {t('contact_page.subtitle')}
                     </p>
                 </div>
             </section>
 
             {/* Body */}
-            <section className="py-20 sm:py-24">
+            <section className="py-20 bg-white">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-10 lg:grid-cols-5 lg:gap-12">
                         {/* Contact info */}
                         <div className="lg:col-span-2">
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+                            <h2 className="text-xl font-bold text-[#171717] tracking-tight">
                                 {t('contact_page.info_heading', { defaultValue: 'Other ways to reach us' })}
                             </h2>
                             <div className="mt-6 space-y-4">
@@ -95,21 +92,21 @@ export default function Contact({ landing = {} }) {
                                     const Icon = card.icon;
                                     const inner = (
                                         <>
-                                            <div className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgb(var(--brand-400) / 0.12)' }}>
-                                                <Icon className="h-5 w-5" style={{ color: 'rgb(var(--brand-500))' }} />
+                                            <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#2563EB]">
+                                                <Icon className="h-5 w-5 text-[#2563EB]" />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{card.label}</h3>
-                                                <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{card.desc}</p>
+                                                <h3 className="text-sm font-semibold text-[#171717]">{card.label}</h3>
+                                                <p className="mt-0.5 text-sm text-[#737373] leading-relaxed">{card.desc}</p>
                                                 {card.value && (
-                                                    <p className="mt-1 text-sm font-medium text-brand-600 dark:text-brand-400 break-all">{card.value}</p>
+                                                    <p className="mt-1 text-sm font-medium text-[#2563EB] break-all">{card.value}</p>
                                                 )}
                                             </div>
                                         </>
                                     );
-                                    const cls = 'flex items-start gap-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 transition-all duration-200';
+                                    const cls = 'flex items-start gap-4 rounded-xl border border-[#E5E5E5] bg-white p-5 transition-all duration-200 shadow-sm';
                                     return card.href ? (
-                                        <a key={idx} href={card.href} className={`${cls} hover:border-brand-500/40 hover:shadow-md`}>
+                                        <a key={idx} href={card.href} className={`${cls} hover:border-blue-300`}>
                                             {inner}
                                         </a>
                                     ) : (
@@ -121,14 +118,14 @@ export default function Contact({ landing = {} }) {
 
                         {/* Form */}
                         <div className="lg:col-span-3">
-                            <div className="rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 sm:p-8 shadow-sm">
-                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight mb-6">
+                            <div className="rounded-xl border border-[#E5E5E5] bg-white p-6 sm:p-8 shadow-sm">
+                                <h2 className="text-xl font-bold text-[#171717] tracking-tight mb-6">
                                     {t('contact_page.form_heading', { defaultValue: 'Send us a message' })}
                                 </h2>
 
                                 {(flash?.success || recentlySuccessful) && (
-                                    <div className="mb-6 flex items-start gap-2.5 rounded-xl bg-brand-500/10 border border-brand-500/30 px-4 py-3 text-sm text-neutral-800 dark:text-neutral-100">
-                                        <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: 'rgb(var(--brand-500))' }} />
+                                    <div className="mb-6 flex items-start gap-2.5 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-[#171717]">
+                                        <CheckCircle2 className="h-5 w-5 shrink-0 text-[#2563EB]" />
                                         <span>{flash?.success || t('contact_page.title')}</span>
                                     </div>
                                 )}
@@ -136,7 +133,7 @@ export default function Contact({ landing = {} }) {
                                 <form onSubmit={submit} className="space-y-5">
                                     <div className="grid gap-5 sm:grid-cols-2">
                                         <div>
-                                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('common.name')}</label>
+                                            <label className="block text-sm font-medium text-[#171717] mb-1.5">{t('common.name')}</label>
                                             <input
                                                 type="text"
                                                 value={data.name}
@@ -145,10 +142,10 @@ export default function Contact({ landing = {} }) {
                                                 className={inputClass}
                                                 required
                                             />
-                                            {errors.name && <p className="text-coral-600 text-xs mt-1.5">{errors.name}</p>}
+                                            {errors.name && <p className="text-red-600 text-xs mt-1.5">{errors.name}</p>}
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('common.email')}</label>
+                                            <label className="block text-sm font-medium text-[#171717] mb-1.5">{t('common.email')}</label>
                                             <input
                                                 type="email"
                                                 value={data.email}
@@ -157,11 +154,11 @@ export default function Contact({ landing = {} }) {
                                                 className={inputClass}
                                                 required
                                             />
-                                            {errors.email && <p className="text-coral-600 text-xs mt-1.5">{errors.email}</p>}
+                                            {errors.email && <p className="text-red-600 text-xs mt-1.5">{errors.email}</p>}
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('contact_page.subject')}</label>
+                                        <label className="block text-sm font-medium text-[#171717] mb-1.5">{t('contact_page.subject')}</label>
                                         <input
                                             type="text"
                                             value={data.subject}
@@ -169,10 +166,10 @@ export default function Contact({ landing = {} }) {
                                             placeholder={t('contact_page.subject_placeholder', { defaultValue: '' })}
                                             className={inputClass}
                                         />
-                                        {errors.subject && <p className="text-coral-600 text-xs mt-1.5">{errors.subject}</p>}
+                                        {errors.subject && <p className="text-red-600 text-xs mt-1.5">{errors.subject}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('contact_page.message')}</label>
+                                        <label className="block text-sm font-medium text-[#171717] mb-1.5">{t('contact_page.message')}</label>
                                         <textarea
                                             value={data.message}
                                             onChange={(e) => setData('message', e.target.value)}
@@ -181,13 +178,12 @@ export default function Contact({ landing = {} }) {
                                             className={`${inputClass} resize-y`}
                                             required
                                         />
-                                        {errors.message && <p className="text-coral-600 text-xs mt-1.5">{errors.message}</p>}
+                                        {errors.message && <p className="text-red-600 text-xs mt-1.5">{errors.message}</p>}
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-7 py-3 text-base font-bold text-white shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 sm:w-auto"
-                                        style={{ background: 'rgb(var(--brand-500))' }}
+                                        className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-7 py-3 text-base font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-sm transition-all duration-200 disabled:opacity-50 sm:w-auto"
                                     >
                                         <Send className="h-4 w-4" />
                                         {processing ? t('contact_page.sending', { defaultValue: 'Sending…' }) : t('contact_page.send_message')}

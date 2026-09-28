@@ -38,21 +38,21 @@ return [
     |--------------------------------------------------------------------------
     */
     'branding' => [
-        'primary_color' => env('SAAS_PRIMARY_COLOR', '#011B40'),
-        'secondary_color' => env('SAAS_SECONDARY_COLOR', '#064E3B'),
+        'primary_color' => env('SAAS_PRIMARY_COLOR', '#2563EB'),
+        'secondary_color' => env('SAAS_SECONDARY_COLOR', '#1D4ED8'),
         'logo_path' => env('SAAS_LOGO_PATH', null),
 
         // Key must match the family slug used by fonts.bunny.net; the value is the
         // CSS family name. Anything not in this list is rejected on save, so a
         // stored value can be interpolated into the stylesheet URL as-is.
-        'font_family' => env('SAAS_FONT_FAMILY', 'space-grotesk'),
+        'font_family' => env('SAAS_FONT_FAMILY', 'inter'),
         'fonts' => [
-            'space-grotesk' => 'Space Grotesk',
             'inter' => 'Inter',
+            'manrope' => 'Manrope',
+            'space-grotesk' => 'Space Grotesk',
             'dm-sans' => 'DM Sans',
             'plus-jakarta-sans' => 'Plus Jakarta Sans',
             'figtree' => 'Figtree',
-            'manrope' => 'Manrope',
             'outfit' => 'Outfit',
             'poppins' => 'Poppins',
             'montserrat' => 'Montserrat',

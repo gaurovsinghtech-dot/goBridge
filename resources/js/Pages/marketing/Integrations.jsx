@@ -8,8 +8,8 @@ import { useBranding } from '@/hooks/useBranding';
 function Badge({ text }) {
     if (!text) return null;
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/15 text-brand-500 text-xs font-semibold px-3 py-1 border border-brand-500/30">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-500 inline-block" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-[#2563EB] text-xs font-semibold px-3 py-1 border border-blue-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2563EB] inline-block" />
             {text}
         </span>
     );
@@ -33,35 +33,32 @@ export default function Integrations({ canRegister, landing = {} }) {
             />
 
             {/* Hero */}
-            <section
-                className="relative overflow-hidden"
-                style={{ background: 'radial-gradient(ellipse 70% 65% at 50% 0%, rgb(var(--brand-400) / 0.18) 0%, transparent 60%), rgb(var(--brand-950))' }}
-            >
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
+            <section className="py-20 bg-[#FAFAF9] border-b border-[#E5E5E5] text-center">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-center mb-6"><Badge text={s('integrations_page_badge')} /></div>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
+                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-[#171717] max-w-3xl mx-auto leading-tight">
                         {s('integrations_page_title')}
                     </h1>
                     {s('integrations_page_subtitle') && (
-                        <p className="mt-6 text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed">{s('integrations_page_subtitle')}</p>
+                        <p className="mt-6 text-lg text-[#737373] max-w-2xl mx-auto leading-relaxed">{s('integrations_page_subtitle')}</p>
                     )}
                 </div>
             </section>
 
             {/* Categories */}
-            <section className="py-24">
+            <section className="py-20 bg-white">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                     {categories.map((cat, ci) => (
                         <div key={ci}>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight mb-5">{cat.title}</h2>
+                            <h2 className="text-xl font-bold text-[#171717] tracking-tight mb-5">{cat.title}</h2>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                 {cat.items.map((item, ii) => (
                                     <div
                                         key={ii}
-                                        className="flex items-center gap-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 hover:border-brand-500/40 hover:shadow-md transition-all duration-200"
+                                        className="flex items-center gap-3 rounded-xl border border-[#E5E5E5] bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all duration-200"
                                     >
-                                        <BrandMark name={item} tileClassName="h-10 w-10 rounded-xl flex-shrink-0" glyphClassName="h-6 w-6" />
-                                        <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{item}</span>
+                                        <BrandMark name={item} tileClassName="h-10 w-10 rounded-lg shrink-0 bg-[#FAFAF9] border border-[#E5E5E5]" glyphClassName="h-5 w-5" />
+                                        <span className="text-sm font-semibold text-[#171717]">{item}</span>
                                     </div>
                                 ))}
                             </div>
@@ -71,21 +68,21 @@ export default function Integrations({ canRegister, landing = {} }) {
             </section>
 
             {/* CTA */}
-            <section className="py-20 bg-neutral-50 dark:bg-neutral-900/30 border-t border-neutral-200 dark:border-neutral-800">
+            <section className="py-20 bg-[#FAFAF9] border-t border-[#E5E5E5]">
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight">
+                    <h2 className="text-3xl font-bold text-[#171717] tracking-tight">
                         {t('integrations_page.cta_title', { defaultValue: 'Need a custom integration?' })}
                     </h2>
-                    <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-400">
+                    <p className="mt-4 text-lg text-[#737373] leading-relaxed">
                         {t('integrations_page.cta_subtitle', { defaultValue: `Use our REST API and webhooks to connect ${appName} to anything, or talk to our team.` })}
                     </p>
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                         {canRegister && (
-                            <Link href={route('register')} className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-bold text-white shadow-lg transition-all duration-200 hover:opacity-90" style={{ background: 'rgb(var(--brand-500))' }}>
+                            <Link href={route('register')} className="inline-flex items-center gap-2 rounded-lg px-7 py-3.5 text-base font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] shadow-sm transition-all duration-200">
                                 {t('welcome.get_started_free', { defaultValue: 'Get Started Free' })}
                             </Link>
                         )}
-                        <Link href="/contact" className="inline-flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-700 px-7 py-3.5 text-base font-semibold text-neutral-700 dark:text-neutral-300 hover:border-brand-500/50 transition-all duration-200">
+                        <Link href="/contact" className="inline-flex items-center gap-2 rounded-lg border border-[#E5E5E5] bg-white px-7 py-3.5 text-base font-semibold text-[#171717] hover:bg-neutral-50 transition-all duration-200">
                             {t('nav.contact', { defaultValue: 'Contact Sales' })}
                         </Link>
                     </div>
