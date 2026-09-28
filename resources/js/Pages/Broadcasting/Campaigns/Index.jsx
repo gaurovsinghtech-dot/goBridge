@@ -5,6 +5,7 @@ import {
     Plus,
     Play,
     Pause,
+    Square,
     Trash2,
     BarChart2,
     Pencil,
@@ -22,6 +23,8 @@ const STATUS_COLORS = {
     paused:    'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
     completed: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
     failed:    'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+    cancelled: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+    stopped:   'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
 
 const STATUS_LABEL_KEYS = {
@@ -31,6 +34,8 @@ const STATUS_LABEL_KEYS = {
     paused: 'campaign.status_paused',
     completed: 'campaign.status_completed',
     failed: 'campaign.status_failed',
+    cancelled: 'campaign.status_cancelled',
+    stopped: 'campaign.status_stopped',
 };
 
 export default function CampaignsIndex({ campaigns, filters }) {
@@ -49,6 +54,11 @@ export default function CampaignsIndex({ campaigns, filters }) {
         router.post(route('client.campaigns.launch', id), {}, { preserveScroll: true });
     const handlePause = (id) =>
         router.post(route('client.campaigns.pause', id), {}, { preserveScroll: true });
+    const handleCancel = (id) => {
+        if (confirm(t('campaign.stop_confirm', 'Are you sure you want to stop this campaign? Any unsent messages will be cancelled.'))) {
+            router.post(route('client.campaigns.cancel', id), {}, { preserveScroll: true });
+        }
+    };
     const handleDelete = (id) => {
         if (confirm(t('campaign.delete_confirm'))) {
             router.delete(route('client.campaigns.destroy', id), { preserveScroll: true });
@@ -109,9 +119,9 @@ export default function CampaignsIndex({ campaigns, filters }) {
                         className="rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"
                     >
                         <option value="">{t('campaign.all_statuses')}</option>
-                        {['draft', 'queued', 'sending', 'paused', 'completed', 'failed'].map((s) => (
+                        {['draft', 'queued', 'sending', 'paused', 'completed', 'failed', 'cancelled'].map((s) => (
                             <option key={s} value={s}>
-                                {t(STATUS_LABEL_KEYS[s])}
+                                {STATUS_LABEL_KEYS[s] && t(STATUS_LABEL_KEYS[s]) ? t(STATUS_LABEL_KEYS[s]) : s}
                             </option>
                         ))}
                     </select>
@@ -166,11 +176,11 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                         </td>
                                         <td className="px-4 py-3">
                                             <span
-                                                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                                                    STATUS_COLORS[c.status] ?? ''
+                                                className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                                                    STATUS_COLORS[c.status] ?? 'bg-neutral-100 text-neutral-700'
                                                 }`}
                                             >
-                                                {STATUS_LABEL_KEYS[c.status] ? t(STATUS_LABEL_KEYS[c.status]) : c.status}
+                                                {STATUS_LABEL_KEYS[c.status] && t(STATUS_LABEL_KEYS[c.status]) ? t(STATUS_LABEL_KEYS[c.status]) : c.status}
                                             </span>
                                             {live && (
                                                 <span className="ml-2 inline-flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-300">
@@ -198,11 +208,11 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1.5">
                                                 <Link
                                                     href={route('client.reports.campaigns.show', c.uuid)}
                                                     title={t('campaign.view_full_report')}
-                                                    className="text-neutral-400 hover:text-brand-600 transition"
+                                                    className="p-1 text-neutral-400 hover:text-brand-600 transition"
                                                 >
                                                     <BarChart2 className="h-4 w-4" />
                                                 </Link>
@@ -210,7 +220,7 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                                     <Link
                                                         href={route('client.campaigns.edit', c.uuid)}
                                                         title={t('common.edit')}
-                                                        className="text-neutral-400 hover:text-brand-600 transition"
+                                                        className="p-1 text-neutral-400 hover:text-brand-600 transition"
                                                     >
                                                         <Pencil className="h-4 w-4" />
                                                     </Link>
@@ -219,16 +229,16 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                                     <button
                                                         onClick={() => handleLaunch(c.uuid)}
                                                         title={t('campaign.launch')}
-                                                        className="text-neutral-400 hover:text-green-500 transition"
+                                                        className="p-1 text-neutral-400 hover:text-green-500 transition"
                                                     >
                                                         <Play className="h-4 w-4" />
                                                     </button>
                                                 )}
-                                                {c.status === 'sending' && (
+                                                {['queued', 'sending'].includes(c.status) && (
                                                     <button
                                                         onClick={() => handlePause(c.uuid)}
                                                         title={t('campaign.pause')}
-                                                        className="text-neutral-400 hover:text-orange-500 transition"
+                                                        className="p-1 text-neutral-400 hover:text-orange-500 transition"
                                                     >
                                                         <Pause className="h-4 w-4" />
                                                     </button>
@@ -237,16 +247,25 @@ export default function CampaignsIndex({ campaigns, filters }) {
                                                     <button
                                                         onClick={() => handleLaunch(c.uuid)}
                                                         title={t('campaign.resume')}
-                                                        className="text-neutral-400 hover:text-green-500 transition"
+                                                        className="p-1 text-neutral-400 hover:text-green-500 transition"
                                                     >
                                                         <Play className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                                {['queued', 'sending', 'paused', 'scheduled'].includes(c.status) && (
+                                                    <button
+                                                        onClick={() => handleCancel(c.uuid)}
+                                                        title={t('campaign.stop_campaign', 'Stop Campaign')}
+                                                        className="p-1 text-red-500 hover:text-red-700 transition dark:text-red-400 dark:hover:text-red-300"
+                                                    >
+                                                        <Square className="h-4 w-4 fill-current" />
                                                     </button>
                                                 )}
                                                 {!['queued', 'sending'].includes(c.status) && (
                                                     <button
                                                         onClick={() => handleDelete(c.uuid)}
                                                         title={t('common.delete')}
-                                                        className="text-neutral-400 hover:text-red-500 transition"
+                                                        className="p-1 text-neutral-400 hover:text-red-500 transition"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </button>

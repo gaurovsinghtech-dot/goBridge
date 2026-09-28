@@ -305,12 +305,12 @@ class CampaignService
     }
 
     /**
-     * Pause a running/queued campaign.
+     * Pause a running/queued/scheduled campaign.
      */
     public function pauseCampaign(Campaign $campaign): void
     {
-        if (! in_array($campaign->status, ['queued', 'sending', 'running'], true)) {
-            throw new \InvalidArgumentException('Only queued or sending campaigns can be paused.');
+        if (! in_array($campaign->status, ['queued', 'sending', 'running', 'scheduled'], true)) {
+            throw new \InvalidArgumentException('Only queued, sending, or scheduled campaigns can be paused.');
         }
         $campaign->update(['status' => 'paused']);
     }
@@ -341,11 +341,11 @@ class CampaignService
     }
 
     /**
-     * Cancel a campaign before/during sending.
+     * Cancel / stop a campaign before/during sending.
      */
     public function cancelCampaign(Campaign $campaign): void
     {
-        if (in_array($campaign->status, ['completed', 'cancelled'], true)) {
+        if (in_array($campaign->status, ['completed', 'cancelled', 'stopped'], true)) {
             throw new \InvalidArgumentException('Campaign is already finalized.');
         }
         $campaign->update(['status' => 'cancelled']);

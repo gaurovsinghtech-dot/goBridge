@@ -23,7 +23,7 @@ class DispatchCampaignChunkJob implements ShouldQueue
     public function handle(): void
     {
         $campaign = Campaign::find($this->campaignId);
-        if (! $campaign || $campaign->status === 'failed') {
+        if (! $campaign || in_array($campaign->status, ['paused', 'cancelled', 'stopped', 'failed', 'completed'], true)) {
             return;
         }
 

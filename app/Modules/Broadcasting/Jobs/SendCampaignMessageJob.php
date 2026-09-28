@@ -70,8 +70,8 @@ class SendCampaignMessageJob implements ShouldQueue
             return;
         }
 
-        // Soft-stop on paused / cancelled / failed campaigns.
-        if (in_array($campaign->status, ['paused', 'failed', 'completed'], true)) {
+        // Soft-stop on paused / cancelled / stopped / failed campaigns.
+        if (in_array($campaign->status, ['paused', 'cancelled', 'stopped', 'failed', 'completed'], true)) {
             return;
         }
 

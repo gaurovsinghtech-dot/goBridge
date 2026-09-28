@@ -5,6 +5,7 @@ import {
     ArrowLeft,
     Play,
     Pause,
+    Square,
     BarChart2,
     Users,
     Pencil,
@@ -23,6 +24,8 @@ const STATUS_COLORS = {
     paused: 'bg-orange-100 text-orange-700',
     completed: 'bg-green-100 text-green-700',
     failed: 'bg-red-100 text-red-700',
+    cancelled: 'bg-rose-100 text-rose-700',
+    stopped: 'bg-rose-100 text-rose-700',
 };
 
 const STATUS_LABEL_KEYS = {
@@ -32,6 +35,8 @@ const STATUS_LABEL_KEYS = {
     paused: 'campaign.status_paused',
     completed: 'campaign.status_completed',
     failed: 'campaign.status_failed',
+    cancelled: 'campaign.status_cancelled',
+    stopped: 'campaign.status_stopped',
 };
 
 function useCountdown(target) {
@@ -88,6 +93,11 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
         router.post(route('client.campaigns.launch', campaign.uuid), {}, { preserveScroll: true });
     const handlePause = () =>
         router.post(route('client.campaigns.pause', campaign.uuid), {}, { preserveScroll: true });
+    const handleCancel = () => {
+        if (confirm(t('campaign.stop_confirm', 'Are you sure you want to stop this campaign? Any unsent messages will be cancelled.'))) {
+            router.post(route('client.campaigns.cancel', campaign.uuid));
+        }
+    };
     const handleDelete = () => {
         if (confirm(t('campaign.delete_confirm'))) {
             router.delete(route('client.campaigns.destroy', campaign.uuid));
@@ -110,11 +120,11 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                     <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                         {campaign.name}
                         <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                                STATUS_COLORS[campaign.status] ?? ''
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                                STATUS_COLORS[campaign.status] ?? 'bg-neutral-100 text-neutral-700'
                             }`}
                         >
-                            {STATUS_LABEL_KEYS[campaign.status] ? t(STATUS_LABEL_KEYS[campaign.status]) : campaign.status}
+                            {STATUS_LABEL_KEYS[campaign.status] && t(STATUS_LABEL_KEYS[campaign.status]) ? t(STATUS_LABEL_KEYS[campaign.status]) : campaign.status}
                         </span>
                     </h2>
                     <div className="ml-auto flex flex-wrap gap-2">
@@ -142,7 +152,7 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                                 <Play className="h-4 w-4" /> {t('campaign.launch')}
                             </button>
                         )}
-                        {campaign.status === 'sending' && (
+                        {['queued', 'sending'].includes(campaign.status) && (
                             <button
                                 onClick={handlePause}
                                 className="flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-600 transition"
@@ -156,6 +166,14 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                                 className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 transition"
                             >
                                 <Play className="h-4 w-4" /> {t('campaign.resume')}
+                            </button>
+                        )}
+                        {['queued', 'sending', 'paused', 'scheduled'].includes(campaign.status) && (
+                            <button
+                                onClick={handleCancel}
+                                className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 transition"
+                            >
+                                <Square className="h-4 w-4 fill-current" /> {t('campaign.stop_campaign', 'Stop Campaign')}
                             </button>
                         )}
                         {!['queued', 'sending'].includes(campaign.status) && (
