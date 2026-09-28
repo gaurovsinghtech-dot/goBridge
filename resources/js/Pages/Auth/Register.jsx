@@ -59,6 +59,9 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
         });
     };
 
+    const inputClass =
+        'w-full rounded-lg bg-white border border-[#E5E5E5] focus:border-[#2563EB] focus:ring-1 focus:ring-blue-100 pl-10 pr-4 py-2.5 text-sm text-[#171717] placeholder:text-[#737373] transition-colors';
+
     return (
         <AuthLayout
             variant="register"
@@ -73,11 +76,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Full name */}
                     <div>
-                        <label className="block text-xs font-semibold text-neutral-300 mb-1">
+                        <label className="block text-xs font-semibold text-[#171717] mb-1">
                             Full name
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
                                 <User className="h-4 w-4" />
                             </div>
                             <input
@@ -90,18 +93,18 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                                 required
                                 placeholder="Enter your full name"
                                 onChange={(e) => setData('name', e.target.value)}
-                                className="w-full rounded-xl bg-[#031510] border border-neutral-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-neutral-500 transition-colors shadow-inner"
+                                className={inputClass}
                             />
                         </div>
                     </div>
 
                     {/* Business name (optional) */}
                     <div>
-                        <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                            Business name <span className="text-neutral-500 font-normal">(optional)</span>
+                        <label className="block text-xs font-semibold text-[#171717] mb-1">
+                            Business name <span className="text-[#737373] font-normal">(optional)</span>
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
                                 <Building className="h-4 w-4" />
                             </div>
                             <input
@@ -111,7 +114,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                                 value={data.company_name}
                                 placeholder="Enter your business name"
                                 onChange={(e) => setData('company_name', e.target.value)}
-                                className="w-full rounded-xl bg-[#031510] border border-neutral-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-neutral-500 transition-colors shadow-inner"
+                                className={inputClass}
                             />
                         </div>
                     </div>
@@ -119,11 +122,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                 {/* Email Address */}
                 <div>
-                    <label className="block text-xs font-semibold text-neutral-300 mb-1">
+                    <label className="block text-xs font-semibold text-[#171717] mb-1">
                         Email address
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
                             <Mail className="h-4 w-4" />
                         </div>
                         <input
@@ -135,18 +138,18 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                             required
                             placeholder="Enter your email"
                             onChange={(e) => setData('email', e.target.value)}
-                            className="w-full rounded-xl bg-[#031510] border border-neutral-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder-neutral-500 transition-colors shadow-inner"
+                            className={inputClass}
                         />
                     </div>
                 </div>
 
                 {/* Password */}
                 <div>
-                    <label className="block text-xs font-semibold text-neutral-300 mb-1">
+                    <label className="block text-xs font-semibold text-[#171717] mb-1">
                         Password
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
                             <Lock className="h-4 w-4" />
                         </div>
                         <input
@@ -158,28 +161,28 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                             required
                             placeholder="Create a password"
                             onChange={(e) => setData('password', e.target.value)}
-                            className="w-full rounded-xl bg-[#031510] border border-neutral-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 pl-10 pr-10 py-2.5 text-sm text-white placeholder-neutral-500 transition-colors shadow-inner"
+                            className={`${inputClass} pr-10`}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-neutral-200 transition"
+                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#737373] hover:text-[#171717] transition"
                         >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                     </div>
-                    <p className="text-[11px] text-neutral-500 mt-1">
+                    <p className="text-[11px] text-[#737373] mt-1">
                         Must be at least 8 characters with uppercase, lowercase and numbers.
                     </p>
                 </div>
 
                 {/* Confirm Password */}
                 <div>
-                    <label className="block text-xs font-semibold text-neutral-300 mb-1">
+                    <label className="block text-xs font-semibold text-[#171717] mb-1">
                         Confirm password
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
                             <Lock className="h-4 w-4" />
                         </div>
                         <input
@@ -191,12 +194,12 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                             required
                             placeholder="Confirm your password"
                             onChange={(e) => setData('password_confirmation', e.target.value)}
-                            className="w-full rounded-xl bg-[#031510] border border-neutral-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 pl-10 pr-10 py-2.5 text-sm text-white placeholder-neutral-500 transition-colors shadow-inner"
+                            className={`${inputClass} pr-10`}
                         />
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-neutral-200 transition"
+                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#737373] hover:text-[#171717] transition"
                         >
                             {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -205,20 +208,20 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                 {/* Terms Agreement Checkbox */}
                 <div className="pt-1">
-                    <label className="flex items-start gap-2.5 text-xs text-neutral-300 cursor-pointer select-none">
+                    <label className="flex items-start gap-2.5 text-xs text-[#737373] cursor-pointer select-none">
                         <input
                             type="checkbox"
                             checked={data.agree_terms}
                             onChange={(e) => setData('agree_terms', e.target.checked)}
-                            className="mt-0.5 rounded bg-[#031510] border-neutral-700 text-emerald-500 focus:ring-emerald-500/30 focus:ring-offset-0 h-4 w-4 cursor-pointer"
+                            className="mt-0.5 rounded bg-white border-[#E5E5E5] text-[#2563EB] focus:ring-blue-100 h-4 w-4 cursor-pointer"
                         />
                         <span className="leading-snug">
                             I agree to the{' '}
-                            <a href="/p/terms" target="_blank" className="text-emerald-400 hover:underline">
+                            <a href="/p/terms" target="_blank" className="text-[#2563EB] hover:underline font-semibold">
                                 Terms of Service
                             </a>{' '}
                             and{' '}
-                            <a href="/p/privacy" target="_blank" className="text-emerald-400 hover:underline">
+                            <a href="/p/privacy" target="_blank" className="text-[#2563EB] hover:underline font-semibold">
                                 Privacy Policy
                             </a>
                         </span>
@@ -229,19 +232,19 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3.5 text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer mt-3"
+                    className="w-full rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold py-3 text-sm shadow-sm transition-all duration-200 flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer mt-3"
                 >
                     <span>{processing ? 'Creating Account...' : 'Create Account'}</span>
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
 
                 {/* Divider */}
                 <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-neutral-700/80" />
+                        <div className="w-full border-t border-[#E5E5E5]" />
                     </div>
                     <div className="relative flex justify-center">
-                        <span className="bg-[#051f17] px-3 text-xs text-neutral-400">
+                        <span className="bg-white px-3 text-xs text-[#737373]">
                             or sign up with
                         </span>
                     </div>
@@ -252,7 +255,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'google' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#031711] border border-neutral-700/80 hover:border-emerald-500/50 hover:bg-[#06241b] text-xs font-medium text-white transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
                     >
                         <GoogleIcon />
                         <span>Google</span>
@@ -260,7 +263,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'microsoft' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#031711] border border-neutral-700/80 hover:border-emerald-500/50 hover:bg-[#06241b] text-xs font-medium text-white transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
                     >
                         <MicrosoftIcon />
                         <span>Microsoft</span>
@@ -268,7 +271,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'apple' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#031711] border border-neutral-700/80 hover:border-emerald-500/50 hover:bg-[#06241b] text-xs font-medium text-white transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
                     >
                         <AppleIcon />
                         <span>Apple</span>
@@ -276,11 +279,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 </div>
 
                 {/* Bottom Account Switcher */}
-                <div className="text-center text-xs text-neutral-400 pt-2">
+                <div className="text-center text-xs text-[#737373] pt-2">
                     Already have an account?{' '}
                     <Link
                         href={route('login')}
-                        className="text-emerald-400 hover:text-emerald-300 font-bold transition underline underline-offset-2"
+                        className="text-[#2563EB] hover:text-[#1D4ED8] font-semibold transition"
                     >
                         Log in
                     </Link>

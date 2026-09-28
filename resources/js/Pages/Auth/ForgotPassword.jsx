@@ -33,14 +33,14 @@ export default function ForgotPassword({ status }) {
                     error={errors.email}
                 />
 
-                <Button type="submit" variant="primary" className="w-full" disabled={processing}>
+                <Button type="submit" variant="primary" className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold rounded-lg py-3 text-sm transition-all" disabled={processing}>
                     <Mail className="mr-2 h-4 w-4" />
                     {processing ? (t('auth.sending') || 'Sending…') : (t('auth.send_reset_link') || 'Send reset link')}
                 </Button>
             </form>
 
-            <p className="mt-5 text-center text-sm text-neutral-500 dark:text-neutral-400">
-                <Link href={route('login')} className="font-medium text-brand-600 dark:text-brand-400 hover:underline">
+            <p className="mt-5 text-center text-sm text-[#737373]">
+                <Link href={route('login')} className="font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition">
                     ← {t('auth.back_to_login') || 'Back to login'}
                 </Link>
             </p>
