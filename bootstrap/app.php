@@ -78,7 +78,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/client.php'));
 
             // Reports & CSV exports
-            Route::middleware(['auth', 'role:client', 'client.scope'])
+            Route::middleware(['web', 'auth', 'role:client', 'client.scope'])
                 ->group(base_path('routes/reports.php'));
 
             // Admin sign-in is unified onto the main /login page (the

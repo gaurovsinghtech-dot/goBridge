@@ -12,6 +12,7 @@ import {
     Clock,
     ExternalLink,
     Trash2,
+    AlertCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -197,6 +198,18 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                     </div>
                 )}
 
+                {(campaign.status === 'failed' || totals.failed_reason) && (
+                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-4 text-sm text-red-900 dark:text-red-200">
+                        <AlertCircle className="h-5 w-5 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+                        <div>
+                            <h4 className="font-semibold">{t('campaign.failed_title', 'Campaign Failed')}</h4>
+                            <p className="mt-1 text-red-700 dark:text-red-300">
+                                {totals.failed_reason || campaign.failed_reason || t('campaign.failed_desc', 'No matching deliverable contacts found for the selected audience or channel (e.g. contacts missing phone numbers, opted out, or suppressed).')}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Delivery funnel */}
                 <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6">
                     <h3 className="font-medium text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
@@ -307,7 +320,9 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                             [
                                 t('campaign.audience'),
                                 `${campaign.audience_type}${
-                                    campaign.audience_ref ? ` · ${campaign.audience_ref}` : ''
+                                    campaign.audience_ref
+                                        ? ` · ${typeof campaign.audience_ref === 'object' ? JSON.stringify(campaign.audience_ref) : campaign.audience_ref}`
+                                        : ''
                                 }`,
                             ],
                             [
