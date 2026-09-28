@@ -383,7 +383,7 @@ export default function CampaignForm({
     }, [data.audience_type, data.audience_ref, data.channel]);
 
     // ── Step navigation ───────────────────────────────────────────────────────
-    // Returns true on success, false on failure.
+    // Returns uuid on success, false on failure.
     const saveDraft = async () => {
         setDraftStatus('saving');
         try {
@@ -402,10 +402,11 @@ export default function CampaignForm({
                     : null,
             };
             const res = await axios.post(route('client.campaigns.store-draft'), payload);
-            setDraftUuid(res.data.uuid);
+            const newUuid = res.data.uuid;
+            setDraftUuid(newUuid);
             setDraftStatus('saved');
             setTimeout(() => setDraftStatus(null), 3000);
-            return true;
+            return newUuid;
         } catch {
             setDraftStatus('error');
             setTimeout(() => setDraftStatus(null), 4000);
@@ -471,9 +472,9 @@ export default function CampaignForm({
     };
 
     const handleLaunchSubmit = async () => {
-        const saved = await saveDraft();
-        const targetUuid = draftUuid || campaign?.uuid;
-        if (saved && targetUuid) {
+        const savedUuid = await saveDraft();
+        const targetUuid = (typeof savedUuid === 'string' ? savedUuid : null) || draftUuid || campaign?.uuid;
+        if (savedUuid && targetUuid) {
             router.post(route('client.campaigns.launch', targetUuid), {
                 schedule_at: data.schedule_at ? tzLocalToUtcIso(data.schedule_at, data.timezone || 'UTC') : null,
             });
@@ -631,6 +632,7 @@ export default function CampaignForm({
                                 slots={slots}
                                 contactTokens={contactTokens}
                                 campaign={campaign}
+                                draftUuid={draftUuid}
                                 testTo={testTo}
                                 setTestTo={setTestTo}
                                 sendTest={sendTest}
@@ -1229,6 +1231,7 @@ function ReviewStep({
     slots,
     contactTokens,
     campaign,
+    draftUuid,
     testTo,
     setTestTo,
     sendTest,
