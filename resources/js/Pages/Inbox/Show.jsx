@@ -74,14 +74,14 @@ function EmojiPicker({ onPick, onClose }) {
     }, [onClose]);
 
     return (
-        <div ref={ref} className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2.5 w-64">
+        <div ref={ref} className="absolute bottom-full mb-2 left-0 z-50 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl p-2.5 w-64 text-neutral-900 dark:text-neutral-100">
             <div className="grid grid-cols-10 gap-1">
                 {EMOJI_LIST.map(e => (
                     <button
                         key={e}
                         type="button"
                         onClick={() => { onPick(e); onClose(); }}
-                        className="h-7 w-7 flex items-center justify-center text-base rounded-lg hover:bg-zinc-800 transition"
+                        className="h-7 w-7 flex items-center justify-center text-base rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                     >
                         {e}
                     </button>
@@ -153,42 +153,42 @@ function TemplatePicker({ conversationId, onSent, onClose }) {
     };
 
     return (
-        <div ref={ref} className="absolute bottom-full mb-2 left-0 right-0 z-50 rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl p-4 max-h-96 flex flex-col text-white">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">WhatsApp Approved Templates</span>
-                <button type="button" onClick={onClose} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>
+        <div ref={ref} className="absolute bottom-full mb-2 left-0 right-0 z-50 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl p-4 max-h-96 flex flex-col text-neutral-900 dark:text-neutral-100">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+                <span className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">WhatsApp Approved Templates</span>
+                <button type="button" onClick={onClose} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"><X className="h-4 w-4" /></button>
             </div>
-            {sendError && <p className="mt-2 text-xs text-red-400">{sendError}</p>}
+            {sendError && <p className="mt-2 text-xs text-red-500 font-semibold">{sendError}</p>}
             {!picked ? (
                 <>
                     <input
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                         placeholder="Search approved templates..."
-                        className="my-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
+                        className="my-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 transition"
                     />
                     <div className="flex-1 overflow-y-auto space-y-1.5">
-                        {loading ? <p className="text-xs text-zinc-400 py-4 text-center">Loading templates...</p>
-                            : filtered.length === 0 ? <p className="text-xs text-zinc-400 py-4 text-center">No approved templates found.</p>
+                        {loading ? <p className="text-xs text-neutral-400 py-4 text-center">Loading templates...</p>
+                            : filtered.length === 0 ? <p className="text-xs text-neutral-400 py-4 text-center">No approved templates found.</p>
                             : filtered.map(tpl => (
                                 <button key={tpl.id} type="button" onClick={() => pickTemplate(tpl)}
-                                    className="w-full text-left p-2.5 rounded-xl hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition">
-                                    <p className="text-xs font-bold text-white">{tpl.name}</p>
-                                    <p className="text-[11px] text-zinc-400 truncate mt-0.5">{tpl.components?.find(c => c.type === 'BODY')?.text}</p>
+                                    className="w-full text-left p-2.5 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800 transition">
+                                    <p className="text-xs font-bold text-neutral-900 dark:text-white">{tpl.name}</p>
+                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">{tpl.components?.find(c => c.type === 'BODY')?.text}</p>
                                 </button>
                             ))}
                     </div>
                 </>
             ) : (
                 <div className="flex-1 flex flex-col overflow-hidden pt-2">
-                    <p className="text-xs font-bold text-white">{picked.name}</p>
-                    <div className="my-2 p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 leading-relaxed">
+                    <p className="text-xs font-bold text-neutral-900 dark:text-white">{picked.name}</p>
+                    <div className="my-2 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
                         {resolveBody(picked.components?.find(c => c.type === 'BODY')?.text ?? '', vars)}
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                        <button type="button" onClick={() => setPicked(null)} className="text-xs text-zinc-400 hover:underline">Back</button>
+                        <button type="button" onClick={() => setPicked(null)} className="text-xs text-neutral-400 hover:underline">Back</button>
                         <button type="button" onClick={handleSend} disabled={sending}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-black font-extrabold text-xs hover:bg-zinc-200 disabled:opacity-50">
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white font-extrabold text-xs hover:bg-blue-700 disabled:opacity-50 shadow-xs">
                             {sending ? 'Sending...' : 'Send Template'}
                         </button>
                     </div>
@@ -206,36 +206,36 @@ function CallDetailsModal({ call, onClose, onCallBack }) {
     const formattedDuration = `${String(durationMin).padStart(2, '0')}:${String(durationSec).padStart(2, '0')}`;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-black border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] text-white">
-                <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] text-neutral-900 dark:text-neutral-100">
+                <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-950">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-zinc-900 border border-zinc-800 text-white flex items-center justify-center shrink-0">
-                            <PhoneCall className="w-5 h-5 text-white" />
+                        <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
+                            <PhoneCall className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-white">
+                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                                 {call.direction === 'inbound' ? '☎ Incoming AI Phone Call' : '☎ Outbound AI Phone Call'}
                             </h3>
-                            <p className="text-xs text-zinc-400">
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                 {call.from_number || call.to_number} · Duration: {formattedDuration}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white">
+                    <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 <div className="p-5 overflow-y-auto space-y-4 text-xs">
-                    <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                    <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
                         <div>
-                            <p className="text-[10px] font-bold uppercase text-zinc-400">AI Voice Agent</p>
-                            <p className="font-bold text-white mt-0.5">{call.voice_agent?.name || 'Sales Assistant'}</p>
+                            <p className="text-[10px] font-bold uppercase text-neutral-400">AI Voice Agent</p>
+                            <p className="font-bold text-neutral-900 dark:text-white mt-0.5">{call.voice_agent?.name || 'Sales Assistant'}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold uppercase text-zinc-400">Status / Outcome</p>
-                            <span className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-900 border border-zinc-800 text-white">
+                            <p className="text-[10px] font-bold uppercase text-neutral-400">Status / Outcome</p>
+                            <span className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white">
                                 ✓ {call.outcome || call.status || 'Completed'}
                             </span>
                         </div>
@@ -243,33 +243,33 @@ function CallDetailsModal({ call, onClose, onCallBack }) {
 
                     {call.recording_url && (
                         <div className="space-y-1.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Call Audio Recording</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Call Audio Recording</p>
                             <audio controls src={call.recording_url} className="w-full h-9 rounded-lg" />
                         </div>
                     )}
 
                     <div className="space-y-1.5">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Call Executive Summary</p>
-                        <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 leading-relaxed">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Call Executive Summary</p>
+                        <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-200 leading-relaxed">
                             {call.summary || 'Summary unavailable for this call.'}
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Spoken Dialogue Transcript</p>
-                        <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap text-zinc-300">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Spoken Dialogue Transcript</p>
+                        <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">
                             {call.transcript || 'Transcript unavailable.'}
                         </div>
                     </div>
                 </div>
 
-                <div className="p-4 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between">
-                    <button onClick={onClose} className="px-4 py-2 rounded-xl text-zinc-400 text-xs font-semibold hover:bg-zinc-900">
+                <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex items-center justify-between">
+                    <button onClick={onClose} className="px-4 py-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-semibold">
                         Close
                     </button>
                     <button
                         onClick={() => { onClose(); onCallBack(call); }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black font-extrabold text-xs hover:bg-zinc-200 transition"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white font-extrabold text-xs hover:bg-blue-700 transition shadow-xs"
                     >
                         <PhoneCall className="w-3.5 h-3.5" /> Call Back Customer
                     </button>
@@ -302,26 +302,26 @@ function HandoffModal({ conversationId, onClose, onHandoffSuccess }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-black border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col text-white">
-                <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
-                    <h3 className="text-sm font-bold flex items-center gap-2 text-white uppercase tracking-wider">
-                        <ArrowRightLeft className="w-4 h-4 text-white" /> AI → Human Handoff
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col text-neutral-900 dark:text-neutral-100">
+                <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-950">
+                    <h3 className="text-sm font-bold flex items-center gap-2 text-neutral-900 dark:text-white uppercase tracking-wider">
+                        <ArrowRightLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" /> AI → Human Handoff
                     </h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
+                    <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-4 space-y-3 text-xs">
-                    <p className="text-zinc-400 text-[11px]">
+                    <p className="text-neutral-500 dark:text-neutral-400 text-[11px]">
                         Switch this conversation to Human Mode immediately. AI auto-reply will pause, and the conversation will be flagged for agent takeover.
                     </p>
 
                     <div>
-                        <label className="block font-semibold text-zinc-300 mb-1">Handoff Trigger Reason</label>
+                        <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Handoff Trigger Reason</label>
                         <select
                             value={selectedReason}
                             onChange={e => setSelectedReason(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
+                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 transition"
                         >
                             {HANDOFF_REASONS.map(r => (
                                 <option key={r} value={r}>{r}</option>
@@ -330,19 +330,19 @@ function HandoffModal({ conversationId, onClose, onHandoffSuccess }) {
                     </div>
 
                     <div>
-                        <label className="block font-medium text-zinc-400 mb-1">Additional Note (Optional)</label>
+                        <label className="block font-medium text-neutral-500 dark:text-neutral-400 mb-1">Additional Note (Optional)</label>
                         <input
                             type="text"
                             placeholder="Add specific context for the agent..."
                             value={customReason}
                             onChange={e => setCustomReason(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
+                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 transition"
                         />
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-xl text-zinc-400 hover:bg-zinc-900">Cancel</button>
-                        <button type="submit" disabled={loading} className="px-4 py-2 rounded-xl bg-white text-black font-extrabold hover:bg-zinc-200 disabled:opacity-50">
+                        <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-xl text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800">Cancel</button>
+                        <button type="submit" disabled={loading} className="px-4 py-2 rounded-xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 disabled:opacity-50 shadow-xs">
                             {loading ? 'Transferring...' : 'Execute Handoff'}
                         </button>
                     </div>
@@ -375,30 +375,30 @@ function AddTagModal({ conversationId, onClose, onSuccess }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-black border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-xs overflow-hidden flex flex-col text-white">
-                <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-wider">
-                        <Tag className="w-4 h-4 text-white" /> Add Tag
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl w-full max-w-xs overflow-hidden flex flex-col text-neutral-900 dark:text-neutral-100">
+                <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-950">
+                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2 uppercase tracking-wider">
+                        <Tag className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Add Tag
                     </h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
+                    <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-4 space-y-3 text-xs">
                     <div>
-                        <label className="block font-medium text-zinc-300 mb-1">Tag Name</label>
+                        <label className="block font-medium text-neutral-700 dark:text-neutral-300 mb-1">Tag Name</label>
                         <input
                             type="text"
                             required
                             placeholder="e.g. Lead, Hot, VIP"
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
+                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-3 py-2 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 transition"
                         />
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
-                        <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-xl text-zinc-400 hover:bg-zinc-900">Cancel</button>
-                        <button type="submit" disabled={loading} className="px-4 py-1.5 rounded-xl bg-white text-black font-extrabold hover:bg-zinc-200 disabled:opacity-50">
+                        <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-xl text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800">Cancel</button>
+                        <button type="submit" disabled={loading} className="px-4 py-1.5 rounded-xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 disabled:opacity-50 shadow-xs">
                             {loading ? 'Adding...' : 'Add Tag'}
                         </button>
                     </div>
@@ -427,20 +427,20 @@ function AssignAgentModal({ teamMembers = [], currentAssignedId, conversationId,
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-black border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col text-white">
-                <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-wider">
-                        <User className="w-4 h-4 text-white" /> Assign Team Member
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col text-neutral-900 dark:text-neutral-100">
+                <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-950">
+                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2 uppercase tracking-wider">
+                        <User className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Assign Team Member
                     </h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
+                    <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
 
-                <div className="p-2 max-h-64 overflow-y-auto divide-y divide-zinc-900 text-xs">
+                <div className="p-2 max-h-64 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800 text-xs">
                     <button
                         onClick={() => handleAssign(null)}
                         disabled={loading}
-                        className="w-full text-left px-3 py-2 text-zinc-400 hover:bg-zinc-900 rounded-xl transition"
+                        className="w-full text-left px-3 py-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition"
                     >
                         Unassigned (Queue)
                     </button>
@@ -449,15 +449,15 @@ function AssignAgentModal({ teamMembers = [], currentAssignedId, conversationId,
                             key={m.id}
                             onClick={() => handleAssign(m.id)}
                             disabled={loading}
-                            className={`w-full text-left px-3 py-2.5 hover:bg-zinc-900 rounded-xl flex items-center justify-between transition ${
-                                m.id === currentAssignedId ? 'bg-zinc-900 font-bold text-white' : 'text-zinc-300'
+                            className={`w-full text-left px-3 py-2.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl flex items-center justify-between transition ${
+                                m.id === currentAssignedId ? 'bg-blue-50 dark:bg-neutral-800 font-bold text-blue-600 dark:text-white' : 'text-neutral-700 dark:text-neutral-300'
                             }`}
                         >
                             <div>
                                 <p className="font-semibold">{m.name}</p>
-                                <p className="text-[10px] text-zinc-400">{m.email}</p>
+                                <p className="text-[10px] text-neutral-400">{m.email}</p>
                             </div>
-                            {m.id === currentAssignedId && <Check className="w-4 h-4 text-white" />}
+                            {m.id === currentAssignedId && <Check className="w-4 h-4 text-blue-600 dark:text-white" />}
                         </button>
                     ))}
                 </div>
@@ -715,24 +715,24 @@ export default function InboxShow({
         <InboxLayout>
             <Head title={`${contactName} — Unified Inbox`} />
 
-            <div className="flex h-full overflow-hidden bg-black text-white">
+            <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 1: CHANNELS & VIEWS SIDEBAR (LEFT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className="w-48 shrink-0 flex flex-col h-full bg-black border-r border-zinc-800 overflow-y-auto hidden xl:flex">
-                    <div className="p-3 border-b border-zinc-800 flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg bg-white text-black font-black text-xs flex items-center justify-center shadow-xs">
+                <div className="w-48 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden xl:flex">
+                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black font-black text-xs flex items-center justify-center shadow-xs">
                             GC
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-white uppercase tracking-wider">CHANNELS</h2>
-                            <p className="text-[10px] text-zinc-400">Omnichannel Hub</p>
+                            <h2 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">CHANNELS</h2>
+                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Omnichannel Hub</p>
                         </div>
                     </div>
 
                     {/* Views */}
-                    <div className="p-2 space-y-1 border-b border-zinc-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">Views</p>
+                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 px-2 py-0.5">Views</p>
                         {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
                             const isSelected = (filters.folder || null) === key && !filters.channel;
                             const count = counts[countKey] ?? 0;
@@ -743,8 +743,8 @@ export default function InboxShow({
                                     onClick={() => handleFilterChange({ folder: key, channel: null })}
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
                                         isSelected
-                                            ? 'bg-white text-black font-extrabold shadow-md'
-                                            : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -752,7 +752,7 @@ export default function InboxShow({
                                         <span className="truncate">{label}</span>
                                     </div>
                                     <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                                        isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
                                     }`}>
                                         {count}
                                     </span>
@@ -762,8 +762,8 @@ export default function InboxShow({
                     </div>
 
                     {/* Channels */}
-                    <div className="p-2 space-y-1 border-b border-zinc-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">Channels</p>
+                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 px-2 py-0.5">Channels</p>
                         {CHANNELS.map(ch => {
                             const isSelected = filters.channel === ch.key;
                             const count = counts[ch.countKey] ?? 0;
@@ -774,8 +774,8 @@ export default function InboxShow({
                                     onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
                                         isSelected
-                                            ? 'bg-white text-black font-extrabold shadow-md'
-                                            : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -783,7 +783,7 @@ export default function InboxShow({
                                         <span className="truncate">{ch.label}</span>
                                     </div>
                                     <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                                        isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
                                     }`}>
                                         {count}
                                     </span>
@@ -796,28 +796,28 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 2: CONVERSATION LIST (CENTER-LEFT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`w-full md:w-72 lg:w-80 flex flex-col border-r border-zinc-800 bg-zinc-950 shrink-0 ${
+                <div className={`w-full md:w-72 lg:w-80 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0 ${
                     mobileTab === 'list' ? 'flex' : 'hidden md:flex'
                 }`}>
-                    <div className="p-3 border-b border-zinc-800 bg-black">
+                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={e => handleSearchChange(e.target.value)}
                                 placeholder="Search customer, phone, text..."
-                                className="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl pl-9 pr-8 py-2 text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white placeholder-zinc-500 transition"
+                                className="w-full text-xs bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-xl pl-9 pr-8 py-2 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 placeholder-neutral-400 transition"
                             />
                             {search && (
-                                <button onClick={() => handleSearchChange('')} className="absolute right-3 top-2.5 text-zinc-400 hover:text-white">
+                                <button onClick={() => handleSearchChange('')} className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
                                     <X className="w-4 h-4" />
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto divide-y divide-zinc-900/60">
+                    <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60">
                         {convList.map(conv => {
                             const isSelected = conv.id === conversation.id;
                             const convName = conv.contact?.first_name || conv.contact?.last_name
@@ -831,29 +831,29 @@ export default function InboxShow({
                                     onClick={() => setMobileTab('chat')}
                                     className={`block px-3.5 py-3 transition-colors ${
                                         isSelected
-                                            ? 'bg-zinc-900 border-l-4 border-l-white'
-                                            : 'hover:bg-zinc-900/50'
+                                            ? 'bg-neutral-100 dark:bg-neutral-800/80 border-l-4 border-l-blue-600'
+                                            : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
                                     }`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="relative shrink-0">
-                                            <div className="h-9 w-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-white shadow-xs">
+                                            <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-xs font-bold text-neutral-900 dark:text-neutral-100 shadow-xs">
                                                 {convName[0]?.toUpperCase()}
                                             </div>
-                                            <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-black border border-zinc-700 flex items-center justify-center shadow-xs">
+                                            <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow-xs">
                                                 <ChannelBrandIcon channel={conv.channel || conv.channel_account?.channel || 'whatsapp'} className="h-2.5 w-2.5" />
                                             </span>
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-1">
-                                                <span className={`text-xs truncate ${isSelected ? 'font-bold text-white' : 'font-semibold text-zinc-200'}`}>
+                                                <span className={`text-xs truncate ${isSelected ? 'font-bold text-neutral-900 dark:text-neutral-100' : 'font-semibold text-neutral-700 dark:text-neutral-300'}`}>
                                                     {convName}
                                                 </span>
-                                                <span className="text-[10px] text-zinc-400 shrink-0 font-medium">
+                                                <span className="text-[10px] text-neutral-400 shrink-0 font-medium">
                                                     {conv.last_message_at ? formatTimeTz(conv.last_message_at, userTz) : ''}
                                                 </span>
                                             </div>
-                                            <p className="text-[11px] text-zinc-400 truncate mt-0.5">
+                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
                                                 {conv.last_message?.body || '(media message)'}
                                             </p>
                                         </div>
@@ -867,26 +867,26 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 3: CONVERSATION STREAM & ACTIONS (CENTER-RIGHT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`flex-1 flex flex-col h-full overflow-hidden bg-black min-w-0 ${
+                <div className={`flex-1 flex flex-col h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 min-w-0 ${
                     mobileTab === 'chat' ? 'flex' : 'hidden md:flex'
                 }`}>
                     {/* Header: Horizontally Scrollable Controls to Prevent Clipping */}
-                    <div className="p-3 border-b border-zinc-800 flex items-center justify-between gap-3 bg-black shrink-0">
+                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-3 bg-white dark:bg-neutral-900 shrink-0">
                         {/* Left: Customer Info */}
                         <div className="flex items-center gap-2.5 shrink-0">
-                            <button onClick={() => setMobileTab('list')} className="md:hidden p-1 text-zinc-400 hover:bg-zinc-900 rounded-lg">
+                            <button onClick={() => setMobileTab('list')} className="md:hidden p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg">
                                 <ArrowLeft className="w-4 h-4" />
                             </button>
 
-                            <div className="h-9 w-9 rounded-full bg-white text-black flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+                            <div className="h-9 w-9 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black flex items-center justify-center font-black text-xs shadow-xs shrink-0">
                                 {contactName[0]?.toUpperCase()}
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <h1 className="text-xs font-bold text-white truncate max-w-[120px] sm:max-w-none">{contactName}</h1>
+                                    <h1 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate max-w-[120px] sm:max-w-none">{contactName}</h1>
                                     <ChannelBrandIcon channel={channel} className="h-3.5 w-3.5 shrink-0" />
                                 </div>
-                                <p className="text-[11px] text-zinc-400 truncate max-w-[120px] sm:max-w-none">
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate max-w-[120px] sm:max-w-none">
                                     {conversation.contact?.phone_e164 || conversation.contact?.email || 'No phone/email'}
                                 </p>
                             </div>
@@ -895,21 +895,21 @@ export default function InboxShow({
                         {/* Right: Horizontally Scrollable Controls */}
                         <div className="flex-1 min-w-0 flex items-center justify-end gap-1.5 overflow-x-auto py-1 scrollbar-none whitespace-nowrap">
                             {/* AI Control Header Card */}
-                            <div className="flex items-center gap-1 p-0.5 rounded-xl bg-zinc-900 border border-zinc-800 shrink-0">
+                            <div className="flex items-center gap-1 p-0.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0">
                                 {isAiActive ? (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white text-black text-[11px] font-bold shadow-xs shrink-0">
-                                        <span className="h-2 w-2 rounded-full bg-black animate-pulse" /> AI Assistant ● ACTIVE
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[11px] font-bold shadow-xs shrink-0">
+                                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" /> AI Assistant ● ACTIVE
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-bold shadow-xs shrink-0">
-                                        <span className="h-2 w-2 rounded-full bg-zinc-500" /> AI Assistant ○ PAUSED
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-[11px] font-bold shadow-xs shrink-0">
+                                        <span className="h-2 w-2 rounded-full bg-neutral-400" /> AI Assistant ○ PAUSED
                                     </div>
                                 )}
 
                                 <button
                                     onClick={() => handleSwitchMode(isAiActive ? 'human' : 'auto')}
                                     disabled={aiLoading}
-                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-zinc-200 hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
+                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
                                 >
                                     {isAiActive ? '[ Switch to Human ]' : '[ Enable AI ]'}
                                 </button>
@@ -919,7 +919,7 @@ export default function InboxShow({
                             <select
                                 value={aiMode}
                                 onChange={(e) => handleSwitchMode(e.target.value)}
-                                className="text-[11px] rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 px-2.5 font-medium text-white focus:outline-none focus:border-white transition shrink-0 cursor-pointer"
+                                className="text-[11px] rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1.5 px-2.5 font-medium text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 transition shrink-0 cursor-pointer"
                             >
                                 <option value="auto">Mode: AI Auto Reply</option>
                                 <option value="suggested">Mode: AI Suggested</option>
@@ -930,36 +930,36 @@ export default function InboxShow({
                             {/* Handoff Button */}
                             <button
                                 onClick={() => setShowHandoffModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 text-xs font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
                                 title="Execute Human Handoff"
                             >
-                                <ArrowRightLeft className="w-3.5 h-3.5 text-white shrink-0" />
+                                <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                                 <span>Handoff</span>
                             </button>
 
                             {/* Assign User Button */}
                             <button
                                 onClick={() => setShowAssignModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
                                 title="Assign Agent"
                             >
-                                <User className="w-3.5 h-3.5 text-white shrink-0" />
+                                <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                                 <span>{assignedUser ? assignedUser.name : 'Assign'}</span>
                             </button>
 
                             {/* Close / Reopen */}
                             <button
                                 onClick={handleToggleStatus}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition shrink-0 whitespace-nowrap"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
                             >
-                                <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                                 <span>{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
                             </button>
 
                             {/* Dismiss / Close Chat Tab */}
                             <Link
                                 href={route('client.inbox.index')}
-                                className="p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition shrink-0"
+                                className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
                                 title="Close Chat Tab"
                             >
                                 <X className="w-4 h-4" />
@@ -968,7 +968,7 @@ export default function InboxShow({
                             {/* Toggle Right Customer Panel (Desktop) */}
                             <button
                                 onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                                className="hidden lg:flex p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white hover:bg-zinc-800 transition shrink-0"
+                                className="hidden lg:flex p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
                                 title="Toggle Customer Info Panel"
                             >
                                 <Info className="w-4 h-4" />
@@ -976,7 +976,7 @@ export default function InboxShow({
 
                             <button
                                 onClick={() => setMobileTab('customer')}
-                                className="md:hidden p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-white shrink-0"
+                                className="md:hidden p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 shrink-0"
                             >
                                 <Info className="w-4 h-4" />
                             </button>
@@ -984,12 +984,12 @@ export default function InboxShow({
                     </div>
 
                     {/* Stream Content */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-black">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-[#FAFAF9] dark:bg-neutral-950">
                         {streamItems.length === 0 ? (
                             <div className="py-16 text-center">
-                                <MessageSquare className="w-10 h-10 text-zinc-600 mx-auto mb-2" />
-                                <p className="text-sm font-bold text-white">No conversations yet.</p>
-                                <p className="text-xs text-zinc-400 mt-1">Send a message below to start communicating with {contactName}.</p>
+                                <MessageSquare className="w-10 h-10 text-neutral-400 mx-auto mb-2" />
+                                <p className="text-sm font-bold text-neutral-900 dark:text-neutral-100">No conversations yet.</p>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Send a message below to start communicating with {contactName}.</p>
                             </div>
                         ) : (
                             streamItems.map(({ kind, item }, idx) => {
@@ -999,45 +999,45 @@ export default function InboxShow({
                                     const formattedDuration = `${String(durationMin).padStart(2, '0')}:${String(durationSec).padStart(2, '0')}`;
 
                                     return (
-                                        <div key={`call-${item.id || idx}`} className="my-3 max-w-lg mx-auto rounded-2xl bg-zinc-900 border border-zinc-800 p-4 shadow-md">
+                                        <div key={`call-${item.id || idx}`} className="my-3 max-w-lg mx-auto rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-9 w-9 rounded-full bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center shrink-0">
-                                                        <PhoneCall className="w-4 h-4" />
+                                                    <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shrink-0">
+                                                        <PhoneCall className="w-4 h-4 text-blue-600" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                                                        <h4 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                                                             {item.direction === 'inbound' ? 'Incoming Call' : 'Outbound Call'}
-                                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-200">
+                                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300">
                                                                 {item.status || 'Completed'}
                                                             </span>
                                                         </h4>
-                                                        <p className="text-[11px] text-zinc-400 mt-0.5">
-                                                            Duration: <span className="font-semibold text-white">{formattedDuration}</span> · AI Agent: <span className="font-semibold text-white">{item.voice_agent?.name || 'Sales Assistant'}</span>
+                                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                                            Duration: <span className="font-semibold text-neutral-900 dark:text-neutral-100">{formattedDuration}</span> · AI Agent: <span className="font-semibold text-neutral-900 dark:text-neutral-100">{item.voice_agent?.name || 'Sales Assistant'}</span>
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <span className="text-[10px] text-zinc-400 font-medium">
+                                                <span className="text-[10px] text-neutral-400 font-medium">
                                                     {formatTimeTz(item.created_at, userTz)}
                                                 </span>
                                             </div>
 
-                                            <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-zinc-800">
+                                            <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-neutral-200 dark:border-neutral-800">
                                                 <button
                                                     onClick={() => setSelectedCall(item)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-xs font-semibold"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 text-xs font-semibold"
                                                 >
                                                     <FileText className="w-3.5 h-3.5" /> View Transcript
                                                 </button>
                                                 <button
                                                     onClick={() => setSelectedCall(item)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white text-xs font-semibold"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 text-xs font-semibold"
                                                 >
-                                                    <Sparkles className="w-3.5 h-3.5 text-white" /> View Summary
+                                                    <Sparkles className="w-3.5 h-3.5 text-blue-600" /> View Summary
                                                 </button>
                                                 <button
                                                     onClick={() => setSelectedCall(item)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-200"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition"
                                                 >
                                                     <PhoneIncoming className="w-3.5 h-3.5" /> Call Back
                                                 </button>
@@ -1054,10 +1054,10 @@ export default function InboxShow({
                                 if (isSystem) {
                                     return (
                                         <div key={`msg-${msg.id || idx}`} className="flex justify-center my-2.5">
-                                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-semibold shadow-sm">
-                                                <ArrowRightLeft className="w-3.5 h-3.5 text-white" />
+                                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px] font-semibold shadow-xs">
+                                                <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600" />
                                                 <span>{msg.body}</span>
-                                                <span className="text-[10px] text-zinc-400 font-normal">· {formatTimeTz(msg.sent_at || msg.created_at, userTz)}</span>
+                                                <span className="text-[10px] text-neutral-400 font-normal">· {formatTimeTz(msg.sent_at || msg.created_at, userTz)}</span>
                                             </div>
                                         </div>
                                     );
@@ -1065,24 +1065,24 @@ export default function InboxShow({
 
                                 return (
                                     <div key={`msg-${msg.id || idx}`} className={`flex ${isOut ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-lg rounded-2xl p-3.5 shadow-sm ${
+                                        <div className={`max-w-lg rounded-2xl p-3.5 shadow-xs ${
                                             isOut
                                                 ? isBot
-                                                    ? 'bg-zinc-900 border border-white text-white rounded-br-xs'
-                                                    : 'bg-white text-black font-medium border border-white rounded-br-xs'
-                                                : 'bg-zinc-900 border border-zinc-800 text-white rounded-bl-xs'
+                                                    ? 'bg-neutral-900 dark:bg-neutral-100 border border-neutral-800 dark:border-neutral-200 text-white dark:text-black rounded-br-xs'
+                                                    : 'bg-blue-600 text-white font-medium rounded-br-xs'
+                                                : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-xs'
                                         }`}>
                                             {isOut && isBot && (
-                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">
-                                                    <Bot className="w-3.5 h-3.5 text-white" /> AI Agent Message
+                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-400 dark:text-blue-600 mb-1.5 uppercase tracking-wider">
+                                                    <Bot className="w-3.5 h-3.5" /> AI Agent Message
                                                 </div>
                                             )}
                                             <p className="text-xs whitespace-pre-wrap leading-relaxed">{msg.body}</p>
-                                            <div className={`flex items-center justify-end gap-1 mt-1.5 text-[10px] ${isOut ? (isBot ? 'text-zinc-400' : 'text-zinc-600') : 'text-zinc-400'}`}>
+                                            <div className={`flex items-center justify-end gap-1 mt-1.5 text-[10px] ${isOut ? (isBot ? 'text-neutral-400' : 'text-blue-100') : 'text-neutral-400'}`}>
                                                 <span>{formatTimeTz(msg.sent_at || msg.created_at, userTz)}</span>
                                                 {isOut && (
                                                     <span>
-                                                        {msg.status === 'read' ? <CheckCheck className="w-3.5 h-3.5 text-black" /> : <Check className="w-3.5 h-3.5" />}
+                                                        {msg.status === 'read' ? <CheckCheck className="w-3.5 h-3.5 text-white" /> : <Check className="w-3.5 h-3.5" />}
                                                     </span>
                                                 )}
                                             </div>
@@ -1096,40 +1096,40 @@ export default function InboxShow({
 
                     {/* AI Suggested Reply Banner */}
                     {aiSuggestedReply && (
-                        <div className="p-3.5 bg-zinc-900 border-t border-zinc-800">
+                        <div className="p-3.5 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800">
                             <div className="flex items-center justify-between gap-2 mb-2">
-                                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <Sparkles className="w-3.5 h-3.5 text-white" /> AI Suggested Reply
+                                <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                                    <Sparkles className="w-3.5 h-3.5 text-blue-600" /> AI Suggested Reply
                                 </span>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={handleGenerateAiReply}
                                         disabled={aiLoading}
-                                        className="text-[11px] text-zinc-300 hover:text-white underline font-semibold"
+                                        className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold"
                                     >
                                         [Regenerate]
                                     </button>
                                     <button
                                         onClick={() => setAiSuggestedReply(null)}
-                                        className="text-zinc-400 hover:text-white p-0.5"
+                                        className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 p-0.5"
                                     >
                                         <X className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             </div>
-                            <p className="text-xs text-white bg-black p-3 rounded-xl border border-zinc-800 leading-relaxed">
+                            <p className="text-xs text-neutral-900 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-800 p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 leading-relaxed">
                                 "{aiSuggestedReply}"
                             </p>
                             <div className="flex items-center justify-end gap-2 mt-2.5">
                                 <button
                                     onClick={() => { setData('body', aiSuggestedReply); }}
-                                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-300 hover:bg-zinc-800"
+                                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                                 >
                                     [Edit in Composer]
                                 </button>
                                 <button
                                     onClick={() => { setData('body', aiSuggestedReply); setAiSuggestedReply(null); }}
-                                    className="px-4 py-1.5 rounded-xl bg-white text-black text-xs font-bold hover:bg-zinc-200 transition"
+                                    className="px-4 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
                                 >
                                     [Use Reply]
                                 </button>
@@ -1138,9 +1138,9 @@ export default function InboxShow({
                     )}
 
                     {/* Composer Box */}
-                    <div className="border-t border-zinc-800 bg-zinc-950 p-3.5 shrink-0">
+                    <div className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3.5 shrink-0">
                         {sendError && (
-                            <div className="mb-2.5 p-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-xs flex items-center justify-between">
+                            <div className="mb-2.5 p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs flex items-center justify-between">
                                 <span>{sendError}</span>
                                 <button onClick={() => setSendError(null)}><X className="w-3.5 h-3.5" /></button>
                             </div>
@@ -1171,7 +1171,7 @@ export default function InboxShow({
                                     }}
                                     rows={2}
                                     placeholder={`Reply via ${CHANNEL_LABELS[channel] ?? channel}... (Press Enter to send)`}
-                                    className="w-full text-xs bg-zinc-900 rounded-xl p-3 text-white focus:outline-none border border-zinc-800 focus:border-white focus:ring-1 focus:ring-white resize-none placeholder-zinc-500 transition"
+                                    className="w-full text-xs bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 text-neutral-900 dark:text-neutral-100 focus:outline-none border border-neutral-200 dark:border-neutral-700 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 resize-none placeholder-neutral-400 transition"
                                 />
 
                                 <div className="flex items-center justify-between">
@@ -1179,7 +1179,7 @@ export default function InboxShow({
                                         <button
                                             type="button"
                                             onClick={() => setShowEmoji(!showEmoji)}
-                                            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition"
+                                            className="p-2 rounded-xl text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                                             title="Add Emoji"
                                         >
                                             <Smile className="w-4 h-4" />
@@ -1188,10 +1188,10 @@ export default function InboxShow({
                                             <button
                                                 type="button"
                                                 onClick={() => setShowTemplates(!showTemplates)}
-                                                className="px-3 py-1.5 rounded-xl text-white hover:bg-zinc-900 text-xs font-bold flex items-center gap-1.5 transition border border-zinc-800"
+                                                className="px-3 py-1.5 rounded-xl text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1.5 transition border border-neutral-200 dark:border-neutral-700"
                                                 title="WhatsApp Template"
                                             >
-                                                <LayoutTemplate className="w-4 h-4 text-white" /> Templates
+                                                <LayoutTemplate className="w-4 h-4 text-blue-600" /> Templates
                                             </button>
                                         )}
                                         <div className="relative">
@@ -1199,14 +1199,14 @@ export default function InboxShow({
                                                 type="button"
                                                 onClick={() => setShowAiMenu(!showAiMenu)}
                                                 disabled={aiLoading}
-                                                className="px-3 py-1.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 text-xs font-bold flex items-center gap-1.5 transition"
+                                                className="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-bold flex items-center gap-1.5 transition"
                                                 title="AI Reply Assistant"
                                             >
-                                                <Sparkles className="w-4 h-4 text-white" /> AI Assistant <ChevronDown className="w-3 h-3" />
+                                                <Sparkles className="w-4 h-4 text-blue-600" /> AI Assistant <ChevronDown className="w-3 h-3" />
                                             </button>
 
                                             {showAiMenu && (
-                                                <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2 w-56 space-y-1 text-xs">
+                                                <div className="absolute bottom-full mb-2 left-0 z-50 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl p-2 w-56 space-y-1 text-xs">
                                                     {[
                                                         { id: 'generate', label: '🤖 Generate AI Reply', desc: 'Contextual draft' },
                                                         { id: 'shorter', label: '✂ Make Shorter', desc: 'Concise & punchy' },
@@ -1219,10 +1219,10 @@ export default function InboxShow({
                                                             key={m.id}
                                                             type="button"
                                                             onClick={() => handleGenerateAiReply(m.id)}
-                                                            className="w-full text-left p-2 rounded-xl hover:bg-zinc-800 transition block"
+                                                            className="w-full text-left p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition block"
                                                         >
-                                                            <span className="font-bold text-white block">{m.label}</span>
-                                                            <span className="text-[10px] text-zinc-400 block">{m.desc}</span>
+                                                            <span className="font-bold text-neutral-900 dark:text-neutral-100 block">{m.label}</span>
+                                                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block">{m.desc}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1233,7 +1233,7 @@ export default function InboxShow({
                                     <button
                                         type="submit"
                                         disabled={sending || !data.body.trim()}
-                                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold shadow-md transition disabled:opacity-50"
+                                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition disabled:opacity-50"
                                     >
                                         {sending ? 'Sending...' : 'Send'} <Send className="w-3.5 h-3.5" />
                                     </button>
@@ -1246,58 +1246,58 @@ export default function InboxShow({
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 4: CUSTOMER 360 & JOURNEY PANEL (RIGHT)
                 ─────────────────────────────────────────────────────────── */}
-                <div className={`w-72 lg:w-80 shrink-0 border-l border-zinc-800 bg-black flex flex-col h-full overflow-y-auto ${
+                <div className={`w-72 lg:w-80 shrink-0 border-l border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex flex-col h-full overflow-y-auto ${
                     showCustomerSidebar ? (mobileTab === 'customer' ? 'flex' : 'hidden lg:flex') : 'hidden'
                 }`}>
                     {/* Header */}
-                    <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between">
-                        <h3 className="text-xs font-bold text-white uppercase tracking-wider">CUSTOMER 360</h3>
-                        <button onClick={() => setMobileTab('chat')} className="md:hidden text-zinc-400 hover:text-white">
+                    <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                        <h3 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">CUSTOMER 360</h3>
+                        <button onClick={() => setMobileTab('chat')} className="md:hidden text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
 
                     <div className="p-4 space-y-4 text-xs">
                         {/* Profile Card */}
-                        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-sm space-y-3">
+                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700/60 shadow-xs space-y-3">
                             <div className="flex items-center gap-3">
-                                <div className="h-11 w-11 rounded-full bg-white text-black font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                                <div className="h-11 w-11 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black font-black text-sm flex items-center justify-center shadow-xs shrink-0">
                                     {contactName[0]?.toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                    <h4 className="font-bold text-white truncate">{contactName}</h4>
-                                    <p className="text-[11px] text-zinc-400 truncate">{conversation.contact?.phone_e164 || 'No phone'}</p>
-                                    <p className="text-[11px] text-zinc-400 truncate">{conversation.contact?.email || 'No email'}</p>
+                                    <h4 className="font-bold text-neutral-900 dark:text-neutral-100 truncate">{contactName}</h4>
+                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{conversation.contact?.phone_e164 || 'No phone'}</p>
+                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{conversation.contact?.email || 'No email'}</p>
                                 </div>
                             </div>
 
                             {/* Connected Channel Badges */}
-                            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-zinc-900 text-[10px]">
+                            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-neutral-200 dark:border-neutral-700/60 text-[10px]">
                                 {journey.channels && journey.channels.length > 0 ? (
                                     journey.channels.map((ch) => (
-                                        <span key={ch} className="px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 font-bold text-zinc-300 capitalize flex items-center gap-1">
+                                        <span key={ch} className="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-bold text-neutral-700 dark:text-neutral-300 capitalize flex items-center gap-1">
                                             <ChannelBrandIcon channel={ch} className="w-3 h-3" />
                                             {ch}
                                         </span>
                                     ))
                                 ) : (
-                                    <span className="text-zinc-500 italic">No channels linked</span>
+                                    <span className="text-neutral-400 italic">No channels linked</span>
                                 )}
                             </div>
                         </div>
 
                         {/* Next Action Card */}
                         {journey.next_action && (
-                            <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2">
-                                <div className="flex items-center gap-1.5 text-white font-bold text-[11px]">
-                                    <Clock className="w-3.5 h-3.5 text-white" /> Next Action
+                            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700/60 space-y-2">
+                                <div className="flex items-center gap-1.5 text-neutral-900 dark:text-neutral-100 font-bold text-[11px]">
+                                    <Clock className="w-3.5 h-3.5 text-blue-600" /> Next Action
                                 </div>
-                                <p className="font-bold text-xs text-white">{journey.next_action.title}</p>
-                                <div className="text-[11px] text-zinc-400 font-mono font-semibold">
+                                <p className="font-bold text-xs text-neutral-900 dark:text-neutral-100">{journey.next_action.title}</p>
+                                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono font-semibold">
                                     ⏱ Due: {journey.next_action.due_at}
                                 </div>
                                 <Link href={route('client.voice.follow-ups.show', journey.next_action.uuid)} className="block pt-1">
-                                    <button className="w-full py-1.5 rounded-xl bg-white text-black font-bold text-[11px] hover:bg-zinc-200 transition">
+                                    <button className="w-full py-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] hover:bg-blue-700 transition">
                                         Execute Action
                                     </button>
                                 </Link>
@@ -1306,27 +1306,27 @@ export default function InboxShow({
 
                         {/* AI Customer Summary Card */}
                         {aiCustomerSummary?.summary && (
-                            <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2.5">
-                                <div className="flex items-center gap-1.5 text-white font-bold text-[11px]">
-                                    <Sparkles className="w-3.5 h-3.5 text-white" /> AI Customer Summary
+                            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700/60 space-y-2.5">
+                                <div className="flex items-center gap-1.5 text-neutral-900 dark:text-neutral-100 font-bold text-[11px]">
+                                    <Sparkles className="w-3.5 h-3.5 text-blue-600" /> AI Customer Summary
                                 </div>
-                                <p className="text-zinc-300 text-[11px] leading-relaxed">
+                                <p className="text-neutral-600 dark:text-neutral-300 text-[11px] leading-relaxed">
                                     {aiCustomerSummary.summary}
                                 </p>
-                                <div className="flex justify-between text-[11px] pt-2 border-t border-zinc-900">
-                                    <span className="text-zinc-400">Lead Interest:</span>
-                                    <span className="font-bold text-white">🔥 {aiCustomerSummary.lead_interest || 'Medium'}</span>
+                                <div className="flex justify-between text-[11px] pt-2 border-t border-neutral-200 dark:border-neutral-700/60">
+                                    <span className="text-neutral-500 dark:text-neutral-400">Lead Interest:</span>
+                                    <span className="font-bold text-neutral-900 dark:text-neutral-100">🔥 {aiCustomerSummary.lead_interest || 'Medium'}</span>
                                 </div>
                             </div>
                         )}
 
                         {/* Quick Actions */}
                         <div className="space-y-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Quick Actions</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Quick Actions</span>
                             <div className="grid grid-cols-2 gap-2">
                                 <Link href={route('client.voice.follow-ups.create')} className="w-full">
-                                    <button className="w-full p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 font-bold text-white hover:bg-zinc-800 flex items-center justify-center gap-1.5 text-[11px] transition">
-                                        <Plus className="w-3.5 h-3.5 text-white" /> + Task
+                                    <button className="w-full p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-bold text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center justify-center gap-1.5 text-[11px] transition">
+                                        <Plus className="w-3.5 h-3.5 text-blue-600" /> + Task
                                     </button>
                                 </Link>
                                 <button
@@ -1335,9 +1335,9 @@ export default function InboxShow({
                                             router.visit(route('client.contacts.show', conversation.contact.uuid));
                                         }
                                     }}
-                                    className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 font-bold text-white hover:bg-zinc-800 flex items-center justify-center gap-1.5 text-[11px] transition"
+                                    className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-bold text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 flex items-center justify-center gap-1.5 text-[11px] transition"
                                 >
-                                    <ExternalLink className="w-3.5 h-3.5 text-white" /> Customer 360
+                                    <ExternalLink className="w-3.5 h-3.5 text-blue-600" /> Customer 360
                                 </button>
                             </div>
                         </div>
@@ -1345,17 +1345,17 @@ export default function InboxShow({
                         {/* Tags Section */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Tags</span>
-                                <button onClick={() => setShowTagModal(true)} className="text-[11px] font-bold text-white hover:underline">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Tags</span>
+                                <button onClick={() => setShowTagModal(true)} className="text-[11px] font-bold text-blue-600 hover:underline">
                                     + Add Tag
                                 </button>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                                 {contactTags.length === 0 ? (
-                                    <span className="text-[11px] text-zinc-500 italic">No tags attached</span>
+                                    <span className="text-[11px] text-neutral-400 italic">No tags attached</span>
                                 ) : (
                                     contactTags.map(t => (
-                                        <span key={t.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 border border-zinc-700 text-white shadow-xs">
+                                        <span key={t.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 shadow-xs">
                                             {t.name}
                                         </span>
                                     ))
@@ -1365,20 +1365,20 @@ export default function InboxShow({
 
                         {/* Internal Notes */}
                         <div className="space-y-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Internal Notes (Team Only)</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Internal Notes (Team Only)</span>
                             <form onSubmit={handleAddNote} className="space-y-2">
                                 <textarea
                                     value={newNote}
                                     onChange={e => setNewNote(e.target.value)}
                                     rows={2}
                                     placeholder="Add a private note..."
-                                    className="w-full text-xs bg-zinc-900 rounded-xl p-3 text-white focus:outline-none border border-zinc-800 focus:border-white resize-none placeholder-zinc-500 transition"
+                                    className="w-full text-xs bg-neutral-50 dark:bg-neutral-800 rounded-xl p-3 text-neutral-900 dark:text-neutral-100 focus:outline-none border border-neutral-200 dark:border-neutral-700 focus:border-blue-600 resize-none placeholder-neutral-400 transition"
                                 />
                                 <div className="flex justify-end">
                                     <button
                                         type="submit"
                                         disabled={notePosting || !newNote.trim()}
-                                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-[11px] disabled:opacity-50 transition"
+                                        className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] disabled:opacity-50 transition"
                                     >
                                         {notePosting ? 'Saving...' : 'Add Note'}
                                     </button>
@@ -1387,15 +1387,15 @@ export default function InboxShow({
 
                             <div className="space-y-2 max-h-48 overflow-y-auto">
                                 {notes.length === 0 ? (
-                                    <p className="text-[11px] text-zinc-500 italic">No notes yet.</p>
+                                    <p className="text-[11px] text-neutral-400 italic">No notes yet.</p>
                                 ) : (
                                     notes.map(note => (
-                                        <div key={note.id} className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-[11px]">
-                                            <div className="flex justify-between text-[10px] text-zinc-300 font-bold mb-1">
+                                        <div key={note.id} className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-[11px]">
+                                            <div className="flex justify-between text-[10px] text-neutral-800 dark:text-neutral-200 font-bold mb-1">
                                                 <span>{note.user?.name || 'Agent'}</span>
-                                                <span className="text-zinc-500 font-normal">{formatTimeTz(note.created_at, userTz)}</span>
+                                                <span className="text-neutral-400 font-normal">{formatTimeTz(note.created_at, userTz)}</span>
                                             </div>
-                                            <p className="text-zinc-300 whitespace-pre-wrap">{note.body}</p>
+                                            <p className="text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">{note.body}</p>
                                         </div>
                                     ))
                                 )}

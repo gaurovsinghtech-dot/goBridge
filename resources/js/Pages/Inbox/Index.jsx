@@ -41,21 +41,21 @@ function ConversationListItem({ conv, isActive, userTz }) {
     return (
         <Link
             href={route('client.inbox.show', conv.uuid)}
-            className={`block px-3.5 py-3 border-b border-zinc-900 transition-colors ${
+            className={`block px-3.5 py-3 border-b border-neutral-200 dark:border-neutral-800 transition-colors ${
                 isActive
-                    ? 'bg-zinc-900 border-l-4 border-l-white'
+                    ? 'bg-blue-50/80 dark:bg-neutral-800 border-l-4 border-l-blue-600'
                     : isUnread
-                        ? 'bg-zinc-900/60'
-                        : 'hover:bg-zinc-900/40'
+                        ? 'bg-blue-50/30 dark:bg-neutral-900/60'
+                        : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
             }`}
         >
             <div className="flex items-start gap-3">
                 {/* Profile Avatar */}
                 <div className="relative shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-white shadow-xs">
+                    <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-neutral-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-neutral-700 flex items-center justify-center text-xs font-bold shadow-xs">
                         {name[0]?.toUpperCase() ?? '?'}
                     </div>
-                    <span className="absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full bg-black border border-zinc-700 flex items-center justify-center shadow-xs">
+                    <span className="absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow-xs">
                         <ChannelBrandIcon channel={channel} className="h-3 w-3" />
                     </span>
                 </div>
@@ -64,40 +64,40 @@ function ConversationListItem({ conv, isActive, userTz }) {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                         <div className="flex items-center gap-1.5 min-w-0">
-                            <span className={`text-xs truncate ${isUnread ? 'font-bold text-white' : 'font-semibold text-zinc-200'}`}>
+                            <span className={`text-xs truncate ${isUnread ? 'font-bold text-neutral-900 dark:text-white' : 'font-semibold text-neutral-800 dark:text-neutral-200'}`}>
                                 {name}
                             </span>
                             {/* AI / Human Indicator */}
                             {isBot ? (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-white text-black">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" /> AI
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" /> AI
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-medium bg-zinc-800 border border-zinc-700 text-zinc-300">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" /> Human
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-medium bg-neutral-100 border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" /> Human
                                 </span>
                             )}
                         </div>
-                        <span className="text-[10px] text-zinc-400 shrink-0 font-medium">
+                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 font-medium">
                             {conv.last_message_at ? formatTimeTz(conv.last_message_at, userTz) : ''}
                         </span>
                     </div>
 
                     <div className="flex items-center gap-1.5 mt-1">
                         {lastMsg.direction === 'out' && (
-                            <span className="shrink-0 text-zinc-400">
+                            <span className="shrink-0 text-neutral-400">
                                 {lastMsg.status === 'read' ? (
-                                    <CheckCheck className="w-3.5 h-3.5 text-white" />
+                                    <CheckCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                                 ) : (
                                     <Check className="w-3.5 h-3.5" />
                                 )}
                             </span>
                         )}
-                        <p className={`text-xs truncate flex-1 ${isUnread ? 'font-semibold text-white' : 'text-zinc-400'}`}>
+                        <p className={`text-xs truncate flex-1 ${isUnread ? 'font-semibold text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400'}`}>
                             {lastMsg.body || '(media message)'}
                         </p>
                         {isUnread && (
-                            <span className="shrink-0 h-4 min-w-4 rounded-full bg-white text-black text-[10px] font-bold flex items-center justify-center px-1">
+                            <span className="shrink-0 h-4 min-w-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-xs">
                                 {conv.unread_count > 99 ? '99+' : conv.unread_count}
                             </span>
                         )}
@@ -109,7 +109,7 @@ function ConversationListItem({ conv, isActive, userTz }) {
                             {conv.contact.tags.slice(0, 3).map(tag => (
                                 <span
                                     key={tag.id}
-                                    className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-zinc-800 border border-zinc-700 text-white"
+                                    className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-neutral-100 border border-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
                                 >
                                     {tag.name}
                                 </span>
@@ -168,32 +168,32 @@ export default function InboxIndex({
         <InboxLayout>
             <Head title="Unified Omnichannel Inbox — Growbridge Connect" />
 
-            <div className="flex h-full overflow-hidden bg-black text-white">
+            <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
                 {/* 1. LEFT COLUMN: CHANNELS & FILTERS SIDEBAR */}
-                <div className="w-56 shrink-0 flex flex-col h-full bg-black border-r border-zinc-800 overflow-y-auto hidden md:flex">
+                <div className="w-56 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden md:flex">
                     {/* Brand / Header */}
-                    <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between">
+                    <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-white text-black flex items-center justify-center font-black text-xs shadow-xs">
+                            <div className="h-7 w-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
                                 GC
                             </div>
                             <div>
-                                <h2 className="text-xs font-bold text-white uppercase tracking-wider">CHANNELS</h2>
-                                <p className="text-[10px] text-zinc-400">Omnichannel Hub</p>
+                                <h2 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">CHANNELS</h2>
+                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Omnichannel Hub</p>
                             </div>
                         </div>
                         <Link
                             href={route('client.inbox.setup')}
                             title="Channel & Integration Setup"
-                            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition"
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-white dark:hover:bg-neutral-800 transition"
                         >
                             <Settings className="w-4 h-4" />
                         </Link>
                     </div>
 
                     {/* Views Section */}
-                    <div className="p-2 space-y-1 border-b border-zinc-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-1">Views</p>
+                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 px-2 py-1">Views</p>
                         {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
                             const isSelected = activeFolder === key && !activeChannel;
                             const count = counts[countKey] ?? 0;
@@ -204,8 +204,8 @@ export default function InboxIndex({
                                     onClick={() => handleFilterChange({ folder: key, channel: null })}
                                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
                                         isSelected
-                                            ? 'bg-white text-black font-extrabold shadow-md'
-                                            : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2.5 min-w-0">
@@ -213,7 +213,7 @@ export default function InboxIndex({
                                         <span className="truncate">{label}</span>
                                     </div>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                        isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
                                     }`}>
                                         {count}
                                     </span>
@@ -223,12 +223,12 @@ export default function InboxIndex({
                     </div>
 
                     {/* Channels Section */}
-                    <div className="p-2 space-y-1 border-b border-zinc-800">
+                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="flex items-center justify-between px-2 py-1">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Channels</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Channels</p>
                             <Link
                                 href={route('client.inbox.setup')}
-                                className="text-[10px] font-semibold text-white hover:underline flex items-center gap-0.5"
+                                className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
                             >
                                 <Settings className="w-3 h-3" /> Setup
                             </Link>
@@ -243,8 +243,8 @@ export default function InboxIndex({
                                     onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
                                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
                                         isSelected
-                                            ? 'bg-white text-black font-extrabold shadow-md'
-                                            : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2.5 min-w-0">
@@ -252,7 +252,7 @@ export default function InboxIndex({
                                         <span className="truncate">{ch.label}</span>
                                     </div>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                        isSelected ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
                                     }`}>
                                         {count}
                                     </span>
@@ -264,18 +264,18 @@ export default function InboxIndex({
                     {/* Tags / Labels */}
                     {labels.length > 0 && (
                         <div className="p-2 space-y-1">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-1">Tags</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 px-2 py-1">Tags</p>
                             {labels.map(lbl => (
                                 <button
                                     key={lbl.id}
                                     onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
                                     className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition ${
                                         String(filters.label) === String(lbl.id)
-                                            ? 'bg-zinc-800 border border-zinc-700 text-white font-bold'
-                                            : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                                            ? 'bg-blue-50 dark:bg-neutral-800 border border-blue-200 dark:border-neutral-700 text-blue-700 dark:text-white font-bold'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
                                     }`}
                                 >
-                                    <span className="h-2 w-2 rounded-full shrink-0 bg-white" />
+                                    <span className="h-2 w-2 rounded-full shrink-0 bg-blue-600" />
                                     <span className="truncate">{lbl.name}</span>
                                 </button>
                             ))}
@@ -284,13 +284,13 @@ export default function InboxIndex({
                 </div>
 
                 {/* 2. CENTER COLUMN: CONVERSATION LIST */}
-                <div className="w-full md:w-80 lg:w-96 flex flex-col border-r border-zinc-800 bg-zinc-950 shrink-0">
-                    <div className="p-3 border-b border-zinc-800 bg-black">
+                <div className="w-full md:w-80 lg:w-96 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0">
+                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950">
                         <div className="flex items-center justify-between gap-2 mb-2">
-                            <h1 className="text-sm font-bold text-white uppercase tracking-wider">Conversations</h1>
+                            <h1 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Conversations</h1>
                             <button
                                 onClick={() => setShowNewModal(true)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold shadow-sm transition"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition"
                             >
                                 <Plus className="w-3.5 h-3.5" /> New
                             </button>
@@ -298,18 +298,18 @@ export default function InboxIndex({
 
                         {/* Debounced Search */}
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={e => handleSearchChange(e.target.value)}
                                 placeholder="Search customer, phone, text..."
-                                className="w-full text-xs bg-zinc-900 border border-zinc-800 rounded-xl pl-9 pr-8 py-2 text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white placeholder-zinc-500 transition"
+                                className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl pl-9 pr-8 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-neutral-400 dark:placeholder-neutral-500 transition"
                             />
                             {search && (
                                 <button
                                     onClick={() => handleSearchChange('')}
-                                    className="absolute right-3 top-2.5 text-zinc-400 hover:text-white"
+                                    className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -318,15 +318,15 @@ export default function InboxIndex({
                     </div>
 
                     {/* Conversation List Stream */}
-                    <div className="flex-1 overflow-y-auto divide-y divide-zinc-900/60">
+                    <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60">
                         {convList.length === 0 ? (
                             <div className="p-8 text-center">
-                                <MessageSquare className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-                                <p className="text-xs font-bold text-white">No conversations found</p>
-                                <p className="text-[11px] text-zinc-400 mt-0.5 mb-3">Try selecting another channel or starting a new thread.</p>
+                                <MessageSquare className="w-8 h-8 text-neutral-400 dark:text-neutral-600 mx-auto mb-2" />
+                                <p className="text-xs font-bold text-neutral-900 dark:text-white">No conversations found</p>
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 mb-3">Try selecting another channel or starting a new thread.</p>
                                 <Link
                                     href={route('client.inbox.setup')}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white hover:bg-zinc-800 text-xs font-bold transition"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-700 text-xs font-bold transition shadow-xs"
                                 >
                                     <Settings className="w-3.5 h-3.5" /> Connect Channels & Setup
                                 </Link>
@@ -345,24 +345,24 @@ export default function InboxIndex({
                 </div>
 
                 {/* 3. RIGHT COLUMN: EMPTY / PROMPT STATE */}
-                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-black">
-                    <div className="h-14 w-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-white flex items-center justify-center mb-4 shadow-sm">
+                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-[#FAFAF9] dark:bg-neutral-950">
+                    <div className="h-14 w-14 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
                         <Sparkles className="w-7 h-7" />
                     </div>
-                    <h2 className="text-base font-bold text-white uppercase tracking-wider">Unified Omnichannel Hub</h2>
-                    <p className="text-xs text-zinc-400 max-w-sm mt-1 leading-relaxed">
+                    <h2 className="text-base font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Unified Omnichannel Hub</h2>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mt-1 leading-relaxed">
                         Select any conversation from the list to view customer details, message stream, phone call audio transcripts, AI/Human toggles, and send responses.
                     </p>
                     <div className="mt-5 flex items-center justify-center gap-2.5">
                         <button
                             onClick={() => setShowNewModal(true)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold shadow-sm transition"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition"
                         >
                             <Plus className="w-4 h-4" /> Start New Conversation
                         </button>
                         <Link
                             href={route('client.inbox.setup')}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold shadow-sm transition"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-white text-xs font-bold shadow-xs transition"
                         >
                             <Settings className="w-4 h-4" /> Channel Setup
                         </Link>
