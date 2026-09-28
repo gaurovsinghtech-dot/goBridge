@@ -667,7 +667,11 @@ export default function InboxShow({
         try {
             await axios.post(route('client.inbox.status', conversation.uuid), { status: newStatus });
             toast.success(`Conversation ${newStatus === 'resolved' ? 'closed' : 'reopened'}.`);
-            router.reload({ preserveScroll: true });
+            if (newStatus === 'resolved') {
+                router.visit(route('client.inbox.index'));
+            } else {
+                router.reload({ preserveScroll: true });
+            }
         } catch (err) {
             toast.error('Failed to update status.');
         }
@@ -951,6 +955,15 @@ export default function InboxShow({
                                 <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                                 <span>{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
                             </button>
+
+                            {/* Dismiss / Close Chat Tab */}
+                            <Link
+                                href={route('client.inbox.index')}
+                                className="p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition shrink-0"
+                                title="Close Chat Tab"
+                            >
+                                <X className="w-4 h-4" />
+                            </Link>
 
                             {/* Toggle Right Customer Panel (Desktop) */}
                             <button
