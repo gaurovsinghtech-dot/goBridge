@@ -7,6 +7,7 @@ use App\Modules\Shared\Models\Contact;
 use App\Modules\Shared\Models\ContactTag;
 use App\Modules\Shared\Models\Segment;
 use App\Modules\Shared\Services\ContactService;
+use App\Modules\Shared\Services\SegmentResolver;
 use App\Services\StorageManager;
 use App\Support\Demo;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,9 +32,20 @@ class ContactController extends Controller
     public function index(Request $request): Response
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
+        $segmentId = $request->query('segment') ?? $request->query('segment_id');
 
-        $contacts = Contact::where('workspace_id', $workspaceId)
-            ->with('tags')
+        $segment = null;
+        if ($segmentId) {
+            $segment = Segment::where('workspace_id', $workspaceId)->where('id', $segmentId)->first();
+        }
+
+        if ($segment) {
+            $query = app(SegmentResolver::class)->query($segment)->with('tags');
+        } else {
+            $query = Contact::where('workspace_id', $workspaceId)->with('tags');
+        }
+
+        $contacts = $query
             ->when($request->search, fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('first_name', 'like', '%'.$request->search.'%')
                     ->orWhere('last_name', 'like', '%'.$request->search.'%')
@@ -46,13 +58,14 @@ class ContactController extends Controller
             ->withQueryString();
 
         $tags = Schema::hasTable('contact_tags') ? ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get() : collect();
-        $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->where('type', 'static')->orderBy('name')->get(['id', 'name']) : collect();
+        $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->orderBy('name')->get(['id', 'name', 'type']) : collect();
 
         return Inertia::render('Contacts/Index', [
             'contacts' => $contacts,
             'tags' => $tags,
             'segments' => $segments,
-            'filters' => $request->only('search', 'tag'),
+            'activeSegment' => $segment ? ['id' => $segment->id, 'name' => $segment->name, 'type' => $segment->type] : null,
+            'filters' => $request->only('search', 'tag', 'segment', 'segment_id'),
         ]);
     }
 

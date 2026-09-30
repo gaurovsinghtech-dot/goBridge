@@ -230,7 +230,7 @@ function BulkManageModal({ mode, count, tags, segments, processing, onClose, onA
     );
 }
 
-export default function ContactsIndex({ contacts, filters, tags = [], segments = [] }) {
+export default function ContactsIndex({ contacts, filters, tags = [], segments = [], activeSegment = null }) {
     const { t } = useTranslation();
     const { props } = usePage();
     const flash = props.flash ?? {};
@@ -267,7 +267,12 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get(route('client.contacts.index'), { search }, { preserveState: true, replace: true });
+        const queryParams = {};
+        if (search) queryParams.search = search;
+        if (filters.segment) queryParams.segment = filters.segment;
+        if (filters.segment_id) queryParams.segment_id = filters.segment_id;
+        if (filters.tag) queryParams.tag = filters.tag;
+        router.get(route('client.contacts.index'), queryParams, { preserveState: true, replace: true });
     };
 
     const handleDelete = (uuid) => {
@@ -366,6 +371,20 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                 </div>
 
                 {flash.success && <div className="rounded-lg bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-4 py-2 text-sm">{flash.success}</div>}
+
+                {activeSegment && (
+                    <div className="flex items-center justify-between rounded-lg bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-4 py-2.5 text-sm text-brand-800 dark:text-brand-200">
+                        <div className="flex items-center gap-2">
+                            <Layers className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                            <span>
+                                Filtered by segment: <strong>{activeSegment.name}</strong> ({contacts.total ?? contacts.data?.length ?? 0} contacts)
+                            </span>
+                        </div>
+                        <Link href={route('client.contacts.index')} className="flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-900 dark:text-brand-300 dark:hover:text-white transition">
+                            <X className="h-4 w-4" /> Clear segment filter
+                        </Link>
+                    </div>
+                )}
 
                 {/* Search */}
                 <form onSubmit={handleSearch} className="flex gap-2">

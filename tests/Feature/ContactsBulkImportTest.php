@@ -150,4 +150,39 @@ class ContactsBulkImportTest extends TestCase
         $segment->refresh();
         $this->assertSame(2, (int) $segment->contact_count);
     }
+
+    public function test_contacts_index_filters_by_segment(): void
+    {
+        ['user' => $user, 'workspace' => $workspace] = $this->createWorkspaceContext();
+        $segment = Segment::create([
+            'workspace_id' => $workspace->id,
+            'name' => 'VIP Members',
+            'type' => 'static',
+            'contact_count' => 0,
+        ]);
+
+        $c1 = Contact::create([
+            'workspace_id' => $workspace->id,
+            'phone_e164' => '+15550000001',
+            'first_name' => 'In',
+            'last_name' => 'Segment',
+        ]);
+        $c1->segments()->attach($segment->id);
+
+        $c2 = Contact::create([
+            'workspace_id' => $workspace->id,
+            'phone_e164' => '+15550000002',
+            'first_name' => 'Out',
+            'last_name' => 'Segment',
+        ]);
+
+        $this->actingAs($user)
+            ->withHeaders($this->inertiaHeaders())
+            ->get(route('client.contacts.index', ['segment' => $segment->id]))
+            ->assertOk()
+            ->assertJsonPath('component', 'Contacts/Index')
+            ->assertJsonCount(1, 'props.contacts.data')
+            ->assertJsonPath('props.contacts.data.0.uuid', $c1->uuid)
+            ->assertJsonPath('props.activeSegment.name', 'VIP Members');
+    }
 }
