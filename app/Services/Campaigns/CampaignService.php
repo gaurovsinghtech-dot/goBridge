@@ -410,4 +410,72 @@ class CampaignService
             'recipient' => $phone ?: $email,
         ];
     }
+
+    /**
+     * Retry sending to failed recipients of a campaign.
+     *
+     * @return array{success: bool, message: string, retried_count: int}
+     */
+    public function retryFailedRecipients(Campaign $campaign): array
+    {
+        $failedRecipients = CampaignRecipient::where('campaign_id', $campaign->id)
+            ->where('status', 'failed')
+            ->get();
+
+        if ($failedRecipients->isEmpty()) {
+            return [
+                'success' => false,
+                'message' => 'No failed recipients found for this campaign.',
+                'retried_count' => 0,
+            ];
+        }
+
+        $retriedCount = 0;
+        foreach ($failedRecipients as $recipient) {
+            $contact = Contact::find($recipient->contact_id);
+
+            // Skip contacts that are opted out or lack contact info
+            if (! $contact || ! $this->isContactEligible($campaign->channel, $contact)) {
+                continue;
+            }
+
+            $recipient->update([
+                'status' => 'pending',
+                'failed_reason' => null,
+            ]);
+            $retriedCount++;
+        }
+
+        if ($retriedCount === 0) {
+            return [
+                'success' => false,
+                'message' => 'No eligible failed recipients available to retry (contacts may have opted out or been marked undeliverable).',
+                'retried_count' => 0,
+            ];
+        }
+
+        // Set campaign status back to queued and update totals
+        $campaign->update(['status' => 'queued']);
+        $campaign->updateTotals();
+
+        // Dispatch LaunchCampaignJob to process the pending recipients
+        LaunchCampaignJob::dispatch($campaign->id)->onQueue('broadcast');
+
+        return [
+            'success' => true,
+            'message' => "Queued {$retriedCount} failed recipient(s) for retry.",
+            'retried_count' => $retriedCount,
+        ];
+    }
+
+    private function isContactEligible(string $channel, Contact $contact): bool
+    {
+        return match ($channel) {
+            'whatsapp' => (bool) $contact->opt_in_whatsapp && ! empty($contact->phone_e164),
+            'sms' => (bool) $contact->opt_in_sms && ! empty($contact->phone_e164),
+            'email' => (bool) $contact->opt_in_email && ! empty($contact->email),
+            'instagram', 'messenger' => true,
+            default => false,
+        };
+    }
 }

@@ -358,6 +358,23 @@ class CampaignController extends Controller
         }
     }
 
+    public function retryFailed(Request $request, Campaign $campaign): RedirectResponse
+    {
+        $this->authorise($request, $campaign);
+
+        try {
+            $result = $this->campaignService->retryFailedRecipients($campaign);
+
+            if ($result['success']) {
+                return back()->with('success', $result['message']);
+            }
+
+            return back()->with('error', $result['message']);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to retry recipients: '.$e->getMessage());
+        }
+    }
+
     private function authorise(Request $request, Campaign $campaign): void
     {
         $workspaceId = $this->workspaceId($request);

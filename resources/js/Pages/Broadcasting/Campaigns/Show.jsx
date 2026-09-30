@@ -13,6 +13,7 @@ import {
     ExternalLink,
     Trash2,
     AlertCircle,
+    RotateCcw,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -104,6 +105,11 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
             router.delete(route('client.campaigns.destroy', campaign.uuid));
         }
     };
+    const handleRetryFailed = () => {
+        if (confirm(t('campaign.retry_failed_confirm', 'Retry sending to failed recipients?'))) {
+            router.post(route('client.campaigns.retry-failed', campaign.uuid), {}, { preserveScroll: true });
+        }
+    };
 
     const canEdit = ['draft', 'paused'].includes(campaign.status);
 
@@ -129,6 +135,14 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                         </span>
                     </h2>
                     <div className="ml-auto flex flex-wrap gap-2">
+                        {(totals.failed > 0 && !['queued', 'sending'].includes(campaign.status)) && (
+                            <button
+                                onClick={handleRetryFailed}
+                                className="flex items-center gap-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-3 py-2 text-sm font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition"
+                            >
+                                <RotateCcw className="h-4 w-4" /> {t('campaign.retry_failed', 'Retry Failed ({count})', { count: totals.failed })}
+                            </button>
+                        )}
                         {canEdit && (
                             <Link
                                 href={route('client.campaigns.edit', campaign.uuid)}

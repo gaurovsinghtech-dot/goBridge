@@ -155,6 +155,9 @@ class SendCampaignMessageJob implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
 
+            // Auto-opt-out contact if failure is permanent and caused by undeliverable/unregistered number
+            $this->handleAutoOptOut($campaign, $contact, $e->getMessage());
+
             // Only retry transient errors (network timeout, rate limit 429, server 5xx)
             if (! $isPermanent && $this->attempts() < $this->tries) {
                 throw $e;
@@ -298,6 +301,9 @@ class SendCampaignMessageJob implements ShouldQueue
         if (! str_starts_with($phone, '+')) {
             $phone = '+'.$phone;
         }
+
+        // Throttle dispatch rate (150ms delay = ~6.6 msg/sec max per process worker) to stay within Meta API rate limits
+        usleep(150000);
 
         $resp = $client->sendTemplate($phone, $name, $language, $forSend);
 
@@ -764,5 +770,44 @@ class SendCampaignMessageJob implements ShouldQueue
         }
 
         return '[template: '.$templateName.']';
+    }
+
+    /**
+     * Automatically disable channel opt-in for contacts when hard undeliverable errors occur.
+     */
+    private function handleAutoOptOut(Campaign $campaign, Contact $contact, string $errorMessage): void
+    {
+        $err = strtolower($errorMessage);
+        $undeliverablePatterns = [
+            '131026', // Meta: message undeliverable / not on whatsapp
+            '131042', // Meta: recipient not on whatsapp
+            '131009', // Meta: invalid destination recipient phone
+            'not registered',
+            'undeliverable',
+            'invalid phone',
+            'invalid recipient',
+            'invalid address',
+        ];
+
+        foreach ($undeliverablePatterns as $pattern) {
+            if (str_contains($err, $pattern)) {
+                $column = match ($campaign->channel) {
+                    'whatsapp' => 'opt_in_whatsapp',
+                    'sms' => 'opt_in_sms',
+                    'email' => 'opt_in_email',
+                    default => null,
+                };
+
+                if ($column) {
+                    $contact->update([$column => false]);
+                    Log::channel('json')->info('campaign.contact.auto_opted_out', [
+                        'contact_id' => $contact->id,
+                        'channel' => $campaign->channel,
+                        'reason' => $errorMessage,
+                    ]);
+                }
+                break;
+            }
+        }
     }
 }
