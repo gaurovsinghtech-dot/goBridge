@@ -299,6 +299,8 @@ class ContactService
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                     'source' => $source,
+                    'opt_in_whatsapp' => true,
+                    'opt_in_sms' => true,
                 ]);
 
                 if ($existing) {
