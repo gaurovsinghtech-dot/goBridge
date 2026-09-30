@@ -142,8 +142,25 @@ class SendCampaignMessageJob implements ShouldQueue
             $isPermanent = $this->isPermanentFailure($e->getMessage());
             $isRateLimit = $this->isRateLimitError($e->getMessage());
 
-            // Handle rate limits with backoff delay without immediately failing DB recipient record
-            if ($isRateLimit && $this->attempts() < $this->tries) {
+            // Handle rate limits with backoff delay & campaign auto-pause if Meta WABA quota limit is reached
+            if ($isRateLimit) {
+                $cacheKey = "campaign_rate_limits:{$campaign->id}";
+                $rateLimitCount = (int) Cache::increment($cacheKey, 1);
+                if ($rateLimitCount === 1) {
+                    Cache::put($cacheKey, 1, now()->addMinutes(2));
+                }
+
+                // If 3 consecutive rate limits occur, auto-pause campaign to preserve remaining audience & protect WABA quality rating
+                if ($rateLimitCount >= 3 && $campaign->status !== 'paused') {
+                    $campaign->update(['status' => 'paused']);
+                    Log::channel('json')->warning('campaign.auto_paused.rate_limit_exceeded', [
+                        'workspace_id' => $campaign->workspace_id,
+                        'campaign_id' => $campaign->id,
+                        'rate_limit_count' => $rateLimitCount,
+                        'reason' => 'Meta Cloud API rate limit exceeded.',
+                    ]);
+                }
+
                 Log::channel('json')->warning('campaign.message.rate_limited', [
                     'workspace_id' => $campaign->workspace_id,
                     'campaign_id' => $campaign->id,
@@ -152,33 +169,35 @@ class SendCampaignMessageJob implements ShouldQueue
                     'error' => $e->getMessage(),
                 ]);
 
-                if (config('queue.default') === 'sync' || ! $this->job) {
-                    sleep(5); // Pause 5 seconds in sync mode to let Meta rate limit window reset
-                    try {
-                        $sent = match ($campaign->channel) {
-                            'whatsapp' => $this->sendWhatsApp($campaign, $contact, $personalizer),
-                            'instagram' => $this->sendInstagram($campaign, $contact, $personalizer),
-                            'messenger' => $this->sendMessenger($campaign, $contact, $personalizer),
-                            'sms' => $this->sendSms($campaign, $contact, $personalizer),
-                            'email' => $this->sendEmail($campaign, $contact, $personalizer, $trackingToken, $unsubscribeToken),
-                            default => throw new \RuntimeException("Unsupported channel {$campaign->channel}"),
-                        };
+                if ($this->attempts() < $this->tries) {
+                    if (config('queue.default') === 'sync' || ! $this->job) {
+                        sleep(5); // Pause 5 seconds in sync mode to let Meta rate limit window reset
+                        try {
+                            $sent = match ($campaign->channel) {
+                                'whatsapp' => $this->sendWhatsApp($campaign, $contact, $personalizer),
+                                'instagram' => $this->sendInstagram($campaign, $contact, $personalizer),
+                                'messenger' => $this->sendMessenger($campaign, $contact, $personalizer),
+                                'sms' => $this->sendSms($campaign, $contact, $personalizer),
+                                'email' => $this->sendEmail($campaign, $contact, $personalizer, $trackingToken, $unsubscribeToken),
+                                default => throw new \RuntimeException("Unsupported channel {$campaign->channel}"),
+                            };
 
-                        $recipient?->update([
-                            'status' => 'sent',
-                            'provider_message_id' => $sent['id'],
-                            'sent_at' => now(),
-                            'failed_reason' => null,
-                        ]);
-                        $this->syncToInbox($campaign, $contact, $sent);
-                        UsageMeter::track($campaign->workspace_id, 'messages_'.$campaign->channel);
+                            $recipient?->update([
+                                'status' => 'sent',
+                                'provider_message_id' => $sent['id'],
+                                'sent_at' => now(),
+                                'failed_reason' => null,
+                            ]);
+                            $this->syncToInbox($campaign, $contact, $sent);
+                            UsageMeter::track($campaign->workspace_id, 'messages_'.$campaign->channel);
+                            return;
+                        } catch (\Throwable $retryException) {
+                            $e = $retryException;
+                        }
+                    } else {
+                        $this->release(30);
                         return;
-                    } catch (\Throwable $retryException) {
-                        $e = $retryException;
                     }
-                } else {
-                    $this->release(30);
-                    return;
                 }
             }
 
@@ -358,8 +377,8 @@ class SendCampaignMessageJob implements ShouldQueue
             $phone = '+'.$phone;
         }
 
-        // Throttle dispatch rate (500ms delay = ~2 msg/sec max per process worker) to stay safely within Meta API rate limits
-        usleep(500000);
+        // Throttle dispatch rate (1.5s delay = ~40 msg/min max per process worker) to stay safely within Meta API rate limits
+        usleep(1500000);
 
         $resp = $client->sendTemplate($phone, $name, $language, $forSend);
 
