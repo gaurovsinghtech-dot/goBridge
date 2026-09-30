@@ -103,4 +103,51 @@ class ContactsBulkImportTest extends TestCase
             ])
             ->assertInvalid(['rows']);
     }
+
+    public function test_bulk_import_normalizes_phone_without_plus_and_attaches_segment(): void
+    {
+        ['user' => $user, 'workspace' => $workspace] = $this->createWorkspaceContext();
+        $segment = Segment::create([
+            'workspace_id' => $workspace->id,
+            'name' => 'september visit list',
+            'type' => 'static',
+            'contact_count' => 0,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('client.contacts.bulk-import'))
+            ->withHeaders($this->inertiaHeaders())
+            ->post(route('client.contacts.bulk-store'), [
+                'rows' => [
+                    [
+                        'name' => 'Janmejaya Jena',
+                        'phone_e164' => '916370456266',
+                        'segment_id' => $segment->id,
+                    ],
+                    [
+                        'name' => 'Nanda Kishore Das',
+                        'phone_e164' => '917064153664',
+                        'segment_id' => $segment->id,
+                    ],
+                ],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('contacts', [
+            'workspace_id' => $workspace->id,
+            'phone_e164' => '+916370456266',
+            'first_name' => 'Janmejaya',
+            'last_name' => 'Jena',
+        ]);
+
+        $this->assertDatabaseHas('contacts', [
+            'workspace_id' => $workspace->id,
+            'phone_e164' => '+917064153664',
+            'first_name' => 'Nanda',
+            'last_name' => 'Kishore Das',
+        ]);
+
+        $segment->refresh();
+        $this->assertSame(2, (int) $segment->contact_count);
+    }
 }

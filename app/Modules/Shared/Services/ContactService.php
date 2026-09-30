@@ -272,8 +272,9 @@ class ContactService
         $segmentIdsTouched = [];
 
         foreach ($rows as $row) {
-            $phone = isset($row['phone_e164']) ? trim((string) $row['phone_e164']) : '';
-            if ($phone === '' || ! str_starts_with($phone, '+')) {
+            $rawPhone = isset($row['phone_e164']) ? (string) $row['phone_e164'] : '';
+            $phone = $this->normalizeImportPhone($rawPhone);
+            if ($phone === null) {
                 $stats['skipped']++;
 
                 continue;
@@ -309,9 +310,25 @@ class ContactService
                 $tagId = isset($row['tag_id']) ? (int) $row['tag_id'] : 0;
                 if ($tagId > 0 && ContactTag::where('workspace_id', $workspaceId)->whereKey($tagId)->exists()) {
                     $contact->tags()->syncWithoutDetaching([$tagId]);
+                } elseif (! empty($row['tag_name'])) {
+                    $tagName = mb_substr(trim((string) $row['tag_name']), 0, 64);
+                    if ($tagName !== '') {
+                        $tag = ContactTag::firstOrCreate(['workspace_id' => $workspaceId, 'name' => $tagName]);
+                        $contact->tags()->syncWithoutDetaching([$tag->id]);
+                    }
                 }
 
                 $segmentId = isset($row['segment_id']) ? (int) $row['segment_id'] : 0;
+                if ($segmentId <= 0 && ! empty($row['segment_name'])) {
+                    $segName = mb_substr(trim((string) $row['segment_name']), 0, 255);
+                    if ($segName !== '') {
+                        $segment = Segment::firstOrCreate(
+                            ['workspace_id' => $workspaceId, 'name' => $segName, 'type' => 'static'],
+                            ['rules_json' => []]
+                        );
+                        $segmentId = $segment->id;
+                    }
+                }
                 if ($segmentId > 0) {
                     $segment = Segment::where('workspace_id', $workspaceId)
                         ->whereKey($segmentId)

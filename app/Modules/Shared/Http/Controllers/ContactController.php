@@ -289,11 +289,13 @@ class ContactController extends Controller
                 'integer',
                 Rule::exists('contact_tags', 'id')->where('workspace_id', $workspaceId),
             ],
+            'rows.*.tag_name' => ['nullable', 'string', 'max:64'],
             'rows.*.segment_id' => [
                 'nullable',
                 'integer',
                 Rule::exists('segments', 'id')->where(fn ($q) => $q->where('workspace_id', $workspaceId)->where('type', 'static')),
             ],
+            'rows.*.segment_name' => ['nullable', 'string', 'max:255'],
         ]);
 
         $rows = array_values(array_filter(

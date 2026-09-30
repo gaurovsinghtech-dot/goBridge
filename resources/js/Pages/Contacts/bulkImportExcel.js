@@ -175,7 +175,9 @@ export function matrixToPayload(data, tags, segments) {
             name: name || null,
             phone_e164: phone || null,
             tag_id: tag ? tag.id : null,
+            tag_name: !tag && tagName ? tagName : null,
             segment_id: seg ? seg.id : null,
+            segment_name: !seg && segName ? segName : null,
         };
     });
 }
