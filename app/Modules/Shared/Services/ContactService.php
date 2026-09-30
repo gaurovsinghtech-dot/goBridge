@@ -28,8 +28,11 @@ class ContactService
 
         if (! empty($data['phone_e164'])) {
             $lookup = ['workspace_id' => $workspaceId, 'phone_e164' => $data['phone_e164']];
+            $data['opt_in_whatsapp'] ??= true;
+            $data['opt_in_sms'] ??= true;
         } elseif (! empty($data['email'])) {
             $lookup = ['workspace_id' => $workspaceId, 'email' => $data['email']];
+            $data['opt_in_email'] ??= true;
         }
 
         if (empty($lookup)) {

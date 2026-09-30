@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('avatar', 512)->nullable();
             $table->string('country', 4)->nullable();
             $table->string('language', 8)->nullable();
-            $table->boolean('opt_in_whatsapp')->default(false);
-            $table->boolean('opt_in_sms')->default(false);
+            $table->boolean('opt_in_whatsapp')->default(true);
+            $table->boolean('opt_in_sms')->default(true);
             $table->boolean('opt_in_email')->default(true);
             $table->json('custom_fields')->nullable();
             $table->timestamp('last_seen_at')->nullable();
