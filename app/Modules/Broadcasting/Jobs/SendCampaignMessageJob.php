@@ -140,6 +140,47 @@ class SendCampaignMessageJob implements ShouldQueue
             ]);
         } catch (\Throwable $e) {
             $isPermanent = $this->isPermanentFailure($e->getMessage());
+            $isRateLimit = $this->isRateLimitError($e->getMessage());
+
+            // Handle rate limits with backoff delay without immediately failing DB recipient record
+            if ($isRateLimit && $this->attempts() < $this->tries) {
+                Log::channel('json')->warning('campaign.message.rate_limited', [
+                    'workspace_id' => $campaign->workspace_id,
+                    'campaign_id' => $campaign->id,
+                    'contact_id' => $contact->id,
+                    'attempt' => $this->attempts(),
+                    'error' => $e->getMessage(),
+                ]);
+
+                if (config('queue.default') === 'sync' || ! $this->job) {
+                    sleep(5); // Pause 5 seconds in sync mode to let Meta rate limit window reset
+                    try {
+                        $sent = match ($campaign->channel) {
+                            'whatsapp' => $this->sendWhatsApp($campaign, $contact, $personalizer),
+                            'instagram' => $this->sendInstagram($campaign, $contact, $personalizer),
+                            'messenger' => $this->sendMessenger($campaign, $contact, $personalizer),
+                            'sms' => $this->sendSms($campaign, $contact, $personalizer),
+                            'email' => $this->sendEmail($campaign, $contact, $personalizer, $trackingToken, $unsubscribeToken),
+                            default => throw new \RuntimeException("Unsupported channel {$campaign->channel}"),
+                        };
+
+                        $recipient?->update([
+                            'status' => 'sent',
+                            'provider_message_id' => $sent['id'],
+                            'sent_at' => now(),
+                            'failed_reason' => null,
+                        ]);
+                        $this->syncToInbox($campaign, $contact, $sent);
+                        UsageMeter::track($campaign->workspace_id, 'messages_'.$campaign->channel);
+                        return;
+                    } catch (\Throwable $retryException) {
+                        $e = $retryException;
+                    }
+                } else {
+                    $this->release(30);
+                    return;
+                }
+            }
 
             $recipient?->update([
                 'status' => 'failed',
@@ -158,8 +199,8 @@ class SendCampaignMessageJob implements ShouldQueue
             // Auto-opt-out contact if failure is permanent and caused by undeliverable/unregistered number
             $this->handleAutoOptOut($campaign, $contact, $e->getMessage());
 
-            // Only retry transient errors (network timeout, rate limit 429, server 5xx)
-            if (! $isPermanent && $this->attempts() < $this->tries) {
+            // Only retry non-rate-limit transient errors
+            if (! $isPermanent && ! $isRateLimit && $this->attempts() < $this->tries) {
                 throw $e;
             }
         }
@@ -204,6 +245,21 @@ class SendCampaignMessageJob implements ShouldQueue
         }
 
         return false;
+    }
+
+    /**
+     * Determine if an error is due to Meta/provider rate limiting.
+     */
+    private function isRateLimitError(string $errorMessage): bool
+    {
+        $err = strtolower($errorMessage);
+
+        return str_contains($err, 'rate limit')
+            || str_contains($err, '130429')
+            || str_contains($err, '130428')
+            || str_contains($err, '131048')
+            || str_contains($err, '131056')
+            || str_contains($err, '429');
     }
 
     private function isOptedOut(Campaign $campaign, Contact $contact): bool
@@ -302,8 +358,8 @@ class SendCampaignMessageJob implements ShouldQueue
             $phone = '+'.$phone;
         }
 
-        // Throttle dispatch rate (150ms delay = ~6.6 msg/sec max per process worker) to stay within Meta API rate limits
-        usleep(150000);
+        // Throttle dispatch rate (500ms delay = ~2 msg/sec max per process worker) to stay safely within Meta API rate limits
+        usleep(500000);
 
         $resp = $client->sendTemplate($phone, $name, $language, $forSend);
 

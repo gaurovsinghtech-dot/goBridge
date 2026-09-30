@@ -30,7 +30,7 @@ class DispatchCampaignChunkJob implements ShouldQueue
         foreach ($this->contactIds as $i => $contactId) {
             SendCampaignMessageJob::dispatch($campaign->id, $contactId)
                 ->onQueue('broadcast')
-                ->delay(now()->addMilliseconds($i * 100)); // 10 msgs/second rate limit
+                ->delay(now()->addMilliseconds($i * 1000)); // 1 msg/second conservative rate limit to respect Meta Cloud API thresholds
         }
     }
 }
