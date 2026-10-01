@@ -203,7 +203,7 @@ class SendCampaignMessageJob implements ShouldQueue
 
             $recipient?->update([
                 'status' => 'failed',
-                'failed_reason' => substr($e->getMessage(), 0, 512),
+                'failed_reason' => \App\Modules\Broadcasting\Services\CampaignFailureFormatter::format($e->getMessage()),
             ]);
 
             Log::channel('json')->warning('campaign.message.failed', [

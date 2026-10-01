@@ -695,10 +695,10 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                                                                     <StatusIcon className="h-3 w-3" />
                                                                     <span className="capitalize">{r.status}</span>
                                                                 </span>
-                                                                {r.status === 'failed' && r.failed_reason && (
-                                                                    <div className="text-[11px] text-rose-500 font-medium flex items-center gap-1 max-w-xs truncate" title={r.failed_reason}>
+                                                                {r.status === 'failed' && (r.human_failed_reason || r.failed_reason) && (
+                                                                    <div className="text-[11px] text-rose-500 font-medium flex items-center gap-1 max-w-sm" title={r.failed_reason}>
                                                                         <AlertTriangle className="h-3 w-3 shrink-0" />
-                                                                        <span>{r.failed_reason}</span>
+                                                                        <span className="leading-tight">{r.human_failed_reason || r.failed_reason}</span>
                                                                     </div>
                                                                 )}
                                                             </div>

@@ -34,6 +34,17 @@ class CampaignRecipient extends Model
         ];
     }
 
+    protected $appends = ['human_failed_reason'];
+
+    public function getHumanFailedReasonAttribute(): ?string
+    {
+        if (empty($this->failed_reason)) {
+            return null;
+        }
+
+        return \App\Modules\Broadcasting\Services\CampaignFailureFormatter::format($this->failed_reason);
+    }
+
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
