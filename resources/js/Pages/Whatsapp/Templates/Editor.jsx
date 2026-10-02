@@ -141,6 +141,32 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
 
     const setFormat = (f) => onChange({ ...comp, format: f, text: '', example: {} });
 
+    const [imgError, setImgError] = useState(false);
+
+    const resolveHeaderPreview = () => {
+        const ex = comp.example;
+        if (!ex) return null;
+        if (typeof ex._preview === 'string' && ex._preview.startsWith('blob:')) {
+            return ex._preview;
+        }
+        const candidates = [
+            ex._preview,
+            Array.isArray(ex.header_url) ? ex.header_url[0] : ex.header_url,
+            Array.isArray(ex.header_handle_url) ? ex.header_handle_url[0] : ex.header_handle_url,
+            ex.url,
+        ];
+        for (const cand of candidates) {
+            if (typeof cand === 'string' && cand) {
+                const match = cand.match(/\/storage\/.+$/);
+                if (match) return match[0];
+                return cand;
+            }
+        }
+        return null;
+    };
+
+    const headerPreviewUrl = resolveHeaderPreview();
+
     const handleFileChange = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -151,20 +177,23 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
         formData.append('file', file);
         formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content ?? '');
 
+        const localBlob = URL.createObjectURL(file);
+        setImgError(false);
+
         try {
             const { data } = await axios.post(route('client.whatsapp.templates.upload-media'), formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            const previewUrl = data.url || URL.createObjectURL(file);
+            const storedUrl = data.url ? (data.url.match(/\/storage\/.+$/)?.[0] ?? data.url) : null;
             onChange({
                 ...comp,
                 format: data.format ?? format,
                 example: {
                     ...(comp.example ?? {}),
                     header_handle: [data.handle],
-                    header_url: data.url ? [data.url] : (comp.example?.header_url ?? []),
+                    header_url: storedUrl ? [storedUrl] : (comp.example?.header_url ?? []),
                     _filename: file.name,
-                    _preview: previewUrl,
+                    _preview: localBlob,
                 },
             });
         } catch (err) {
@@ -189,7 +218,7 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
                     <button
                         key={f}
                         type="button"
-                        onClick={() => setFormat(f)}
+                        onClick={() => { setImgError(false); setFormat(f); }}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
                             format === f
                                 ? 'bg-brand-600 border-brand-600 text-white'
@@ -227,11 +256,16 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
                 <div className="space-y-3">
                     {comp.example?.header_handle ? (
                         <div className="flex items-center gap-3 rounded-lg border border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 px-3 py-2">
-                            {format === 'IMAGE' && comp.example._preview ? (
-                                <img src={comp.example._preview} alt="" className="h-12 w-12 object-cover rounded" />
+                            {format === 'IMAGE' && headerPreviewUrl && !imgError ? (
+                                <img
+                                    src={headerPreviewUrl}
+                                    alt=""
+                                    className="h-12 w-12 object-cover rounded shrink-0 bg-neutral-100"
+                                    onError={() => setImgError(true)}
+                                />
                             ) : (
-                                <div className="h-10 w-10 rounded bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500">
-                                    {format === 'VIDEO' ? <FileVideo className="h-5 w-5" /> : <FileTextIcon className="h-5 w-5" />}
+                                <div className="h-10 w-10 rounded bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500 shrink-0">
+                                    {format === 'IMAGE' ? <Image className="h-5 w-5" /> : format === 'VIDEO' ? <FileVideo className="h-5 w-5" /> : <FileTextIcon className="h-5 w-5" />}
                                 </div>
                             )}
                             <span className="flex-1 text-sm text-neutral-600 dark:text-neutral-400 truncate">
@@ -239,8 +273,8 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
                             </span>
                             <button
                                 type="button"
-                                onClick={() => { onChange({ ...comp, example: {} }); }}
-                                className="text-xs text-red-500 hover:text-red-700"
+                                onClick={() => { setImgError(false); onChange({ ...comp, example: {} }); }}
+                                className="text-xs text-red-500 hover:text-red-700 p-1"
                             >
                                 <X className="h-4 w-4" />
                             </button>

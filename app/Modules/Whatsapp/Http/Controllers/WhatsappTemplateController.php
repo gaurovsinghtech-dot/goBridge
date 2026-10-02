@@ -302,7 +302,7 @@ class WhatsappTemplateController extends Controller
         $publicUrl = null;
         try {
             $path = $file->store('whatsapp_templates', 'public');
-            $publicUrl = asset('storage/' . $path);
+            $publicUrl = '/storage/' . $path;
         } catch (\Throwable $e) {
             // Silently fall back if storage write fails
         }

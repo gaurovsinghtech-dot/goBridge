@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Image as ImageIcon, FileVideo, FileText, Reply, ExternalLink, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -21,6 +22,32 @@ function substitute(text = '', examples = []) {
     });
 }
 
+function resolveMediaPreview(comp) {
+    if (!comp?.example) return null;
+    const ex = comp.example;
+
+    if (typeof ex._preview === 'string' && ex._preview.startsWith('blob:')) {
+        return ex._preview;
+    }
+
+    const candidates = [
+        ex._preview,
+        Array.isArray(ex.header_url) ? ex.header_url[0] : ex.header_url,
+        Array.isArray(ex.header_handle_url) ? ex.header_handle_url[0] : ex.header_handle_url,
+        ex.url,
+    ];
+
+    for (const cand of candidates) {
+        if (typeof cand === 'string' && cand) {
+            const match = cand.match(/\/storage\/.+$/);
+            if (match) return match[0];
+            return cand;
+        }
+    }
+
+    return null;
+}
+
 const MEDIA_ICON = {
     IMAGE: <ImageIcon className="h-7 w-7" />,
     VIDEO: <FileVideo className="h-7 w-7" />,
@@ -37,6 +64,7 @@ function HeaderPreview({ comp }) {
     const format = comp.format ?? 'TEXT';
     const rawText = comp.text ?? '';
     const text = substitute(rawText, comp.example?.header_text?.[0] ?? []);
+    const [imgFailed, setImgFailed] = useState(false);
 
     if (format === 'TEXT') {
         return (
@@ -46,15 +74,17 @@ function HeaderPreview({ comp }) {
         );
     }
 
-    // Media header (IMAGE / VIDEO / DOCUMENT) — resolve image preview URL from all possible properties
-    const preview = comp.example?._preview ||
-        (Array.isArray(comp.example?.header_url) ? comp.example.header_url[0] : comp.example?.header_url) ||
-        (Array.isArray(comp.example?.header_handle_url) ? comp.example.header_handle_url[0] : comp.example?.header_handle_url) ||
-        comp.example?.url;
+    const preview = resolveMediaPreview(comp);
+
     return (
         <div className="mb-1.5 -mx-2.5 -mt-1 overflow-hidden rounded-t-md">
-            {format === 'IMAGE' && preview ? (
-                <img src={preview} alt="" className="h-32 w-full object-cover" />
+            {format === 'IMAGE' && preview && !imgFailed ? (
+                <img
+                    src={preview}
+                    alt=""
+                    className="h-32 w-full object-cover"
+                    onError={() => setImgFailed(true)}
+                />
             ) : (
                 <div className="flex h-24 w-full items-center justify-center bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400">
                     {MEDIA_ICON[format] ?? MEDIA_ICON.IMAGE}
