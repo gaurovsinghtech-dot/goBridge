@@ -217,7 +217,7 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
                     />
                 </>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {comp.example?.header_handle ? (
                         <div className="flex items-center gap-3 rounded-lg border border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 px-3 py-2">
                             {format === 'IMAGE' && comp.example._preview ? (
@@ -265,6 +265,29 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
                         </>
                     )}
                     {uploadError && <p className="text-xs text-red-500">{uploadError}</p>}
+
+                    {/* Header Text Title alongside Media */}
+                    <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700/60 space-y-2">
+                        <label className="block text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                            {t('whatsapp.templates_header_text_title', 'Header Text Title (Optional - Combined with Media)')}
+                        </label>
+                        <input
+                            type="text"
+                            value={comp.text ?? ''}
+                            onChange={e => onChange({ ...comp, text: e.target.value })}
+                            placeholder={t('whatsapp.templates_header_text_placeholder', 'Add a text title to accompany your media...')}
+                            maxLength={60}
+                            className={`w-full rounded-lg border bg-white dark:bg-neutral-800 px-3 py-2 text-sm ${
+                                error ? 'border-red-500 focus:ring-red-500' : 'border-neutral-300 dark:border-neutral-600'
+                            }`}
+                        />
+                        <ExampleInputs
+                            label={t('whatsapp.templates_section_header')}
+                            placeholders={headerPhs}
+                            values={headerExamples}
+                            onChange={handleHeaderExampleChange}
+                        />
+                    </div>
                 </div>
             )}
             {error && <p className="text-xs text-red-500 mt-1">{error}</p>}

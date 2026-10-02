@@ -419,6 +419,10 @@ class WhatsappTemplateController extends Controller
                     if (empty($handles)) {
                         $errors['header'] = 'Please upload a sample media file for your header.';
                     }
+                    $headerText = trim($comp['text'] ?? '');
+                    if (! empty($headerText) && mb_strlen($headerText) > 60) {
+                        $errors['header'] = 'Header text title cannot exceed 60 characters.';
+                    }
                 }
             } elseif ($type === 'FOOTER') {
                 $text = trim($comp['text'] ?? '');
@@ -493,14 +497,25 @@ class WhatsappTemplateController extends Controller
                         $built['example'] = ['header_text' => array_values($headerExamples)];
                     }
                 } else {
-                    // IMAGE / VIDEO / DOCUMENT — no text, needs header_handle example
+                    // IMAGE / VIDEO / DOCUMENT media header
                     $handles = $comp['example']['header_handle'] ?? [];
                     if (! empty($handles)) {
                         $built['example'] = ['header_handle' => array_values($handles)];
                     }
                 }
             } elseif ($type === 'BODY') {
-                $built['text'] = trim($comp['text'] ?? '');
+                $bodyText = trim($comp['text'] ?? '');
+                
+                // If template has a Media Header AND a Header Text title, prepend title to BODY text for Meta API
+                $headerComp = collect($validated['components'])->firstWhere('type', 'HEADER');
+                if ($headerComp && in_array($headerComp['format'] ?? '', ['IMAGE', 'VIDEO', 'DOCUMENT'])) {
+                    $hText = trim($headerComp['text'] ?? '');
+                    if ($hText !== '' && ! str_starts_with($bodyText, '*' . $hText . '*')) {
+                        $bodyText = '*' . $hText . "*\n\n" . $bodyText;
+                    }
+                }
+
+                $built['text'] = $bodyText;
                 $bodyExamples = $comp['example']['body_text'] ?? [];
                 if (! empty($bodyExamples)) {
                     $built['example'] = ['body_text' => $bodyExamples];

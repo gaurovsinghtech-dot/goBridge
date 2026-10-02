@@ -35,10 +35,10 @@ const BTN_ICON = {
 
 function HeaderPreview({ comp }) {
     const format = comp.format ?? 'TEXT';
+    const rawText = comp.text ?? '';
+    const text = substitute(rawText, comp.example?.header_text?.[0] ?? []);
 
     if (format === 'TEXT') {
-        const rawText = comp.text ?? '';
-        const text = substitute(rawText, comp.example?.header_text?.[0] ?? []);
         return (
             <p className="font-semibold text-[13px] text-neutral-900 dark:text-neutral-100 mb-1">
                 {text || <span className="italic font-normal text-neutral-400">Header text...</span>}
@@ -46,7 +46,7 @@ function HeaderPreview({ comp }) {
         );
     }
 
-    // Media header — show the uploaded preview if present, else a typed placeholder tile.
+    // Media header (IMAGE / VIDEO / DOCUMENT) — show media preview tile PLUS optional text header title
     const preview = comp.example?._preview;
     return (
         <div className="mb-1.5 -mx-2.5 -mt-1 overflow-hidden rounded-t-md">
@@ -57,6 +57,11 @@ function HeaderPreview({ comp }) {
                     {MEDIA_ICON[format] ?? MEDIA_ICON.IMAGE}
                 </div>
             )}
+            {text ? (
+                <p className="px-2.5 pt-1.5 font-semibold text-[13px] text-neutral-900 dark:text-neutral-100">
+                    {text}
+                </p>
+            ) : null}
         </div>
     );
 }
