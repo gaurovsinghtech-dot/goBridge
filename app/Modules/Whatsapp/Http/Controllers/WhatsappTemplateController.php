@@ -298,6 +298,15 @@ class WhatsappTemplateController extends Controller
             return response()->json(['error' => 'Missing Meta credentials (system user token or app ID).'], 422);
         }
 
+        // Save a persistent public copy so template previews load across sessions & on index page
+        $publicUrl = null;
+        try {
+            $path = $file->store('whatsapp_templates', 'public');
+            $publicUrl = asset('storage/' . $path);
+        } catch (\Throwable $e) {
+            // Silently fall back if storage write fails
+        }
+
         try {
             $handle = CloudApiClient::resumableUpload($appId, $token, $file->getRealPath(), $mime);
         } catch (\Throwable $e) {
@@ -309,7 +318,11 @@ class WhatsappTemplateController extends Controller
             return response()->json(['error' => $e->getMessage()], 422);
         }
 
-        return response()->json(['handle' => $handle, 'format' => $format]);
+        return response()->json([
+            'handle' => $handle,
+            'format' => $format,
+            'url'    => $publicUrl,
+        ]);
     }
 
     public function sync(Request $request): RedirectResponse

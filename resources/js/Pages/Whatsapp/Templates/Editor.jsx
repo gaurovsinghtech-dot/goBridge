@@ -155,10 +155,17 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
             const { data } = await axios.post(route('client.whatsapp.templates.upload-media'), formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
+            const previewUrl = data.url || URL.createObjectURL(file);
             onChange({
                 ...comp,
                 format: data.format ?? format,
-                example: { header_handle: [data.handle], _filename: file.name, _preview: URL.createObjectURL(file) },
+                example: {
+                    ...(comp.example ?? {}),
+                    header_handle: [data.handle],
+                    header_url: data.url ? [data.url] : (comp.example?.header_url ?? []),
+                    _filename: file.name,
+                    _preview: previewUrl,
+                },
             });
         } catch (err) {
             setUploadError(err.response?.data?.error ?? t('whatsapp.templates_upload_failed'));

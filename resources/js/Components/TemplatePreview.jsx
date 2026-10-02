@@ -46,8 +46,11 @@ function HeaderPreview({ comp }) {
         );
     }
 
-    // Media header (IMAGE / VIDEO / DOCUMENT) — show media preview tile PLUS optional text header title
-    const preview = comp.example?._preview;
+    // Media header (IMAGE / VIDEO / DOCUMENT) — resolve image preview URL from all possible properties
+    const preview = comp.example?._preview ||
+        (Array.isArray(comp.example?.header_url) ? comp.example.header_url[0] : comp.example?.header_url) ||
+        (Array.isArray(comp.example?.header_handle_url) ? comp.example.header_handle_url[0] : comp.example?.header_handle_url) ||
+        comp.example?.url;
     return (
         <div className="mb-1.5 -mx-2.5 -mt-1 overflow-hidden rounded-t-md">
             {format === 'IMAGE' && preview ? (
