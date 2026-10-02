@@ -16,6 +16,8 @@ import {
     Save,
     Upload,
     Link as LinkIcon,
+    Info,
+    ShieldAlert,
 } from 'lucide-react';
 import { browserTz, formatInTz, tzLocalToUtcIso, utcToTzLocal } from '@/Utils/datetime';
 import { ChannelBrandIcon } from '@/Components/BrandIcons';
@@ -365,6 +367,9 @@ export default function CampaignForm({
                         loading: false,
                         matched: r.data.matched ?? 0,
                         deliverable: r.data.deliverable ?? 0,
+                        opted_out: r.data.opted_out ?? 0,
+                        invalid_address: r.data.invalid_address ?? 0,
+                        frequency_capped: r.data.frequency_capped ?? 0,
                         sample: r.data.sample ?? [],
                         error: null,
                     }),
@@ -374,6 +379,9 @@ export default function CampaignForm({
                         loading: false,
                         matched: 0,
                         deliverable: 0,
+                        opted_out: 0,
+                        invalid_address: 0,
+                        frequency_capped: 0,
                         sample: [],
                         error: e?.response?.data?.message ?? t('campaign.preview_error'),
                     }),
@@ -1003,8 +1011,35 @@ function AudienceStep({ data, setData, segments, tags, preview, errors }) {
                                 {t('campaign.opted_in_for', { channel: channelLabel })}
                             </span>
                         </p>
+
+                        {preview.matched > preview.deliverable && (
+                            <div className="mt-3 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-800 dark:text-amber-300 space-y-1.5">
+                                <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
+                                    <Info className="h-4 w-4 shrink-0 text-amber-500" />
+                                    <span>{(preview.matched - preview.deliverable).toLocaleString()} contacts suppressed from this campaign:</span>
+                                </div>
+                                <ul className="list-disc list-inside space-y-1 pl-1 text-[11px] text-amber-800/90 dark:text-amber-300/90">
+                                    {preview.frequency_capped > 0 && (
+                                        <li>
+                                            <span className="font-semibold">{preview.frequency_capped}</span> frequency-capped (already sent 3+ campaign messages in the last 7 days).
+                                        </li>
+                                    )}
+                                    {preview.opted_out > 0 && (
+                                        <li>
+                                            <span className="font-semibold">{preview.opted_out}</span> opted out or channel opt-in disabled for {channelLabel}.
+                                        </li>
+                                    )}
+                                    {preview.invalid_address > 0 && (
+                                        <li>
+                                            <span className="font-semibold">{preview.invalid_address}</span> missing valid phone number.
+                                        </li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
+
                         {preview.sample.length > 0 && (
-                            <div className="mt-2 text-xs text-neutral-500">
+                            <div className="mt-2.5 text-xs text-neutral-500">
                                 {t('campaign.sample')}: {preview.sample
                                     .map((c) => `${c.first_name ?? ''} ${c.last_name ?? ''}`.trim() || c.phone_e164 || c.email)
                                     .join(', ')}
