@@ -85,12 +85,20 @@ function HeaderPreview({ comp }) {
 
     return (
         <div className="mb-1.5 -mx-2.5 -mt-1 overflow-hidden rounded-t-md">
-            {format === 'IMAGE' && preview && !imgFailed ? (
                 <img
                     src={preview}
                     alt=""
                     className="h-32 w-full object-cover"
-                    onError={() => setImgFailed(true)}
+                    onError={(e) => {
+                        if (preview && preview.includes('/storage/whatsapp_templates/')) {
+                            const match = preview.match(/\/storage\/.+$/);
+                            if (match && e.currentTarget.src !== window.location.origin + match[0]) {
+                                e.currentTarget.src = match[0];
+                                return;
+                            }
+                        }
+                        setImgFailed(true);
+                    }}
                 />
             ) : (
                 <div className="flex h-24 w-full items-center justify-center bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400">

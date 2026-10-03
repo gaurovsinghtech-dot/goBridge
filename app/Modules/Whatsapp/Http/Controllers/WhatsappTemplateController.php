@@ -299,25 +299,34 @@ class WhatsappTemplateController extends Controller
             return response()->json(['error' => 'Missing Meta credentials (system user token or app ID).'], 422);
         }
 
-        // Save a persistent copy so template previews load across sessions & on index page (uses active StorageManager disk e.g. Amazon S3)
+        // Save a persistent copy so template previews load across sessions & on index page
         $publicUrl = null;
         try {
+            // Always save local copy for guaranteed 100% browser preview rendering
+            $localPath = $file->store('whatsapp_templates', 'public');
+            $localUrl = '/storage/' . $localPath;
+
             $storageManager = app(StorageManager::class);
-            $disk = $storageManager->disk();
             $diskName = $storageManager->diskName();
 
-            if ($diskName === 'public') {
-                $path = $file->store('whatsapp_templates', 'public');
-                $publicUrl = '/storage/' . $path;
-            } else {
-                $extension = $file->getClientOriginalExtension() ?: 'png';
-                $filename = 'whatsapp_templates/' . \Illuminate\Support\Str::random(40) . '.' . $extension;
-                $stream = fopen($file->getRealPath(), 'r');
-                $disk->put($filename, $stream);
-                if (is_resource($stream)) {
-                    fclose($stream);
+            if ($diskName !== 'public') {
+                try {
+                    $disk = $storageManager->disk();
+                    $extension = $file->getClientOriginalExtension() ?: 'png';
+                    $filename = 'whatsapp_templates/' . \Illuminate\Support\Str::random(40) . '.' . $extension;
+                    $stream = fopen($file->getRealPath(), 'r');
+                    $disk->put($filename, $stream);
+                    if (is_resource($stream)) {
+                        fclose($stream);
+                    }
+                    $publicUrl = $disk->url($filename);
+                } catch (\Throwable $s3Err) {
+                    Log::warning('S3 template header media upload failed: ' . $s3Err->getMessage());
                 }
-                $publicUrl = $disk->url($filename);
+            }
+
+            if (empty($publicUrl)) {
+                $publicUrl = $localUrl;
             }
         } catch (\Throwable $e) {
             Log::error('WhatsApp template header media storage upload failed', [
