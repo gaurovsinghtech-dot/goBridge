@@ -37,12 +37,37 @@ class TemplateSyncJob implements ShouldQueue
         $templates = $client->fetchTemplates($waba->waba_id);
 
         foreach ($templates as $tpl) {
+            $components = $tpl['components'] ?? [];
+
+            $existing = WhatsappTemplate::where('workspace_id', $waba->workspace_id)
+                ->where('waba_id', $waba->waba_id)
+                ->where('name', $tpl['name'])
+                ->where('language', $tpl['language'])
+                ->first();
+
+            if ($existing && ! empty($existing->components)) {
+                $existingHeader = collect($existing->components)->firstWhere('type', 'HEADER');
+                $existingUrl = $existingHeader['example']['header_url'] ?? null;
+
+                if ($existingUrl) {
+                    foreach ($components as &$comp) {
+                        if (($comp['type'] ?? '') === 'HEADER') {
+                            $comp['example'] = $comp['example'] ?? [];
+                            if (empty($comp['example']['header_url'])) {
+                                $comp['example']['header_url'] = is_array($existingUrl) ? $existingUrl : [$existingUrl];
+                            }
+                        }
+                    }
+                    unset($comp);
+                }
+            }
+
             WhatsappTemplate::updateOrCreate(
                 ['workspace_id' => $waba->workspace_id, 'waba_id' => $waba->waba_id, 'name' => $tpl['name'], 'language' => $tpl['language']],
                 [
                     'category' => $tpl['category'] ?? 'MARKETING',
                     'status' => $tpl['status'] ?? 'PENDING',
-                    'components' => $tpl['components'] ?? [],
+                    'components' => $components,
                     'rejection_reason' => $tpl['rejection_reason'] ?? null,
                     'meta_template_id' => $tpl['id'] ?? null,
                 ]

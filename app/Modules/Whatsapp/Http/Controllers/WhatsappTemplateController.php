@@ -401,6 +401,8 @@ class WhatsappTemplateController extends Controller
             'components.*.example.header_text.*' => ['nullable', 'string', 'max:60'],
             'components.*.example.header_handle' => ['nullable', 'array'],
             'components.*.example.header_handle.*' => ['nullable', 'string'],
+            'components.*.example.header_url' => ['nullable', 'array'],
+            'components.*.example.header_url.*' => ['nullable', 'string'],
             'components.*.example.body_text' => ['nullable', 'array'],
             'components.*.example.body_text.*' => ['nullable', 'array'],
             'components.*.example.body_text.*.*' => ['nullable', 'string'],
