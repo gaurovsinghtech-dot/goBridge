@@ -235,6 +235,12 @@ class IntegrationConfigController extends Controller
         }
 
         if (str_starts_with($provider, 'storage_')) {
+            if (! empty($validated['enabled']) && $provider !== 'storage_local') {
+                IntegrationConfig::whereIn('provider', IntegrationConfig::STORAGE_PROVIDERS)
+                    ->where('provider', '!=', $provider)
+                    ->update(['is_default' => false]);
+                $config->update(['is_default' => true]);
+            }
             app(StorageManager::class)->clearCache();
         }
 

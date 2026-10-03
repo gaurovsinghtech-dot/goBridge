@@ -127,24 +127,15 @@ class StorageManager
     private function resolved(): array
     {
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
-            // Prefer the admin-designated default provider; fall back to first enabled
+            // 1. Prefer explicitly designated default provider among enabled storage providers
             $defaultConfig = IntegrationConfig::whereIn('provider', IntegrationConfig::STORAGE_PROVIDERS)
                 ->where('mode', 'live')
                 ->where('enabled', true)
                 ->where('is_default', true)
                 ->first();
 
-            $orderedProviders = $defaultConfig
-                ? array_merge([$defaultConfig->provider], array_diff(IntegrationConfig::STORAGE_PROVIDERS, [$defaultConfig->provider]))
-                : IntegrationConfig::STORAGE_PROVIDERS;
-
-            foreach ($orderedProviders as $provider) {
-                $config = IntegrationConfig::forProvider($provider);
-
-                if (! $config || ! $config->enabled) {
-                    continue;
-                }
-
+            if ($defaultConfig) {
+                $provider = $defaultConfig->provider;
                 if ($provider === 'storage_local') {
                     return [
                         'provider'         => 'storage_local',
@@ -153,10 +144,8 @@ class StorageManager
                     ];
                 }
 
-                $creds = $config->credentials ?? [];
-
+                $creds = $defaultConfig->credentials ?? [];
                 $diskConfig = $this->buildDiskConfig($provider, $creds);
-
                 $prefix = trim($creds['directory_prefix'] ?? '', '/');
 
                 return [
@@ -166,9 +155,27 @@ class StorageManager
                 ];
             }
 
-            // Nothing enabled → use local public disk
+            // 2. If no explicit default is set, check enabled cloud providers BEFORE local disk
+            $cloudProviders = ['storage_s3', 'storage_do', 'storage_wasabi'];
+            foreach ($cloudProviders as $provider) {
+                $config = IntegrationConfig::forProvider($provider);
+
+                if ($config && $config->enabled && ($config->mode ?? 'live') === 'live') {
+                    $creds = $config->credentials ?? [];
+                    $diskConfig = $this->buildDiskConfig($provider, $creds);
+                    $prefix = trim($creds['directory_prefix'] ?? '', '/');
+
+                    return [
+                        'provider'         => $provider,
+                        'disk_config'      => $diskConfig,
+                        'directory_prefix' => $prefix !== '' ? $prefix.'/' : '',
+                    ];
+                }
+            }
+
+            // 3. Fall back to local public disk
             return [
-                'provider'         => null,
+                'provider'         => 'storage_local',
                 'disk_config'      => [],
                 'directory_prefix' => '',
             ];
