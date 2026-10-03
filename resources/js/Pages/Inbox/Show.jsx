@@ -1063,6 +1063,8 @@ export default function InboxShow({
                                     );
                                 }
 
+                                const mediaUrl = msg.media_url || msg.payload?.media_url || msg.payload?.url;
+
                                 return (
                                     <div key={`msg-${msg.id || idx}`} className={`flex ${isOut ? 'justify-end' : 'justify-start'}`}>
                                         <div className={`max-w-lg rounded-2xl p-3.5 shadow-xs ${
@@ -1072,6 +1074,16 @@ export default function InboxShow({
                                                     : 'bg-blue-600 text-white font-medium rounded-br-xs'
                                                 : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-xs'
                                         }`}>
+                                            {mediaUrl && (
+                                                <div className="-mx-3.5 -mt-3.5 mb-2.5 overflow-hidden rounded-t-2xl bg-black/10">
+                                                    <img
+                                                        src={mediaUrl}
+                                                        alt=""
+                                                        className="max-h-56 w-full object-cover"
+                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                    />
+                                                </div>
+                                            )}
                                             {isOut && isBot && (
                                                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-400 dark:text-blue-600 mb-1.5 uppercase tracking-wider">
                                                     <Bot className="w-3.5 h-3.5" /> AI Agent Message

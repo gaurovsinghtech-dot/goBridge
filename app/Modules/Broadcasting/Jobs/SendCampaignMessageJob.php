@@ -405,12 +405,41 @@ class SendCampaignMessageJob implements ShouldQueue
             $template['definition'] = $definition;
         }
 
+        $mediaUrl = null;
+        if (is_array($rendered)) {
+            foreach ($rendered as $comp) {
+                if (is_array($comp) && isset($comp['type']) && strtolower((string) $comp['type']) === 'header') {
+                    foreach ($comp['parameters'] ?? [] as $param) {
+                        if (is_array($param)) {
+                            $typeKey = strtolower((string) ($param['type'] ?? ''));
+                            if (! empty($param[$typeKey]['link'])) {
+                                $mediaUrl = $param[$typeKey]['link'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (! $mediaUrl && $definition) {
+            foreach ($definition as $comp) {
+                if (is_array($comp) && isset($comp['type']) && strtoupper((string) $comp['type']) === 'HEADER') {
+                    $ex = $comp['example'] ?? [];
+                    $cand = is_array($ex['header_url'] ?? null) ? ($ex['header_url'][0] ?? null) : ($ex['header_url'] ?? $ex['url'] ?? null);
+                    if (is_string($cand) && $cand) {
+                        $mediaUrl = $cand;
+                    }
+                }
+            }
+        }
+
         return [
             'id' => $resp->json('messages.0.id', ''),
             'body' => $this->summariseTemplateForInbox($name, $rendered, $definition),
             'type' => 'template',
+            'media_url' => $mediaUrl,
             'payload' => [
                 'template' => $template,
+                'media_url' => $mediaUrl,
             ],
         ];
     }
@@ -750,6 +779,7 @@ class SendCampaignMessageJob implements ShouldQueue
                 'type' => $sent['type'],
                 'payload' => $sent['payload'],
                 'body' => $sent['body'],
+                'media_url' => $sent['media_url'] ?? null,
                 'status' => 'sent',
                 'provider_message_id' => $sent['id'] ?: null,
                 'sent_by' => 'broadcast',
