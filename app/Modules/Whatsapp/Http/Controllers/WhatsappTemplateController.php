@@ -9,6 +9,7 @@ use App\Modules\Whatsapp\Models\WhatsappBusinessAccount;
 use App\Modules\Whatsapp\Models\WhatsappPhoneNumber;
 use App\Modules\Whatsapp\Models\WhatsappTemplate;
 use App\Modules\Whatsapp\Services\CloudApiClient;
+use App\Services\StorageManager;
 use Illuminate\Http\Client\ConnectionException as HttpConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -298,11 +299,13 @@ class WhatsappTemplateController extends Controller
             return response()->json(['error' => 'Missing Meta credentials (system user token or app ID).'], 422);
         }
 
-        // Save a persistent public copy so template previews load across sessions & on index page
+        // Save a persistent copy so template previews load across sessions & on index page (uses active StorageManager disk e.g. Amazon S3)
         $publicUrl = null;
         try {
-            $path = $file->store('whatsapp_templates', 'public');
-            $publicUrl = '/storage/' . $path;
+            $storageManager = app(StorageManager::class);
+            $disk = $storageManager->disk();
+            $storedPath = $file->store('whatsapp_templates', $storageManager->diskName());
+            $publicUrl = $disk->url($storedPath);
         } catch (\Throwable $e) {
             // Silently fall back if storage write fails
         }

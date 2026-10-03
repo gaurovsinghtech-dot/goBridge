@@ -39,6 +39,13 @@ function resolveMediaPreview(comp) {
 
     for (const cand of candidates) {
         if (typeof cand === 'string' && cand) {
+            if (cand.startsWith('http://') || cand.startsWith('https://')) {
+                const match = cand.match(/\/storage\/.+$/);
+                if (match && (cand.includes('127.0.0.1') || cand.includes('localhost'))) {
+                    return match[0];
+                }
+                return cand;
+            }
             const match = cand.match(/\/storage\/.+$/);
             if (match) return match[0];
             return cand;

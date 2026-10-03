@@ -157,6 +157,13 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
         ];
         for (const cand of candidates) {
             if (typeof cand === 'string' && cand) {
+                if (cand.startsWith('http://') || cand.startsWith('https://')) {
+                    const match = cand.match(/\/storage\/.+$/);
+                    if (match && (cand.includes('127.0.0.1') || cand.includes('localhost'))) {
+                        return match[0];
+                    }
+                    return cand;
+                }
                 const match = cand.match(/\/storage\/.+$/);
                 if (match) return match[0];
                 return cand;
@@ -184,7 +191,7 @@ function HeaderBlock({ comp, onChange, onRemove, error }) {
             const { data } = await axios.post(route('client.whatsapp.templates.upload-media'), formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            const storedUrl = data.url ? (data.url.match(/\/storage\/.+$/)?.[0] ?? data.url) : null;
+            const storedUrl = data.url ? data.url : null;
             onChange({
                 ...comp,
                 format: data.format ?? format,
