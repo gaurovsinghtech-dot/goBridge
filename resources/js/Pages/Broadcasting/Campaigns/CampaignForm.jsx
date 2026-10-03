@@ -18,6 +18,8 @@ import {
     Link as LinkIcon,
     Info,
     ShieldAlert,
+    Image as ImageIcon,
+    FileText as FileTextIcon,
 } from 'lucide-react';
 import { browserTz, formatInTz, tzLocalToUtcIso, utcToTzLocal } from '@/Utils/datetime';
 import { ChannelBrandIcon } from '@/Components/BrandIcons';
@@ -1768,11 +1770,79 @@ function PreviewPane({ data, selectedTemplate, slots, contactTokens, audiencePre
     let content = null;
 
     if (data.channel === 'whatsapp') {
-        const templateBody = pickPreviewText(selectedTemplate?.components ?? []);
-        const rendered = renderPreview(templateBody, slots, contactTokens);
+        const templateComponents = selectedTemplate?.components ?? [];
+        const headerComp = templateComponents.find((c) => (c.type || '').toUpperCase() === 'HEADER');
+        const footerComp = templateComponents.find((c) => (c.type || '').toUpperCase() === 'FOOTER');
+        const buttonsComp = templateComponents.find((c) => (c.type || '').toUpperCase() === 'BUTTONS');
+
+        const headerSlot = slots.find((s) => s.section === 'header' && ['image', 'video', 'document'].includes(s.sub_type));
+        const mediaKind = headerComp ? (headerComp.format || '').toLowerCase() : (headerSlot?.sub_type ?? '');
+        const mediaUrl = headerSlot?.slots?.[0]?.value || (headerComp ? resolveMediaUrl(headerComp) : '');
+
+        const templateBody = pickPreviewText(templateComponents);
+        const renderedBody = renderPreview(templateBody, slots, contactTokens);
+
         content = (
-            <div className="rounded-2xl rounded-tl-none bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-100 shadow-sm whitespace-pre-line">
-                {rendered || '—'}
+            <div className="space-y-1.5">
+                <div className="rounded-2xl rounded-tl-none bg-emerald-950/60 p-3 text-xs text-neutral-100 shadow-sm border border-emerald-800/40">
+                    {/* Header Media / Image */}
+                    {['image', 'video', 'document'].includes(mediaKind) && (
+                        <div className="mb-2.5 -mx-3 -mt-3 overflow-hidden rounded-t-2xl bg-neutral-900/60">
+                            {mediaUrl ? (
+                                mediaKind === 'image' ? (
+                                    <img
+                                        src={mediaUrl}
+                                        alt=""
+                                        className="h-36 w-full object-cover"
+                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
+                                ) : mediaKind === 'video' ? (
+                                    <video src={mediaUrl} controls className="h-36 w-full object-cover" />
+                                ) : (
+                                    <div className="flex h-20 items-center justify-center gap-2 bg-neutral-800 text-neutral-300 px-3">
+                                        <FileTextIcon className="h-5 w-5" />
+                                        <span className="truncate text-xs">{mediaUrl.split('/').pop()}</span>
+                                    </div>
+                                )
+                            ) : (
+                                <div className="flex h-24 w-full items-center justify-center bg-neutral-800/80 text-neutral-500">
+                                    <ImageIcon className="h-7 w-7 text-neutral-600" />
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Header Text */}
+                    {headerComp && (headerComp.format || '').toUpperCase() === 'TEXT' && headerComp.text && (
+                        <p className="font-semibold text-xs text-emerald-300 mb-1">{headerComp.text}</p>
+                    )}
+
+                    {/* Body Text */}
+                    <p className="whitespace-pre-line text-xs leading-relaxed text-neutral-100">
+                        {renderedBody || '—'}
+                    </p>
+
+                    {/* Footer */}
+                    {footerComp?.text && (
+                        <p className="mt-2 text-[10px] text-neutral-400 border-t border-neutral-800/60 pt-1.5">
+                            {footerComp.text}
+                        </p>
+                    )}
+                </div>
+
+                {/* Buttons */}
+                {Array.isArray(buttonsComp?.buttons) && buttonsComp.buttons.length > 0 && (
+                    <div className="space-y-1">
+                        {buttonsComp.buttons.map((btn, i) => (
+                            <div
+                                key={i}
+                                className="flex items-center justify-center gap-1.5 rounded-xl bg-neutral-800/90 py-1.5 px-2 text-xs font-medium text-sky-400 shadow-sm border border-neutral-700/50"
+                            >
+                                <span className="truncate">{btn.text || 'Button'}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     } else if (data.channel === 'sms') {
