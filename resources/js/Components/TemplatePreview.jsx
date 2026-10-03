@@ -85,6 +85,7 @@ function HeaderPreview({ comp }) {
 
     return (
         <div className="mb-1.5 -mx-2.5 -mt-1 overflow-hidden rounded-t-md">
+            {format === 'IMAGE' && preview && !imgFailed ? (
                 <img
                     src={preview}
                     alt=""
