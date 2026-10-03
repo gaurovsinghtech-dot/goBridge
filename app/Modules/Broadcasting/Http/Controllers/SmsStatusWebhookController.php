@@ -119,6 +119,7 @@ class SmsStatusWebhookController extends Controller
                     }
 
                     $recipient->update($patch);
+                    $recipient->campaign?->updateTotals();
                 }
             }
             Log::info("SMS status update [{$provider}]", ['msg_id' => $msgId, 'status' => $mapped]);

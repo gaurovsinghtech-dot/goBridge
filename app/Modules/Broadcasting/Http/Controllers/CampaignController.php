@@ -160,10 +160,8 @@ class CampaignController extends Controller
     {
         $this->authorise($request, $campaign);
 
-        if (in_array($campaign->status, ['queued', 'sending', 'running', 'paused'], true)) {
-            $campaign->updateTotals();
-            $campaign->refresh();
-        }
+        $campaign->updateTotals();
+        $campaign->refresh();
 
         $campaign->loadCount('recipients');
 

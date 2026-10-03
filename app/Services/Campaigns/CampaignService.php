@@ -37,7 +37,7 @@ class CampaignService
      */
     public function getCampaigns(int $workspaceId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return Campaign::where('workspace_id', $workspaceId)
+        $paginator = Campaign::where('workspace_id', $workspaceId)
             ->when(! empty($filters['search']), function ($q) use ($filters) {
                 $search = $filters['search'];
                 $q->where('name', 'like', "%{$search}%");
@@ -48,6 +48,12 @@ class CampaignService
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
+
+        foreach ($paginator->items() as $campaign) {
+            $campaign->updateTotals();
+        }
+
+        return $paginator;
     }
 
     /**
@@ -66,6 +72,7 @@ class CampaignService
         $totalFailed = 0;
 
         foreach ($campaigns as $camp) {
+            $camp->updateTotals();
             $totals = $camp->totals_json ?? [];
             $totalRecipients += (int) ($totals['total'] ?? 0);
             $totalSent += (int) ($totals['sent'] ?? 0);

@@ -545,6 +545,7 @@ class WhatsappDriver implements ChannelDriverInterface
             }
 
             $recipient->update($patch);
+            $recipient->campaign?->updateTotals();
         }
     }
 }
