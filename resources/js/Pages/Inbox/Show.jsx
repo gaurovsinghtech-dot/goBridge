@@ -64,6 +64,45 @@ function resolveBody(text, vars) {
     return text.replace(/\{\{(\d+)\}\}/g, (_, i) => vars[i] ?? `{{${i}}}`);
 }
 
+function resolveInboxMediaUrl(msg) {
+    if (!msg) return null;
+
+    let candidate = msg.media_url || msg.payload?.media_url || msg.payload?.url;
+
+    if (!candidate && Array.isArray(msg.payload?.template?.components)) {
+        for (const comp of msg.payload.template.components) {
+            if (comp && String(comp.type).toUpperCase() === 'HEADER') {
+                const params = comp.parameters;
+                if (Array.isArray(params)) {
+                    for (const p of params) {
+                        if (p && typeof p === 'object') {
+                            const link = p.image?.link || p.video?.link || p.document?.link;
+                            if (link) { candidate = link; break; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (!candidate && Array.isArray(msg.payload?.template?.definition)) {
+        for (const comp of msg.payload.template.definition) {
+            if (comp && String(comp.type).toUpperCase() === 'HEADER') {
+                const ex = comp.example;
+                if (ex) {
+                    const cand = Array.isArray(ex.header_url) ? ex.header_url[0] : (ex.header_url || ex.url);
+                    if (typeof cand === 'string' && cand) { candidate = cand; break; }
+                }
+            }
+        }
+    }
+
+    if (!candidate || typeof candidate !== 'string') return null;
+    if (candidate.startsWith('http://') || candidate.startsWith('https://')) return candidate;
+    if (candidate.startsWith('/')) return candidate;
+    return '/' + candidate;
+}
+
 /* ─── Emoji Picker Component ─────────────────────────── */
 function EmojiPicker({ onPick, onClose }) {
     const ref = useRef(null);
@@ -1063,7 +1102,7 @@ export default function InboxShow({
                                     );
                                 }
 
-                                const mediaUrl = msg.media_url || msg.payload?.media_url || msg.payload?.url;
+                                const mediaUrl = resolveInboxMediaUrl(msg);
 
                                 return (
                                     <div key={`msg-${msg.id || idx}`} className={`flex ${isOut ? 'justify-end' : 'justify-start'}`}>
