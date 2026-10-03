@@ -96,6 +96,32 @@ function defaultInitialData(campaign, userTz) {
     };
 }
 
+function resolveMediaUrl(comp) {
+    if (!comp?.example) return '';
+    const ex = comp.example;
+    const candidates = [
+        Array.isArray(ex.header_url) ? ex.header_url[0] : ex.header_url,
+        Array.isArray(ex.header_handle_url) ? ex.header_handle_url[0] : ex.header_handle_url,
+        ex.url,
+        ex._preview,
+    ];
+    for (const cand of candidates) {
+        if (typeof cand === 'string' && cand) {
+            if (cand.startsWith('http://') || cand.startsWith('https://')) {
+                const match = cand.match(/\/storage\/.+$/);
+                if (match && (cand.includes('127.0.0.1') || cand.includes('localhost'))) {
+                    return match[0];
+                }
+                return cand;
+            }
+            const match = cand.match(/\/storage\/.+$/);
+            if (match) return match[0];
+            return cand;
+        }
+    }
+    return '';
+}
+
 /**
  * Convert a Meta WhatsApp template's `components` (the canonical sample
  * synced from the Meta Graph API) into our editable per-parameter shape.
@@ -120,10 +146,11 @@ function deriveSlotsFromTemplate(components = []) {
                     out.push({ section: 'header', sub_type: 'text', slots });
                 }
             } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(format)) {
+                const defaultMediaUrl = resolveMediaUrl(c);
                 out.push({
                     section: 'header',
                     sub_type: format.toLowerCase(),
-                    slots: [{ kind: 'static', value: '', label: `${format.toLowerCase()} URL`, mediaKind: format.toLowerCase() }],
+                    slots: [{ kind: 'static', value: defaultMediaUrl, label: `${format.toLowerCase()} URL`, mediaKind: format.toLowerCase() }],
                 });
             }
         } else if (type === 'body') {
