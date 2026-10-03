@@ -126,7 +126,6 @@ class StorageService
                 'url' => $config['url'] ?? null,
                 'endpoint' => $config['endpoint'] ?? null,
                 'use_path_style_endpoint' => $config['use_path_style_endpoint'] ?? false,
-                'visibility' => 'private',
                 'throw' => true,
                 'http' => ['connect_timeout' => 5, 'timeout' => 10],
             ]);

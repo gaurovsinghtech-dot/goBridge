@@ -404,7 +404,6 @@ class ConnectionTester
             'endpoint' => $creds['endpoint'] ?? null,
             'use_path_style_endpoint' => false,
             'throw' => true,
-            'visibility' => 'private',
             'options' => [],
         ];
 

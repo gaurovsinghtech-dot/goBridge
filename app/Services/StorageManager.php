@@ -198,7 +198,6 @@ class StorageManager
                 'url'                     => $creds['url']    ?? env('AWS_URL'),
                 'endpoint'                => $creds['endpoint'] ?? env('AWS_ENDPOINT'),
                 'use_path_style_endpoint' => $creds['use_path_style_endpoint'] ?? env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-                'visibility'              => 'private',
                 'throw'                   => true,
             ],
             'storage_do' => [

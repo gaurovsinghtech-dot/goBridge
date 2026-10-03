@@ -304,10 +304,27 @@ class WhatsappTemplateController extends Controller
         try {
             $storageManager = app(StorageManager::class);
             $disk = $storageManager->disk();
-            $storedPath = $file->store('whatsapp_templates', $storageManager->diskName());
-            $publicUrl = $disk->url($storedPath);
+            $diskName = $storageManager->diskName();
+
+            if ($diskName === 'public') {
+                $path = $file->store('whatsapp_templates', 'public');
+                $publicUrl = '/storage/' . $path;
+            } else {
+                $extension = $file->getClientOriginalExtension() ?: 'png';
+                $filename = 'whatsapp_templates/' . \Illuminate\Support\Str::random(40) . '.' . $extension;
+                $stream = fopen($file->getRealPath(), 'r');
+                $disk->put($filename, $stream);
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+                $publicUrl = $disk->url($filename);
+            }
         } catch (\Throwable $e) {
-            // Silently fall back if storage write fails
+            Log::error('WhatsApp template header media storage upload failed', [
+                'workspace_id' => $workspaceId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
 
         try {
