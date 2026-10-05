@@ -112,7 +112,7 @@ class AutoReplyListener
         } else {
             $chatbot = AiChatbot::where('workspace_id', $conversation->workspace_id)
                 ->where('enabled', true)
-                ->where('status', 'active')
+                ->whereIn('status', ['published', 'active'])
                 ->first();
         }
 
