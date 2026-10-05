@@ -98,18 +98,14 @@ class ChatbotRunner
 
         // 5. Strict Knowledge Mode Guard
         if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '') {
-            // Record unanswerable query
             AiUnknownQuestion::updateOrCreate(
                 ['workspace_id' => $workspaceId, 'ai_agent_id' => $bot->id, 'question' => mb_substr($body, 0, 500)],
                 ['last_asked_at' => now()]
             )->increment('occurrences');
 
-            if ($bot->human_handoff_enabled) {
-                $this->handoffService->executeHandoff($conversation, $bot->human_handoff_user_id, 'Unanswered inquiry in strict knowledge mode');
-                return $bot->human_handoff_message ?? 'I do not have enough information in my knowledge base to answer that. Let me connect you with a team member.';
-            }
-
-            return $bot->fallback_reply ?? 'I do not have information regarding that in my knowledge base. Please ask about our products, pricing, or services.';
+            return ! empty($bot->fallback_reply)
+                ? $bot->fallback_reply
+                : 'Thank you for reaching out! How can I help you today?';
         }
 
         // 6. Build Comprehensive System Instructions & Security Directives
@@ -168,13 +164,16 @@ class ChatbotRunner
 
             return $reply;
         } catch (\Throwable $e) {
-            Log::error("ChatbotRunner execution error [Bot: {$bot->id}]: {$e->getMessage()}");
+            Log::error("ChatbotRunner execution error [Bot: {$bot->id}]: {$e->getMessage()}", [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-            if ($bot->human_handoff_enabled) {
-                $this->handoffService->executeHandoff($conversation, $bot->human_handoff_user_id, 'AI provider error/timeout fallback');
-            }
+            $fallback = ! empty($bot->fallback_reply)
+                ? $bot->fallback_reply
+                : 'Thank you for reaching out! How can I help you today?';
 
-            return $bot->fallback_reply ?? 'Our automated assistant is temporarily experiencing a connection issue. A team member will assist you shortly.';
+            return $fallback;
         }
     }
 
