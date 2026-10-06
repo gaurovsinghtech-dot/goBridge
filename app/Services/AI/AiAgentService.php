@@ -597,47 +597,60 @@ class AiAgentService
             $draftResponse = "I don't have that information available in my business knowledge. Would you like me to connect you with our team?";
             $toolActions[] = "Fallback response triggered (Knowledge not found)";
         } else {
-            // Natural answer synthesis based on knowledge chunk
-            if (! empty($retrievedChunks)) {
-                $topChunk = $retrievedChunks[0];
-                $content = $topChunk['content'] ?? '';
-                $docTitle = $topChunk['title'] ?? 'Knowledge Source';
+            // Attempt natural LLM generation via OpenAI/Gemini Gateway first
+            try {
+                $runner = app(\App\Modules\AI\Services\ChatbotRunner::class);
+                $apiResult = $runner->runForApi($agent, $message, (int) $agent->workspace_id);
+                if (! empty($apiResult['reply'])) {
+                    $draftResponse = $apiResult['reply'];
+                }
+            } catch (\Throwable $llmErr) {
+                Log::warning("Playground simulation LLM call failed: " . $llmErr->getMessage());
+            }
 
-                $sourcesUsed[] = [
-                    'title' => $docTitle,
-                    'category' => $topChunk['category'] ?? 'general',
-                    'chunk_id' => $topChunk['chunk_id'] ?? null,
-                    'excerpt' => mb_substr($content, 0, 140) . '...',
-                    'score' => $topChunk['score'] ?? 0.85,
-                ];
+            // Fallback response formatting if LLM call is unavailable or unconfigured
+            if (empty($draftResponse)) {
+                if (! empty($retrievedChunks)) {
+                    $topChunk = $retrievedChunks[0];
+                    $content = $topChunk['content'] ?? '';
+                    $docTitle = $topChunk['title'] ?? 'Knowledge Source';
 
-                if (str_contains($lowerMsg, 'hour') || str_contains($lowerMsg, 'time') || str_contains($lowerMsg, 'open')) {
-                    if (preg_match('/Business Operating Hours:\s*([^\n]+)/i', $content, $m)) {
-                        $draftResponse = "Our business hours are " . trim($m[1]) . ". Let us know if you'd like to visit or need assistance!";
+                    $sourcesUsed[] = [
+                        'title' => $docTitle,
+                        'category' => $topChunk['category'] ?? 'general',
+                        'chunk_id' => $topChunk['chunk_id'] ?? null,
+                        'excerpt' => mb_substr($content, 0, 140) . '...',
+                        'score' => $topChunk['score'] ?? 0.85,
+                    ];
+
+                    if (str_contains($lowerMsg, 'hour') || str_contains($lowerMsg, 'time') || str_contains($lowerMsg, 'open')) {
+                        if (preg_match('/Business Operating Hours:\s*([^\n]+)/i', $content, $m)) {
+                            $draftResponse = "Our business hours are " . trim($m[1]) . ". Let us know if you'd like to visit or need assistance!";
+                        } else {
+                            $draftResponse = "Our operating hours are 10:00 AM to 8:00 PM. How can we help you today?";
+                        }
+                    } elseif (str_contains($lowerMsg, 'product') || str_contains($lowerMsg, 'price') || str_contains($lowerMsg, 'cost') || str_contains($lowerMsg, 'sell')) {
+                        if (preg_match('/PRODUCT:\s*([^\n]+)/i', $content, $mProd) && preg_match('/Price:\s*([^\n]+)/i', $content, $mPrice)) {
+                            $prodName = trim($mProd[1]);
+                            $prodPrice = trim($mPrice[1]);
+                            $draftResponse = "Yes, we provide {$prodName}. Our price is {$prodPrice}. Would you like information about available options and bulk orders?";
+                        } else {
+                            $draftResponse = "Based on our verified catalog:\n" . $content;
+                        }
+                    } elseif (str_contains($lowerMsg, 'deliver') || str_contains($lowerMsg, 'ship')) {
+                        $draftResponse = "Yes, we provide delivery across all pin codes in India. Standard delivery typically takes 2-4 business days.";
+                    } elseif (str_contains($lowerMsg, 'location') || str_contains($lowerMsg, 'where') || str_contains($lowerMsg, 'address')) {
+                        if (preg_match('/Location \/ Address:\s*([^\n]+)/i', $content, $m)) {
+                            $draftResponse = "We are located at: " . trim($m[1]) . ". Feel free to reach out if you need directions!";
+                        } else {
+                            $draftResponse = "You can find us at our official business location. Let us know if you need specific directions or assistance.";
+                        }
                     } else {
-                        $draftResponse = "Our operating hours are 10:00 AM to 8:00 PM. How can we help you today?";
-                    }
-                } elseif (str_contains($lowerMsg, 'product') || str_contains($lowerMsg, 'price') || str_contains($lowerMsg, 'cost') || str_contains($lowerMsg, 'sell')) {
-                    if (preg_match('/PRODUCT:\s*([^\n]+)/i', $content, $mProd) && preg_match('/Price:\s*([^\n]+)/i', $content, $mPrice)) {
-                        $prodName = trim($mProd[1]);
-                        $prodPrice = trim($mPrice[1]);
-                        $draftResponse = "Yes, we provide {$prodName}. Our price is {$prodPrice}. Would you like information about available options and bulk orders?";
-                    } else {
-                        $draftResponse = "Based on our verified catalog:\n" . $content;
-                    }
-                } elseif (str_contains($lowerMsg, 'deliver') || str_contains($lowerMsg, 'ship')) {
-                    $draftResponse = "Yes, we provide delivery across all pin codes in India. Standard delivery typically takes 2-4 business days.";
-                } elseif (str_contains($lowerMsg, 'location') || str_contains($lowerMsg, 'where') || str_contains($lowerMsg, 'address')) {
-                    if (preg_match('/Location \/ Address:\s*([^\n]+)/i', $content, $m)) {
-                        $draftResponse = "We are located at: " . trim($m[1]) . ". Feel free to reach out if you need directions!";
-                    } else {
-                        $draftResponse = "You can find us at our official business location. Let us know if you need specific directions or assistance.";
+                        $draftResponse = "Based on our verified knowledge:\n" . $content;
                     }
                 } else {
-                    $draftResponse = "Based on our verified knowledge:\n" . $content;
+                    $draftResponse = "Hello! Thanks for reaching out. How can I assist you with your inquiry today?";
                 }
-            } else {
-                $draftResponse = "Hello! Thanks for reaching out. How can I assist you with your inquiry today?";
             }
         }
 
