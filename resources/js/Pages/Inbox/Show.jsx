@@ -554,6 +554,7 @@ export default function InboxShow({
     const [showTagModal, setShowTagModal]   = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showHandoffModal, setShowHandoffModal] = useState(false);
+    const [showActionsDropdown, setShowActionsDropdown] = useState(false);
 
     // Composer Toolbar state
     const [showEmoji, setShowEmoji]         = useState(false);
@@ -932,74 +933,92 @@ export default function InboxShow({
                             </div>
                         </div>
 
-                        {/* Right: Horizontally Scrollable Controls */}
-                        <div className="min-w-0 flex-1 flex items-center justify-start md:justify-end gap-1.5 overflow-x-auto py-1 scrollbar-thin whitespace-nowrap max-w-full">
-                            {/* AI Control Header Card */}
-                            <div className="flex items-center gap-1 p-0.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0">
-                                {isAiActive ? (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-600 text-white text-[11px] font-bold shadow-xs shrink-0">
-                                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" /> AI Assistant ● ACTIVE
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-[11px] font-bold shadow-xs shrink-0">
-                                        <span className="h-2 w-2 rounded-full bg-neutral-400" /> AI Assistant ○ PAUSED
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={() => handleSwitchMode(isAiActive ? 'human' : 'auto')}
-                                    disabled={aiLoading}
-                                    className="px-2 py-1 rounded-lg text-[11px] font-bold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
-                                >
-                                    {isAiActive ? '[ Switch to Human ]' : '[ Enable AI ]'}
-                                </button>
-                            </div>
-
-                            {/* Mode Dropdown Selector */}
+                        {/* Right: Clean Dropdown Controls */}
+                        <div className="flex items-center gap-2 shrink-0">
+                            {/* Mode Select Dropdown */}
                             <select
                                 value={aiMode}
                                 onChange={(e) => handleSwitchMode(e.target.value)}
-                                className="text-[11px] rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1.5 px-2.5 font-medium text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 transition shrink-0 cursor-pointer"
+                                disabled={aiLoading}
+                                className="text-xs font-bold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-1.5 px-3 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-blue-600 transition cursor-pointer shadow-2xs"
                             >
-                                <option value="auto">Mode: AI Auto Reply</option>
-                                <option value="suggested">Mode: AI Suggested</option>
-                                <option value="human">Mode: Human Only</option>
-                                <option value="paused">Mode: Paused</option>
+                                <option value="auto">⚡ Mode: AI Auto Reply</option>
+                                <option value="suggested">💡 Mode: AI Suggested</option>
+                                <option value="human">👤 Mode: Human Only</option>
+                                <option value="paused">⏸️ Mode: Paused</option>
                             </select>
 
-                            {/* Handoff Button */}
-                            <button
-                                onClick={() => setShowHandoffModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 text-xs font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
-                                title="Execute Human Handoff"
-                            >
-                                <ArrowRightLeft className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                                <span>Handoff</span>
-                            </button>
+                            {/* Actions Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowActionsDropdown(!showActionsDropdown)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-2xs"
+                                >
+                                    <span>Actions</span>
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                </button>
 
-                            {/* Assign User Button */}
-                            <button
-                                onClick={() => setShowAssignModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
-                                title="Assign Agent"
-                            >
-                                <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                                <span>{assignedUser ? assignedUser.name : 'Assign'}</span>
-                            </button>
+                                {showActionsDropdown && (
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-40" 
+                                            onClick={() => setShowActionsDropdown(false)} 
+                                        />
+                                        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl z-50 py-1.5 text-xs font-medium">
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsDropdown(false);
+                                                    handleSwitchMode(isAiActive ? 'human' : 'auto');
+                                                }}
+                                                className="w-full text-left px-3.5 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700/70 flex items-center gap-2 text-neutral-800 dark:text-neutral-200"
+                                            >
+                                                <Bot className="w-4 h-4 text-blue-600" />
+                                                <span>{isAiActive ? 'Switch to Human Agent' : 'Enable AI Assistant'}</span>
+                                            </button>
 
-                            {/* Close / Reopen */}
-                            <button
-                                onClick={handleToggleStatus}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0 whitespace-nowrap"
-                            >
-                                <CheckCircle className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                                <span>{conversation.status === 'resolved' ? 'Reopen' : 'Close'}</span>
-                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsDropdown(false);
+                                                    setShowHandoffModal(true);
+                                                }}
+                                                className="w-full text-left px-3.5 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700/70 flex items-center gap-2 text-neutral-800 dark:text-neutral-200"
+                                            >
+                                                <ArrowRightLeft className="w-4 h-4 text-purple-600" />
+                                                <span>Execute Human Handoff</span>
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsDropdown(false);
+                                                    setShowAssignModal(true);
+                                                }}
+                                                className="w-full text-left px-3.5 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700/70 flex items-center gap-2 text-neutral-800 dark:text-neutral-200"
+                                            >
+                                                <User className="w-4 h-4 text-amber-600" />
+                                                <span>{assignedUser ? `Assigned: ${assignedUser.name}` : 'Assign to Agent...'}</span>
+                                            </button>
+
+                                            <div className="my-1 border-t border-neutral-200 dark:border-neutral-700" />
+
+                                            <button
+                                                onClick={() => {
+                                                    setShowActionsDropdown(false);
+                                                    handleToggleStatus();
+                                                }}
+                                                className="w-full text-left px-3.5 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-700/70 flex items-center gap-2 text-neutral-800 dark:text-neutral-200"
+                                            >
+                                                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                                                <span>{conversation.status === 'resolved' ? 'Reopen Conversation' : 'Close Conversation'}</span>
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
 
                             {/* Dismiss / Close Chat Tab */}
                             <Link
                                 href={route('client.inbox.index')}
-                                className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
+                                className="p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
                                 title="Close Chat Tab"
                             >
                                 <X className="w-4 h-4" />
@@ -1008,7 +1027,7 @@ export default function InboxShow({
                             {/* Toggle Right Customer Panel (Desktop) */}
                             <button
                                 onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                                className="hidden lg:flex p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
+                                className="hidden lg:flex p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
                                 title="Toggle Customer Info Panel"
                             >
                                 <Info className="w-4 h-4" />
@@ -1016,7 +1035,7 @@ export default function InboxShow({
 
                             <button
                                 onClick={() => setMobileTab('customer')}
-                                className="md:hidden p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 shrink-0"
+                                className="md:hidden p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 shrink-0"
                             >
                                 <Info className="w-4 h-4" />
                             </button>
