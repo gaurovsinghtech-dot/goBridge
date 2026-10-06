@@ -96,8 +96,8 @@ class ChatbotRunner
             }
         }
 
-        // 5. Strict Knowledge Mode Guard
-        if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '') {
+        // 5. Strict Knowledge Mode Guard (Exempt basic greetings and pleasantries)
+        if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '' && ! $this->isGreeting($body)) {
             AiUnknownQuestion::updateOrCreate(
                 ['workspace_id' => $workspaceId, 'ai_agent_id' => $bot->id, 'question' => mb_substr($body, 0, 500)],
                 ['last_asked_at' => now()]
@@ -198,7 +198,7 @@ class ChatbotRunner
             }
         }
 
-        if ($bot->strict_knowledge_mode && empty($contextChunks) && trim($message) !== '') {
+        if ($bot->strict_knowledge_mode && empty($contextChunks) && trim($message) !== '' && ! $this->isGreeting($message)) {
             return [
                 'reply' => $bot->fallback_reply ?? 'I do not have this information in my knowledge base.',
                 'tokens_used' => 0,
@@ -568,5 +568,26 @@ class ChatbotRunner
 
             return '- '.implode(', ', $parts);
         })->implode("\n");
+    }
+
+    public function isGreeting(string $message): bool
+    {
+        $normalized = strtolower(trim($message));
+        $clean = preg_replace('/[^\w\s]/', '', $normalized);
+
+        $greetings = [
+            'hi', 'hello', 'hey', 'heya', 'hola', 'namaste',
+            'good morning', 'good afternoon', 'good evening', 'good day',
+            'thanks', 'thank you', 'bye', 'goodbye', 'start', 'help', 'info',
+            'want caption', 'caption',
+        ];
+
+        foreach ($greetings as $g) {
+            if ($clean === $g || str_starts_with($clean, $g . ' ') || str_contains($clean, $g)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

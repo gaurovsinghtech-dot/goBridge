@@ -574,7 +574,7 @@ class AiAgentService
         } elseif ($intent === 'complaint') {
             $needsHandoff = true;
             $handoffReason = 'Customer grievance / complaint detected';
-        } elseif ($agent->strict_knowledge_mode && empty($retrievedChunks)) {
+        } elseif ($agent->strict_knowledge_mode && empty($retrievedChunks) && ! app(\App\Modules\AI\Services\ChatbotRunner::class)->isGreeting($message)) {
             $isUnknownFallback = true;
             $handoffReason = 'Strict knowledge mode: no matching knowledge source found';
         } elseif ($isGeneralTrivia && empty($retrievedChunks)) {
