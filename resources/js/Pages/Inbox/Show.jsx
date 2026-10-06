@@ -542,7 +542,7 @@ export default function InboxShow({
     const [conversations, setConversations] = useState(initialConversations);
     const [search, setSearch]               = useState(filters.search || filters.q || '');
     const [mobileTab, setMobileTab]         = useState('chat'); // 'chat' | 'list' | 'customer'
-    const [showCustomerSidebar, setShowCustomerSidebar] = useState(true);
+    const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
 
     // AI Suggestion State
     const [aiSuggestedReply, setAiSuggestedReply] = useState(null);
@@ -1024,20 +1024,22 @@ export default function InboxShow({
                                 <X className="w-4 h-4" />
                             </Link>
 
-                            {/* Toggle Right Customer Panel (Desktop) */}
+                            {/* Toggle Right Customer Panel Button */}
                             <button
-                                onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                                className="hidden lg:flex p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shrink-0"
+                                onClick={() => {
+                                    setShowCustomerSidebar(!showCustomerSidebar);
+                                    if (mobileTab === 'customer') setMobileTab('chat');
+                                    else setMobileTab('customer');
+                                }}
+                                className={`p-1.5 px-2.5 rounded-xl border text-xs font-bold transition shrink-0 flex items-center gap-1.5 ${
+                                    showCustomerSidebar
+                                        ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                                        : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                                }`}
                                 title="Toggle Customer Info Panel"
                             >
-                                <Info className="w-4 h-4" />
-                            </button>
-
-                            <button
-                                onClick={() => setMobileTab('customer')}
-                                className="md:hidden p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 shrink-0"
-                            >
-                                <Info className="w-4 h-4" />
+                                <Info className="w-3.5 h-3.5" />
+                                <span>Details</span>
                             </button>
                         </div>
                     </div>
@@ -1323,7 +1325,14 @@ export default function InboxShow({
                     {/* Header */}
                     <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
                         <h3 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">CUSTOMER 360</h3>
-                        <button onClick={() => setMobileTab('chat')} className="md:hidden text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
+                        <button 
+                            onClick={() => {
+                                setShowCustomerSidebar(false);
+                                setMobileTab('chat');
+                            }} 
+                            className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+                            title="Close Customer Details"
+                        >
                             <X className="w-4 h-4" />
                         </button>
                     </div>
