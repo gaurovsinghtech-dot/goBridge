@@ -548,7 +548,7 @@ class AiAgentService
 
         // 3. Knowledge Retrieval
         $retrievedChunks = [];
-        $kb = $agent->knowledgeBase ?? ($agent->ai_kb_id ? \App\Modules\AI\Models\AiKnowledgeBase::find($agent->ai_kb_id) : null);
+        $kb = $agent->knowledgeBase ?? ($agent->ai_kb_id ? \App\Modules\AI\Models\AiKnowledgeBase::find($agent->ai_kb_id) : \App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $agent->workspace_id)->first());
         if ($kb) {
             $retrievedChunks = $this->knowledgeService->search(
                 $kb,

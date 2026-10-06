@@ -53,7 +53,7 @@ class AiKnowledgeBaseController extends Controller
         $kb = $this->getOrCreateWorkspaceKb($workspaceId);
         $kb->load(['documents.chunks', 'chatbots']);
 
-        $documents = $kb->documents()->withCount('chunks')->latest('updated_at')->get();
+        $documents = $kb->documents()->with(['chunks'])->withCount('chunks')->latest('updated_at')->get();
 
         $businessDoc = $documents->where('category', 'business')->first();
         $products = $documents->where('category', 'products')->values();

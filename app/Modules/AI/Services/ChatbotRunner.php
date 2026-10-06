@@ -83,12 +83,13 @@ class ChatbotRunner
         // 4. Knowledge Base (RAG) Retrieval
         $contextChunks = [];
         $queryEmbedding = [];
-        if ($bot->ai_kb_id && $body !== '') {
+        $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
+        if ($kbId && $body !== '') {
             try {
                 $embeddings = $this->llmGateway->embed($workspaceId, [$body]);
                 $queryEmbedding = $embeddings[0] ?? [];
                 if (! empty($queryEmbedding)) {
-                    $results = $this->embedStore->search($bot->ai_kb_id, $queryEmbedding, $bot->max_context_chunks ?? 5);
+                    $results = $this->embedStore->search($kbId, $queryEmbedding, $bot->max_context_chunks ?? 5);
                     $contextChunks = array_column($results, 'chunk');
                 }
             } catch (\Throwable $e) {
@@ -186,12 +187,13 @@ class ChatbotRunner
         $contextChunks = [];
         $queryEmbedding = [];
 
-        if ($bot->ai_kb_id && trim($message) !== '') {
+        $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
+        if ($kbId && trim($message) !== '') {
             try {
                 $embeddings = $this->llmGateway->embed($workspaceId, [$message]);
                 $queryEmbedding = $embeddings[0] ?? [];
                 if (! empty($queryEmbedding)) {
-                    $results = $this->embedStore->search($bot->ai_kb_id, $queryEmbedding, $bot->max_context_chunks ?? 5);
+                    $results = $this->embedStore->search($kbId, $queryEmbedding, $bot->max_context_chunks ?? 5);
                     $contextChunks = array_column($results, 'chunk');
                 }
             } catch (\Throwable) {
