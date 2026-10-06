@@ -414,8 +414,8 @@ class InboxController extends Controller
     {
         $this->authorise($request, $conversation);
 
-        $requestedMode = $request->input('mode');
-        
+        $requestedMode = (string) $request->input('mode', '');
+
         if ($requestedMode === 'human' || $requestedMode === 'paused') {
             $conversation->update([
                 'ai_mode' => $requestedMode,
@@ -425,9 +425,9 @@ class InboxController extends Controller
             ]);
             $newMode = 'human';
             $msg = $requestedMode === 'paused' ? 'AI Assistant paused.' : 'Switched to Human Agent Mode.';
-        } elseif ($requestedMode === 'auto' || $requestedMode === 'suggested') {
+        } elseif ($requestedMode === 'auto' || $requestedMode === 'suggested' || $requestedMode === 'bot') {
             $conversation->update([
-                'ai_mode' => $requestedMode,
+                'ai_mode' => $requestedMode === 'bot' ? 'auto' : $requestedMode,
                 'assigned_to' => 'bot',
                 'human_takeover_at' => null,
                 'handoff_reason' => null,
@@ -447,10 +447,14 @@ class InboxController extends Controller
             $msg = $newMode === 'bot' ? 'Switched to AI Agent Mode.' : 'Switched to Human Agent Mode.';
         }
 
-        ConversationActivity::log($conversation, 'handover', [
-            'to' => $newMode,
-            'actor' => $request->user()->name,
-        ]);
+        try {
+            ConversationActivity::log($conversation, 'handover', [
+                'to' => $newMode,
+                'actor' => $request->user()?->name,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning("ConversationActivity log skipped: {$e->getMessage()}");
+        }
 
         return response()->json([
             'success' => true,
@@ -471,14 +475,20 @@ class InboxController extends Controller
         if ($mode === 'bot') {
             $conversation->update([
                 'assigned_to' => 'bot',
+                'ai_mode' => 'auto',
                 'handover_at' => null,
+                'human_takeover_at' => null,
+                'handoff_reason' => null,
             ]);
-            \App\Modules\Inbox\Models\ConversationActivity::log($conversation, 'handover_to_bot', ['resumed_by' => $request->user()->id]);
+
+            try {
+                \App\Modules\Inbox\Models\ConversationActivity::log($conversation, 'handover_to_bot', ['resumed_by' => $request->user()?->id]);
+            } catch (\Throwable) {}
 
             return response()->json([
                 'success' => true,
                 'message' => 'AI agent resumed.',
-                'ai_mode' => 'bot',
+                'ai_mode' => 'auto',
                 'assigned_to' => 'bot',
             ]);
         }

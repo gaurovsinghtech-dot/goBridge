@@ -657,11 +657,12 @@ export default function InboxShow({
         setAiLoading(true);
         try {
             const res = await axios.post(route('client.inbox.ai-mode', conversation.uuid), { mode: newMode });
-            setAiMode(res.data.ai_mode || newMode);
-            setAssignedTo(res.data.mode);
-            toast.success(res.data.message);
+            setAiMode(res.data.ai_mode || (newMode === 'human' ? 'human' : 'auto'));
+            setAssignedTo(res.data.mode || (newMode === 'human' ? 'human' : 'bot'));
+            toast.success(res.data.message || 'AI mode updated.');
         } catch (e) {
-            toast.error('Failed to change AI mode.');
+            console.error('Failed to change AI mode:', e);
+            toast.error(e.response?.data?.message || 'Failed to change AI mode.');
         } finally {
             setAiLoading(false);
         }
@@ -932,7 +933,7 @@ export default function InboxShow({
                         </div>
 
                         {/* Right: Horizontally Scrollable Controls */}
-                        <div className="flex-1 min-w-0 flex items-center justify-end gap-1.5 overflow-x-auto py-1 scrollbar-none whitespace-nowrap">
+                        <div className="min-w-0 flex-1 flex items-center justify-start md:justify-end gap-1.5 overflow-x-auto py-1 scrollbar-thin whitespace-nowrap max-w-full">
                             {/* AI Control Header Card */}
                             <div className="flex items-center gap-1 p-0.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0">
                                 {isAiActive ? (
