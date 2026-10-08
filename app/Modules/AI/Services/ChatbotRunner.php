@@ -266,7 +266,6 @@ class ChatbotRunner
             ];
         }
     }
-    }
 
     /**
      * Execute built-in and configured tools (Order check, CRM task, Custom API).
