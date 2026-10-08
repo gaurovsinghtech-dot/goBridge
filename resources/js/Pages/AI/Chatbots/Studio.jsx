@@ -136,19 +136,18 @@ export default function ChatbotStudio({
 
     const handleSave = (targetStatus = null) => {
         setIsSaving(true);
-        const payload = { ...data };
-        if (targetStatus) payload.status = targetStatus;
+        const finalStatus = targetStatus || data.status || 'draft';
 
         if (mode === 'create') {
-            post(route('client.ai-agents.store'), {
+            router.post(route('client.ai-agents.store'), { ...data, status: finalStatus }, {
                 onSuccess: () => toast.success('AI Agent created.'),
-                onError: () => toast.error('Failed to create AI agent. Please check form errors.'),
+                onError: (errs) => toast.error(Object.values(errs)[0] || 'Failed to create AI agent. Please check form errors.'),
                 onFinish: () => setIsSaving(false),
             });
         } else {
-            put(route('client.ai-agents.update', agent.uuid), {
+            router.put(route('client.ai-agents.update', agent.uuid), { ...data, status: finalStatus }, {
                 onSuccess: () => toast.success('AI Agent saved.'),
-                onError: () => toast.error('Failed to update AI agent.'),
+                onError: (errs) => toast.error(Object.values(errs)[0] || 'Failed to update AI agent.'),
                 onFinish: () => setIsSaving(false),
             });
         }

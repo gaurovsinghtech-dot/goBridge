@@ -65,6 +65,8 @@ Route::middleware(['web', 'client-app'])->prefix('app')->name('client.')->group(
     Route::delete('/ai-agents/{chatbot}', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'destroy'])->name('ai-agents.destroy');
     Route::post('/ai-agents/{chatbot}/duplicate', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'duplicate'])->name('ai-agents.duplicate');
     Route::post('/ai-agents/{chatbot}/publish', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'publish'])->name('ai-agents.publish');
+    Route::post('/ai-agents/{chatbot}/activate', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'activate'])->name('ai-agents.activate');
     Route::post('/ai-agents/{chatbot}/pause', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'pause'])->name('ai-agents.pause');
     Route::post('/ai-agents/{chatbot}/simulate', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'simulate'])->name('ai-agents.simulate');
+    Route::post('/ai-agents/{chatbot}/playground', [\App\Modules\AI\Http\Controllers\AiChatbotController::class, 'playground'])->name('ai-agents.playground');
 });
