@@ -269,7 +269,10 @@ class AiAgentService
             $instructions[] = "LEAD QUALIFICATION:\nWhen speaking with potential buyers, naturally discover the following qualification details without interrogating:\nTarget fields: {$qFields}.";
         }
 
-        // 7. Verified Knowledge Context (#81.9, Task #80)
+        // 7. Greetings & Courtesy
+        $instructions[] = "GREETINGS & COURTESY:\nStandard greetings, pleasantries, and polite small talk (e.g., 'hi', 'hello', 'hey', 'good morning', 'good afternoon', 'thanks', 'how are you') DO NOT require knowledge base lookup. Always respond warmly, welcome the user, introduce yourself as \"{$roleName}\", and ask how you can assist them today.";
+
+        // 8. Verified Knowledge Context (#81.9, Task #80)
         if (! empty($retrievedChunks)) {
             $contextText = "";
             foreach ($retrievedChunks as $idx => $chunk) {
@@ -282,7 +285,7 @@ class AiAgentService
 
         if ($agent->strict_knowledge_mode) {
             $fallbackMsg = $agent->fallback_reply ?? "I don't have enough information in my verified knowledge to answer that accurately. Would you like me to connect you with a human specialist?";
-            $instructions[] = "STRICT ANTI-HALLUCINATION ENFORCEMENT: If the verified knowledge context above does not contain the answer, DO NOT GUESS. Respond with: \"{$fallbackMsg}\"";
+            $instructions[] = "STRICT ANTI-HALLUCINATION ENFORCEMENT:\n1. Standard greetings and pleasantries must ALWAYS be answered warmly and naturally — DO NOT trigger fallbacks for greetings.\n2. For specific business inquiries, products, services, pricing, or policies, if the verified business knowledge above does not contain the answer, DO NOT GUESS or hallucinate. Respond with: \"{$fallbackMsg}\"";
         }
 
         // 8. Customer Profile Context (#81.14)

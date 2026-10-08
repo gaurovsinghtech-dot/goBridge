@@ -404,11 +404,12 @@ class ChatbotRunner
 
         // Strict Knowledge Mode & Anti-Hallucination Directives
         if ($bot->strict_knowledge_mode) {
+            $fallbackMsg = $bot->fallback_reply ?? "I do not have this information in my knowledge base. Let me connect you with our team.";
             $prompt .= "\n--- KNOWLEDGE & ACCURACY DIRECTIVES ---\n";
-            $prompt .= "1. For business inquiries, products, services, pricing, or policies, answer ONLY using the verified knowledge base context provided below.\n";
-            $prompt .= "2. Standard greetings, pleasantries, and polite small talk do NOT require knowledge base lookup — respond warmly and ask how you can help.\n";
+            $prompt .= "1. Standard greetings, pleasantries, and polite small talk MUST ALWAYS be answered warmly and naturally — DO NOT trigger fallbacks or say you lack information for simple greetings.\n";
+            $prompt .= "2. For specific business inquiries, products, services, pricing, or policies, answer ONLY using the verified knowledge base context provided below.\n";
             $prompt .= "3. DO NOT make up, assume, or hallucinate business facts, pricing, products, or policies not present in the context.\n";
-            $prompt .= "4. If a specific business question cannot be answered from the context, explicitly say: 'I do not have this information in my knowledge base. Let me connect you with our team.' and request human assistance.\n";
+            $prompt .= "4. If a specific business question (excluding greetings) cannot be answered from the context, explicitly say: '{$fallbackMsg}' and request human assistance.\n";
         }
 
         if (! empty($contextChunks)) {
