@@ -153,7 +153,9 @@ class ContactController extends Controller
         $validated = $request->validate([
             'first_name' => ['nullable', 'string', 'max:128'],
             'last_name' => ['nullable', 'string', 'max:128'],
+            'phone_e164' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:191'],
+            'status' => ['nullable', 'string', 'max:64'],
             'country' => ['nullable', 'string', 'max:4'],
             'language' => ['nullable', 'string', 'max:8'],
             'opt_in_whatsapp' => ['boolean'],

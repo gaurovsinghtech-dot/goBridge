@@ -6,7 +6,7 @@ import {
     Camera, Trash2, Upload, Sparkles, CheckCircle2,
     Clock, ListTodo, Bot, Users, Tag, AlertTriangle,
     Search, Filter, ExternalLink, Calendar, Plus,
-    Send, Zap, ShieldCheck, ChevronRight
+    Send, Zap, ShieldCheck, ChevronRight, Pencil
 } from 'lucide-react';
 import { Card, Button, Badge, Modal } from '@/Components/ui';
 import { toast } from 'sonner';
@@ -29,8 +29,47 @@ export default function UnifiedCustomerShow({
         last_name: contact.last_name || '',
         email: contact.email || '',
         phone_e164: contact.phone_e164 || '',
-        custom_fields: contact.custom_fields || {},
+        status: contact.status || 'Lead',
+        country: contact.country || '',
+        language: contact.language || '',
+        opt_in_whatsapp: Boolean(contact.opt_in_whatsapp),
+        opt_in_sms: Boolean(contact.opt_in_sms),
+        opt_in_email: Boolean(contact.opt_in_email),
     });
+
+    const openEditModal = () => {
+        setEditForm({
+            first_name: contact.first_name || '',
+            last_name: contact.last_name || '',
+            email: contact.email || '',
+            phone_e164: contact.phone_e164 || '',
+            status: contact.status || 'Lead',
+            country: contact.country || '',
+            language: contact.language || '',
+            opt_in_whatsapp: Boolean(contact.opt_in_whatsapp),
+            opt_in_sms: Boolean(contact.opt_in_sms),
+            opt_in_email: Boolean(contact.opt_in_email),
+        });
+        setEditModal(true);
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        router.put(
+            route('client.contacts.update', contact.uuid || contact.id),
+            editForm,
+            {
+                onSuccess: () => {
+                    toast.success('Contact updated successfully.');
+                    setEditModal(false);
+                },
+                onError: (errs) => {
+                    const msg = Object.values(errs)[0] || 'Failed to update contact.';
+                    toast.error(msg);
+                },
+            }
+        );
+    };
 
     const name = `${contact.first_name ?? ''} ${contact.last_name ?? ''}`.trim() || 'Customer Profile';
     const initials = name
@@ -131,6 +170,15 @@ export default function UnifiedCustomerShow({
 
                         {/* Quick Action Bar */}
                         <div className="flex flex-wrap items-center gap-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={openEditModal}
+                                className="text-xs font-bold gap-1 text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-900/50 dark:hover:bg-blue-950/40"
+                            >
+                                <Pencil className="w-3.5 h-3.5" /> Edit Contact
+                            </Button>
+
                             <Link href={route('client.inbox.index', { search: contact.phone_e164 || contact.first_name })}>
                                 <Button size="sm" variant="outline" className="text-xs font-bold gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50">
                                     <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
@@ -463,6 +511,153 @@ export default function UnifiedCustomerShow({
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" size="sm" onClick={() => setNoteModal(false)}>Cancel</Button>
                         <Button type="submit" variant="brand" size="sm">Save Note</Button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Edit Contact Modal */}
+            <Modal show={editModal} onClose={() => setEditModal(false)} title="Edit Contact Profile">
+                <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                First Name
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.first_name}
+                                onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
+                                placeholder="First Name"
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Last Name
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.last_name}
+                                onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
+                                placeholder="Last Name"
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Phone Number (E.164)
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.phone_e164}
+                                onChange={(e) => setEditForm({ ...editForm, phone_e164: e.target.value })}
+                                placeholder="+919937003880"
+                                className="w-full text-xs font-mono rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                value={editForm.email}
+                                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                placeholder="email@example.com"
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Status
+                            </label>
+                            <select
+                                value={editForm.status}
+                                onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            >
+                                <option value="Lead">Lead</option>
+                                <option value="Customer">Customer</option>
+                                <option value="Subscriber">Subscriber</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Unsubscribed">Unsubscribed</option>
+                                <option value="Churned">Churned</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Country Code
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.country}
+                                onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                                placeholder="IN / US"
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2 uppercase"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                                Language
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.language}
+                                onChange={(e) => setEditForm({ ...editForm, language: e.target.value })}
+                                placeholder="en / hi"
+                                className="w-full text-xs rounded-xl border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white px-3 py-2"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-2">
+                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                            Communication Opt-In Preferences
+                        </label>
+                        <div className="flex flex-wrap items-center gap-4 bg-neutral-50 dark:bg-neutral-800/60 p-3 rounded-xl border border-neutral-200/80 dark:border-neutral-700/80">
+                            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                                <input
+                                    type="checkbox"
+                                    checked={editForm.opt_in_whatsapp}
+                                    onChange={(e) => setEditForm({ ...editForm, opt_in_whatsapp: e.target.checked })}
+                                    className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+                                />
+                                WhatsApp Opt-in
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                                <input
+                                    type="checkbox"
+                                    checked={editForm.opt_in_sms}
+                                    onChange={(e) => setEditForm({ ...editForm, opt_in_sms: e.target.checked })}
+                                    className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+                                />
+                                SMS Opt-in
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                                <input
+                                    type="checkbox"
+                                    checked={editForm.opt_in_email}
+                                    onChange={(e) => setEditForm({ ...editForm, opt_in_email: e.target.checked })}
+                                    className="rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
+                                />
+                                Email Opt-in
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                        <Button type="button" variant="outline" size="sm" onClick={() => setEditModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" variant="brand" size="sm">
+                            Save Changes
+                        </Button>
                     </div>
                 </form>
             </Modal>
