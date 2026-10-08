@@ -80,11 +80,12 @@ class ChatbotRunner
             return $bot->human_handoff_message ?? 'I am connecting you with a representative right now. Please hold on.';
         }
 
-        // 4. Knowledge Base (RAG) Retrieval
+        // 4. Knowledge Base (RAG) Retrieval (Exempt basic greetings)
         $contextChunks = [];
         $queryEmbedding = [];
+        $isGreetingMsg = $this->isGreeting($body);
         $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
-        if ($kbId && $body !== '') {
+        if ($kbId && $body !== '' && ! $isGreetingMsg) {
             try {
                 $embeddings = $this->llmGateway->embed($workspaceId, [$body]);
                 $queryEmbedding = $embeddings[0] ?? [];
@@ -98,7 +99,7 @@ class ChatbotRunner
         }
 
         // 5. Strict Knowledge Mode Guard (Exempt basic greetings and pleasantries)
-        if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '' && ! $this->isGreeting($body)) {
+        if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '' && ! $isGreetingMsg) {
             AiUnknownQuestion::updateOrCreate(
                 ['workspace_id' => $workspaceId, 'ai_agent_id' => $bot->id, 'question' => mb_substr($body, 0, 500)],
                 ['last_asked_at' => now()]
@@ -151,6 +152,11 @@ class ChatbotRunner
             );
 
             $reply = trim((string) $response->content);
+
+            if ($isGreetingMsg && ($reply === $bot->fallback_reply || str_contains(strtolower($reply), 'verified information') || str_contains(strtolower($reply), 'specialist'))) {
+                $reply = "Hello! Thanks for reaching out to us. How can I assist you today?";
+            }
+
             $latencyMs = (int) round((microtime(true) - $startTime) * 1000);
             $totalTokens = $response->promptTokens + $response->completionTokens;
 
@@ -170,6 +176,10 @@ class ChatbotRunner
                 'line' => $e->getLine(),
             ]);
 
+            if ($isGreetingMsg) {
+                return 'Hello! Thanks for reaching out to us. How can I assist you today?';
+            }
+
             $fallback = ! empty($bot->fallback_reply)
                 ? $bot->fallback_reply
                 : 'Thank you for reaching out! How can I help you today?';
@@ -186,9 +196,10 @@ class ChatbotRunner
         $startTime = microtime(true);
         $contextChunks = [];
         $queryEmbedding = [];
+        $isGreetingMsg = $this->isGreeting($message);
 
         $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
-        if ($kbId && trim($message) !== '') {
+        if ($kbId && trim($message) !== '' && ! $isGreetingMsg) {
             try {
                 $embeddings = $this->llmGateway->embed($workspaceId, [$message]);
                 $queryEmbedding = $embeddings[0] ?? [];
@@ -200,7 +211,7 @@ class ChatbotRunner
             }
         }
 
-        if ($bot->strict_knowledge_mode && empty($contextChunks) && trim($message) !== '' && ! $this->isGreeting($message)) {
+        if ($bot->strict_knowledge_mode && empty($contextChunks) && trim($message) !== '' && ! $isGreetingMsg) {
             return [
                 'reply' => $bot->fallback_reply ?? 'I do not have this information in my knowledge base.',
                 'tokens_used' => 0,
@@ -227,13 +238,26 @@ class ChatbotRunner
                 $bot->id
             );
 
+            $reply = trim((string) $response->content);
+            if ($isGreetingMsg && ($reply === $bot->fallback_reply || str_contains(strtolower($reply), 'verified information') || str_contains(strtolower($reply), 'specialist'))) {
+                $reply = "Hello! Thanks for reaching out to us. How can I assist you today?";
+            }
+
             return [
-                'reply' => $response->content,
+                'reply' => $reply,
                 'tokens_used' => $response->promptTokens + $response->completionTokens,
                 'latency_ms' => (int) round((microtime(true) - $startTime) * 1000),
                 'status' => 'ok',
             ];
         } catch (\Throwable $e) {
+            if ($isGreetingMsg) {
+                return [
+                    'reply' => "Hello! Thanks for reaching out to us. How can I assist you today?",
+                    'tokens_used' => 0,
+                    'status' => 'ok',
+                ];
+            }
+
             return [
                 'reply' => $bot->fallback_reply ?? 'Assistant temporarily unavailable.',
                 'tokens_used' => 0,
@@ -241,6 +265,7 @@ class ChatbotRunner
                 'error' => $e->getMessage(),
             ];
         }
+    }
     }
 
     /**

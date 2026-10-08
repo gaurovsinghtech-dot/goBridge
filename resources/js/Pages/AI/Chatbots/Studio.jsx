@@ -179,7 +179,10 @@ export default function ChatbotStudio({
             const targetUuid = agent?.uuid;
             let resData;
             if (targetUuid) {
-                const res = await axios.post(route('client.ai-agents.simulate', targetUuid), { message: userMsg });
+                const res = await axios.post(route('client.ai-agents.simulate', targetUuid), {
+                    message: userMsg,
+                    overrides: data,
+                });
                 resData = res.data;
             } else {
                 // Mock test run for unsaved draft

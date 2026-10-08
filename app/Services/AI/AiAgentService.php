@@ -552,10 +552,11 @@ class AiAgentService
         // 2. Entity Extraction
         $entities = $this->extractEntities($message);
 
-        // 3. Knowledge Retrieval
+        // 3. Knowledge Retrieval (Exempt basic greetings)
         $retrievedChunks = [];
+        $isGreetingMsg = app(\App\Modules\AI\Services\ChatbotRunner::class)->isGreeting($message);
         $kb = $agent->knowledgeBase ?? ($agent->ai_kb_id ? \App\Modules\AI\Models\AiKnowledgeBase::find($agent->ai_kb_id) : \App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $agent->workspace_id)->first());
-        if ($kb) {
+        if ($kb && ! $isGreetingMsg) {
             $retrievedChunks = $this->knowledgeService->search(
                 $kb,
                 $message,
@@ -580,7 +581,7 @@ class AiAgentService
         } elseif ($intent === 'complaint') {
             $needsHandoff = true;
             $handoffReason = 'Customer grievance / complaint detected';
-        } elseif ($agent->strict_knowledge_mode && empty($retrievedChunks) && ! app(\App\Modules\AI\Services\ChatbotRunner::class)->isGreeting($message)) {
+        } elseif ($agent->strict_knowledge_mode && empty($retrievedChunks) && ! $isGreetingMsg) {
             $isUnknownFallback = true;
             $handoffReason = 'Strict knowledge mode: no matching knowledge source found';
         } elseif ($isGeneralTrivia && empty($retrievedChunks)) {
@@ -612,6 +613,10 @@ class AiAgentService
                 }
             } catch (\Throwable $llmErr) {
                 Log::warning("Playground simulation LLM call failed: " . $llmErr->getMessage());
+            }
+
+            if ($isGreetingMsg && (empty($draftResponse) || str_contains(strtolower($draftResponse), 'verified information') || str_contains(strtolower($draftResponse), 'specialist') || $draftResponse === $agent->fallback_reply)) {
+                $draftResponse = "Hello! Thanks for reaching out to us. How can I assist you today?";
             }
 
             // Fallback response formatting if LLM call is unavailable or unconfigured

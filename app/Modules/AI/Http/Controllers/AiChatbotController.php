@@ -325,7 +325,24 @@ class AiChatbotController extends Controller
         $this->authorise($request, $chatbot);
         $request->validate([
             'message' => ['required', 'string', 'max:1000'],
+            'overrides' => ['nullable', 'array'],
         ]);
+
+        $overrides = $request->input('overrides', []);
+        if (! empty($overrides) && is_array($overrides)) {
+            $allowed = [
+                'name', 'purpose', 'description', 'tone', 'response_style',
+                'emoji_style', 'language', 'objectives', 'guardrails',
+                'system_prompt', 'ai_kb_id', 'strict_knowledge_mode',
+                'fallback_reply', 'confidence_threshold', 'human_handoff_enabled',
+                'human_handoff_message',
+            ];
+            foreach ($allowed as $field) {
+                if (array_key_exists($field, $overrides)) {
+                    $chatbot->{$field} = $overrides[$field];
+                }
+            }
+        }
 
         $result = $this->agentService->runPlaygroundTest($chatbot, $request->message);
 
