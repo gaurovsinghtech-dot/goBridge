@@ -2,7 +2,6 @@
 
 namespace App\Modules\Shared\Services;
 
-use App\Events\ContactCreated;
 use App\Modules\Shared\Models\Contact;
 use App\Modules\Shared\Models\ContactTag;
 use App\Modules\Shared\Models\Segment;
@@ -24,6 +23,11 @@ class ContactService
      */
     public function upsert(int $workspaceId, array $data, bool $dispatchCreatedEvent = true): Contact
     {
+        // ContactCreated is dispatched by the Contact model's created hook.
+        if (! $dispatchCreatedEvent) {
+            return Contact::withoutCreatedEvent(fn () => $this->upsert($workspaceId, $data));
+        }
+
         $lookup = [];
 
         if (! empty($data['phone_e164'])) {
@@ -36,24 +40,14 @@ class ContactService
         }
 
         if (empty($lookup)) {
-            $contact = Contact::create(array_merge($data, ['workspace_id' => $workspaceId]));
-            if ($dispatchCreatedEvent) {
-                ContactCreated::dispatch($contact);
-            }
-
-            return $contact;
+            return Contact::create(array_merge($data, ['workspace_id' => $workspaceId]));
         }
 
-        $exists = Contact::withTrashed()->where($lookup)->exists();
         $contact = Contact::withTrashed()->updateOrCreate($lookup, array_merge($data, ['workspace_id' => $workspaceId]));
 
         // Restore soft-deleted contact so it appears in normal queries again.
         if ($contact->trashed()) {
             $contact->restore();
-        }
-
-        if (! $exists && $dispatchCreatedEvent) {
-            ContactCreated::dispatch($contact);
         }
 
         return $contact;

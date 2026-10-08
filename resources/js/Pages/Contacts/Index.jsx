@@ -6,25 +6,26 @@ import { useState, useCallback } from 'react';
 import { UserPlus, Upload, Search, Tag, Trash2, Eye, Users, Table2, Download, CheckSquare, Square, X, Layers, Plus, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-function ContactAvatar({ contact, size = 8 }) {
+function ContactAvatar({ contact }) {
     const { t } = useTranslation();
+    const [imgFailed, setImgFailed] = useState(false);
     const name = `${contact.first_name ?? ''} ${contact.last_name ?? ''}`.trim();
     const initials = name
-        ? name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
+        ? name.split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase()
         : '?';
 
-    if (contact.avatar_url) {
+    if (contact.avatar_url && !imgFailed) {
         return (
             <img
                 src={contact.avatar_url}
                 alt={name || t('contacts_page.contact_alt')}
-                className={`h-${size} w-${size} rounded-full object-cover flex-shrink-0`}
-                onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+                onError={() => setImgFailed(true)}
             />
         );
     }
     return (
-        <div className={`h-${size} w-${size} rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs font-semibold flex-shrink-0`}>
+        <div className={`h-8 w-8 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs font-semibold flex-shrink-0`}>
             {initials}
         </div>
     );
@@ -44,7 +45,7 @@ function ContactRow({ contact, selected, onToggle, onDelete }) {
             </td>
             <td className="px-4 py-3 text-sm text-neutral-900 dark:text-neutral-100">
                 <div className="flex items-center gap-2.5">
-                    <ContactAvatar contact={contact} size={8} />
+                    <ContactAvatar contact={contact} />
                     <span>
                         {contact.first_name || contact.last_name
                             ? `${contact.first_name ?? ''} ${contact.last_name ?? ''}`.trim()
@@ -57,11 +58,14 @@ function ContactRow({ contact, selected, onToggle, onDelete }) {
             <td className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">{contact.email || '—'}</td>
             <td className="px-4 py-3">
                 <div className="flex flex-wrap gap-1">
-                    {contact.tags?.map(tag => (
-                        <span key={tag.id} className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: tag.color + '33', color: tag.color }}>
-                            {tag.name}
-                        </span>
-                    ))}
+                    {contact.tags?.map(tag => {
+                        const color = tag.color || '#6366f1';
+                        return (
+                            <span key={tag.id} className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: color + '33', color }}>
+                                {tag.name}
+                            </span>
+                        );
+                    })}
                 </div>
             </td>
             <td className="px-4 py-3">
@@ -234,6 +238,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
     const { t } = useTranslation();
     const { props } = usePage();
     const flash = props.flash ?? {};
+    const [bulkError, setBulkError] = useState(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -241,7 +246,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
     const [bulkProcessing, setBulkProcessing] = useState(false);
     const [selected, setSelected] = useState(new Set());
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
         first_name: '', last_name: '', phone_e164: '', email: '',
         opt_in_whatsapp: true, opt_in_sms: true, opt_in_email: true,
         segment_ids: [],
@@ -277,16 +282,23 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
 
     const handleDelete = (uuid) => {
         if (confirm(t('contacts_page.confirm_delete_one'))) {
-            router.delete(route('client.contacts.destroy', uuid), { preserveScroll: true });
+            router.delete(route('client.contacts.destroy', uuid), {
+                preserveScroll: true,
+                onSuccess: () => setSelected(prev => { const next = new Set(prev); next.delete(uuid); return next; }),
+            });
         }
     };
 
+    const firstError = (errs) => Object.values(errs ?? {})[0] ?? null;
+
     const handleBulkDelete = () => {
         if (!confirm(t('contacts_page.confirm_delete_selected', { count: selected.size }))) return;
+        setBulkError(null);
         router.delete(route('client.contacts.bulk-destroy'), {
             data: { uuids: [...selected] },
             preserveScroll: true,
             onSuccess: () => clearSelection(),
+            onError: (errs) => setBulkError(firstError(errs)),
         });
     };
 
@@ -294,8 +306,11 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
         const params = new URLSearchParams();
         if (selectedOnly && someSelected) {
             params.set('uuids', [...selected].join(','));
-        } else if (filters.search) {
-            params.set('search', filters.search);
+        } else {
+            // Export what the list is showing: search, tag and segment filters.
+            ['search', 'tag', 'segment', 'segment_id'].forEach(key => {
+                if (filters[key]) params.set(key, filters[key]);
+            });
         }
         window.location.href = route('client.contacts.export') + (params.toString() ? '?' + params.toString() : '');
     };
@@ -303,11 +318,19 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
     const applyBulk = (payload) => {
         const routeName = bulkModal === 'tags' ? 'client.contacts.bulk-tags' : 'client.contacts.bulk-segments';
         setBulkProcessing(true);
+        setBulkError(null);
         router.post(route(routeName), { uuids: [...selected], ...payload }, {
             preserveScroll: true,
             onSuccess: () => { setBulkModal(null); clearSelection(); },
+            onError: (errs) => { setBulkModal(null); setBulkError(firstError(errs)); },
             onFinish: () => setBulkProcessing(false),
         });
+    };
+
+    const closeAddModal = () => {
+        reset();
+        clearErrors();
+        setShowAddModal(false);
     };
 
     const handlePhoneChange = (value) => {
@@ -333,7 +356,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
             alert(t('contacts_page.alert_phone_or_email'));
             return;
         }
-        post(route('client.contacts.store'), { onSuccess: () => { reset(); setShowAddModal(false); } });
+        post(route('client.contacts.store'), { preserveScroll: true, onSuccess: closeAddModal });
     };
 
     return (
@@ -371,6 +394,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                 </div>
 
                 {flash.success && <div className="rounded-lg bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-4 py-2 text-sm">{flash.success}</div>}
+                {(bulkError || flash.error) && <div className="rounded-lg bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-2 text-sm">{bulkError || flash.error}</div>}
 
                 {activeSegment && (
                     <div className="flex items-center justify-between rounded-lg bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-4 py-2.5 text-sm text-brand-800 dark:text-brand-200">
@@ -474,7 +498,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                 {contacts.last_page > 1 && (
                     <div className="flex gap-1">
                         {contacts.links.map((link, i) => (
-                            <a key={i} href={link.url ?? '#'} className={`px-3 py-1.5 rounded text-sm border ${link.active ? 'bg-brand-600 text-white border-brand-600' : 'border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'} ${!link.url ? 'opacity-40 pointer-events-none' : ''}`} dangerouslySetInnerHTML={{ __html: link.label }} />
+                            <Link key={i} href={link.url ?? '#'} preserveState className={`px-3 py-1.5 rounded text-sm border ${link.active ? 'bg-brand-600 text-white border-brand-600' : 'border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'} ${!link.url ? 'opacity-40 pointer-events-none' : ''}`} dangerouslySetInnerHTML={{ __html: link.label }} />
                         ))}
                     </div>
                 )}
@@ -516,11 +540,16 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                             <div>
                                 <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t('contacts_page.phone_e164')}</label>
                                 <input type="text" value={data.phone_e164} onChange={e => handlePhoneChange(e.target.value)} placeholder="+8801XXXXXXXXX" className="mt-1 w-full rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm" />
+                                {errors.phone_e164 && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.phone_e164}</p>}
                             </div>
                             <div>
                                 <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t('common.email')}</label>
                                 <input type="email" value={data.email} onChange={e => handleEmailChange(e.target.value)} className="mt-1 w-full rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm" />
+                                {errors.email && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email}</p>}
                             </div>
+                            {Object.entries(errors)
+                                .filter(([key]) => key !== 'phone_e164' && key !== 'email')
+                                .map(([key, msg]) => <p key={key} className="text-xs text-red-600 dark:text-red-400">{msg}</p>)}
                             <div className="flex gap-4">
                                 {[['opt_in_whatsapp', 'WhatsApp', !data.phone_e164.trim()], ['opt_in_sms', t('contacts_page.channel_sms'), !data.phone_e164.trim()], ['opt_in_email', t('common.email'), !data.email.trim()]].map(([key, label, disabled]) => (
                                     <label key={key} className={`flex items-center gap-1.5 text-sm ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -552,7 +581,7 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                                 <button type="submit" disabled={processing} className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition">
                                     {processing ? t('common.saving') : t('common.save')}
                                 </button>
-                                <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+                                <button type="button" onClick={closeAddModal} className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
                                     {t('common.cancel')}
                                 </button>
                             </div>

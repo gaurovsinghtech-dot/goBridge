@@ -71,8 +71,35 @@ class Contact extends Model
             }
         });
         static::created(function (self $model) {
-            \App\Events\ContactCreated::dispatch($model);
+            if (! static::$suppressCreatedEvent) {
+                \App\Events\ContactCreated::dispatch($model);
+            }
         });
+    }
+
+    /**
+     * When true, the created hook skips ContactCreated (bulk imports/syncs).
+     */
+    protected static bool $suppressCreatedEvent = false;
+
+    /**
+     * Run $callback without firing ContactCreated for contacts it creates.
+     *
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     */
+    public static function withoutCreatedEvent(callable $callback): mixed
+    {
+        $previous = static::$suppressCreatedEvent;
+        static::$suppressCreatedEvent = true;
+
+        try {
+            return $callback();
+        } finally {
+            static::$suppressCreatedEvent = $previous;
+        }
     }
 
     public function getRouteKeyName(): string

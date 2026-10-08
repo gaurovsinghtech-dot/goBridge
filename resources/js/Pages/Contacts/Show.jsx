@@ -110,7 +110,7 @@ export default function UnifiedCustomerShow({
     const handleMerge = (secondaryId) => {
         if (!confirm('Are you sure you want to merge this duplicate contact into the current profile? All messages and call records will be preserved.')) return;
 
-        router.post(route('client.contacts.merge', contact.uuid || contact.id), {
+        router.post(route('client.contacts.merge-contact', contact.uuid || contact.id), {
             secondary_contact_id: secondaryId,
         }, {
             onSuccess: () => toast.success('Contacts merged successfully.'),

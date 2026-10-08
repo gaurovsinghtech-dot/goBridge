@@ -31,8 +31,8 @@ class ContactCreated implements ShouldBroadcast
     {
         return [
             'id' => $this->contact->id,
-            'name' => $this->contact->name,
-            'phone' => $this->contact->phone,
+            'name' => $this->contact->full_name,
+            'phone' => $this->contact->phone_e164,
             'email' => $this->contact->email,
             'created_at' => $this->contact->created_at?->toIso8601String(),
         ];

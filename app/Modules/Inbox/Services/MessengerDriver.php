@@ -2,7 +2,6 @@
 
 namespace App\Modules\Inbox\Services;
 
-use App\Events\ContactCreated;
 use App\Events\MessageReceived;
 use App\Modules\Shared\Contracts\ChannelDriverInterface;
 use App\Modules\Shared\Models\ChannelAccount;
@@ -250,8 +249,6 @@ class MessengerDriver implements ChannelDriverInterface
                 'last_name' => $lastName,
                 'custom_fields' => array_filter(['messenger_psid' => $psid]),
             ]);
-
-            ContactCreated::dispatch($contact);
         } elseif ($firstName && ! $contact->first_name) {
             // Backfill name only when we learned one and the contact doesn't already
             // have one (never clobber a manually edited contact).

@@ -28,7 +28,7 @@ class CustomerTimelineController extends Controller
     public function show(Request $request, Contact $contact): Response
     {
         $wid = $this->workspaceId($request);
-        abort_if($contact->workspace_id !== $wid, 403);
+        abort_if((int) $contact->workspace_id !== $wid, 403);
 
         $contact->load(['tags', 'segments']);
 
@@ -64,7 +64,7 @@ class CustomerTimelineController extends Controller
     public function timeline(Request $request, Contact $contact): JsonResponse
     {
         $wid = $this->workspaceId($request);
-        abort_if($contact->workspace_id !== $wid, 403);
+        abort_if((int) $contact->workspace_id !== $wid, 403);
 
         $timeline = $this->timelineService->getTimeline($contact, $request->all());
 
@@ -80,7 +80,7 @@ class CustomerTimelineController extends Controller
     public function merge(Request $request, Contact $contact): RedirectResponse
     {
         $wid = $this->workspaceId($request);
-        abort_if($contact->workspace_id !== $wid, 403);
+        abort_if((int) $contact->workspace_id !== $wid, 403);
 
         $validated = $request->validate([
             'secondary_contact_id' => ['required', 'exists:contacts,id'],
@@ -99,7 +99,7 @@ class CustomerTimelineController extends Controller
     public function addNote(Request $request, Contact $contact): RedirectResponse
     {
         $wid = $this->workspaceId($request);
-        abort_if($contact->workspace_id !== $wid, 403);
+        abort_if((int) $contact->workspace_id !== $wid, 403);
 
         $validated = $request->validate([
             'body' => ['required', 'string', 'max:1000'],

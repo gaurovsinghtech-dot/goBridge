@@ -58,7 +58,8 @@ class ContactController extends Controller
             ->withQueryString();
 
         $tags = Schema::hasTable('contact_tags') ? ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get() : collect();
-        $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->orderBy('name')->get(['id', 'name', 'type']) : collect();
+        // Only static segments accept manual membership (add form, bulk actions, import).
+        $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->where('type', 'static')->orderBy('name')->get(['id', 'name', 'type']) : collect();
 
         return Inertia::render('Contacts/Index', [
             'contacts' => $contacts,
@@ -133,8 +134,17 @@ class ContactController extends Controller
             'segment_ids.*' => ['integer', Rule::exists('segments', 'id')->where(fn ($q) => $q->where('workspace_id', $workspaceId)->where('type', 'static'))],
         ]);
 
+        if (empty($validated['phone_e164']) && empty($validated['email'])) {
+            throw ValidationException::withMessages([
+                'phone_e164' => 'A phone number or email address is required.',
+            ]);
+        }
+
         $segmentIds = $validated['segment_ids'] ?? [];
         unset($validated['segment_ids']);
+
+        // Blank fields must not wipe data on an existing contact matched by phone/email.
+        $validated = array_filter($validated, fn ($v) => $v !== null);
 
         $contact = $this->contactService->upsert($workspaceId, array_merge($validated, ['source' => 'manual']));
 
@@ -456,8 +466,16 @@ class ContactController extends Controller
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
 
-        $contacts = Contact::where('workspace_id', $workspaceId)
+        $segmentId = $request->query('segment') ?? $request->query('segment_id');
+        $segment = $segmentId ? Segment::where('workspace_id', $workspaceId)->where('id', $segmentId)->first() : null;
+
+        $query = $segment
+            ? app(SegmentResolver::class)->query($segment)
+            : Contact::where('workspace_id', $workspaceId);
+
+        $contacts = $query
             ->with('tags')
+            ->when($request->tag, fn ($q) => $q->whereHas('tags', fn ($q) => $q->where('name', $request->tag)))
             ->when($request->uuids, fn ($q) => $q->whereIn('uuid', explode(',', $request->uuids)))
             ->when($request->search, fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('first_name', 'like', '%'.$request->search.'%')
