@@ -227,8 +227,20 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
         },
     ];
 
-    const handleLaunch = () =>
-        router.post(route('client.campaigns.launch', campaign.uuid), {}, { preserveScroll: true });
+    const [isLaunching, setIsLaunching] = useState(false);
+
+    const handleLaunch = () => {
+        if (isLaunching) return;
+        setIsLaunching(true);
+        router.post(
+            route('client.campaigns.launch', campaign.uuid),
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => setIsLaunching(false),
+            },
+        );
+    };
     const handlePause = () =>
         router.post(route('client.campaigns.pause', campaign.uuid), {}, { preserveScroll: true });
     const handleCancel = () => {
@@ -342,10 +354,11 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                             {campaign.status === 'draft' && (
                                 <button
                                     onClick={handleLaunch}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition-all"
+                                    disabled={isLaunching}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Play className="h-4 w-4 fill-current" />
-                                    <span>{t('campaign.launch', 'Launch Campaign')}</span>
+                                    <Play className={`h-4 w-4 fill-current ${isLaunching ? 'animate-spin' : ''}`} />
+                                    <span>{isLaunching ? t('common.launching', 'Launching...') : t('campaign.launch', 'Launch Campaign')}</span>
                                 </button>
                             )}
 
@@ -362,10 +375,11 @@ export default function CampaignShow({ campaign, sample = [], reportUrl }) {
                             {campaign.status === 'paused' && (
                                 <button
                                     onClick={handleLaunch}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-emerald-500 active:scale-95 transition-all"
+                                    disabled={isLaunching}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-emerald-500 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Play className="h-4 w-4 fill-current" />
-                                    <span>{t('campaign.resume', 'Resume')}</span>
+                                    <Play className={`h-4 w-4 fill-current ${isLaunching ? 'animate-spin' : ''}`} />
+                                    <span>{isLaunching ? t('common.resuming', 'Resuming...') : t('campaign.resume', 'Resume')}</span>
                                 </button>
                             )}
 

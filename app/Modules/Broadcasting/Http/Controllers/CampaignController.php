@@ -187,7 +187,14 @@ class CampaignController extends Controller
     public function launch(Request $request, Campaign $campaign): RedirectResponse
     {
         $this->authorise($request, $campaign);
-        abort_unless(in_array($campaign->status, ['draft', 'paused', 'scheduled'], true), 422, 'Cannot launch this campaign.');
+
+        if (in_array($campaign->status, ['queued', 'sending', 'completed', 'finished'], true)) {
+            return back()->with('success', 'Campaign is already ' . $campaign->status . '.');
+        }
+
+        if (! in_array($campaign->status, ['draft', 'paused', 'scheduled'], true)) {
+            return back()->with('error', 'Cannot launch campaign with status: ' . $campaign->status);
+        }
 
         if ($request->boolean('confirmed') || $request->boolean('force')) {
             $campaign->update(['confirmed_at' => now()]);
@@ -202,7 +209,11 @@ class CampaignController extends Controller
             $campaign->refresh();
         }
 
-        $this->campaignService->launchCampaign($campaign, $request->boolean('force'));
+        try {
+            $this->campaignService->launchCampaign($campaign, $request->boolean('force'));
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Campaign launched successfully.');
     }
@@ -210,7 +221,11 @@ class CampaignController extends Controller
     public function pause(Request $request, Campaign $campaign): RedirectResponse
     {
         $this->authorise($request, $campaign);
-        $this->campaignService->pauseCampaign($campaign);
+        try {
+            $this->campaignService->pauseCampaign($campaign);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Campaign paused.');
     }
@@ -218,7 +233,11 @@ class CampaignController extends Controller
     public function resume(Request $request, Campaign $campaign): RedirectResponse
     {
         $this->authorise($request, $campaign);
-        $this->campaignService->resumeCampaign($campaign);
+        try {
+            $this->campaignService->resumeCampaign($campaign);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Campaign resumed.');
     }
@@ -226,7 +245,11 @@ class CampaignController extends Controller
     public function cancel(Request $request, Campaign $campaign): RedirectResponse
     {
         $this->authorise($request, $campaign);
-        $this->campaignService->cancelCampaign($campaign);
+        try {
+            $this->campaignService->cancelCampaign($campaign);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Campaign cancelled.');
     }
