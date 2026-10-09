@@ -106,17 +106,19 @@ class AutoReplyListener
 
         // ── 3. AI chatbot (linked to channel or workspace active default) ──
         $chatbot = null;
-        $chatbotId = $channelAccount->meta_json['ai_chatbot_id'] ?? null;
+        $chatbotId = $channelAccount->ai_chatbot_id ?? ($channelAccount->meta_json['ai_chatbot_id'] ?? null);
         if ($chatbotId) {
             $chatbot = AiChatbot::where('workspace_id', $conversation->workspace_id)->find($chatbotId);
         } else {
             $chatbot = AiChatbot::where('workspace_id', $conversation->workspace_id)
-                ->where('enabled', true)
+                ->where(function ($q) {
+                    $q->where('enabled', true)->orWhereIn('status', ['published', 'active', 'testing']);
+                })
                 ->orderByRaw("CASE status WHEN 'published' THEN 1 WHEN 'active' THEN 2 WHEN 'testing' THEN 3 ELSE 4 END")
                 ->first();
         }
 
-        if (! $chatbot || ! $chatbot->enabled) {
+        if (! $chatbot) {
             return;
         }
 
