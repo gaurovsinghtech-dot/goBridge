@@ -180,9 +180,23 @@ export default function ChatbotStudio({
             let resData;
             if (targetUuid) {
                 const endpoint = safeRoute('client.ai-agents.simulate', safeRoute('client.ai.chatbots.simulate', `/app/ai-agents/${targetUuid}/simulate`, targetUuid), targetUuid);
+                const cleanOverrides = {
+                    name: data.name,
+                    purpose: data.purpose,
+                    description: data.description,
+                    tone: data.tone,
+                    response_style: data.response_style,
+                    emoji_style: data.emoji_style,
+                    language: data.language,
+                    system_prompt: data.system_prompt,
+                    ai_kb_id: data.ai_kb_id ? Number(data.ai_kb_id) : null,
+                    strict_knowledge_mode: Boolean(data.strict_knowledge_mode),
+                    fallback_reply: data.fallback_reply,
+                    confidence_threshold: data.confidence_threshold ? Number(data.confidence_threshold) : 75,
+                };
                 const res = await axios.post(endpoint, {
                     message: userMsg,
-                    overrides: data,
+                    overrides: cleanOverrides,
                 });
                 resData = res.data;
             } else {
