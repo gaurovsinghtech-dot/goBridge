@@ -603,10 +603,10 @@ class ChatbotRunner
         $clean = preg_replace('/[^\w\s]/', '', $normalized);
 
         $greetings = [
-            'hi', 'hello', 'hey', 'heya', 'hola', 'namaste',
-            'good morning', 'good afternoon', 'good evening', 'good day',
-            'thanks', 'thank you', 'bye', 'goodbye', 'start', 'help', 'info',
-            'want caption', 'caption',
+            'hi', 'hello', 'hey', 'heya', 'hola', 'namaste', 'whats up', 'whatsup', 'sup',
+            'how are you', 'how r u', 'hi there', 'hey there', 'good morning', 'good afternoon',
+            'good evening', 'good day', 'good night', 'thanks', 'thank you', 'bye', 'goodbye',
+            'start', 'help', 'info', 'want caption', 'caption',
         ];
 
         foreach ($greetings as $g) {

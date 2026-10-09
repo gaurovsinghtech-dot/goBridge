@@ -309,7 +309,7 @@ class AiAgentService
     {
         $lower = strtolower(trim($message));
 
-        if (preg_match('/^(hi|hello|hey|heya|hola|namaste|good morning|good afternoon|good evening|thanks|thank you|bye|goodbye|want caption|caption)$/i', $lower) || preg_match('/(hello|hi|hey|greetings|want caption|caption)/i', $lower)) {
+        if (preg_match('/^(hi|hello|hey|heya|hola|namaste|whats up|what\'s up|sup|how are you|good morning|good afternoon|good evening|thanks|thank you|bye|goodbye|want caption|caption)$/i', $lower) || preg_match('/\b(hello|hi|hey|greetings|whats up|what\'s up|sup|how are you|want caption|caption)\b/i', $lower)) {
             return ['intent' => 'greeting', 'confidence' => 95];
         }
         if (preg_match('/(talk to|speak with|connect me|agent|human|manager|support person|call me)/i', $lower)) {
