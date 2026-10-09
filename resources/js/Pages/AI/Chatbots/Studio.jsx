@@ -179,7 +179,8 @@ export default function ChatbotStudio({
             const targetUuid = agent?.uuid;
             let resData;
             if (targetUuid) {
-                const res = await axios.post(route('client.ai-agents.simulate', targetUuid), {
+                const endpoint = safeRoute('client.ai-agents.simulate', safeRoute('client.ai.chatbots.simulate', `/app/ai-agents/${targetUuid}/simulate`, targetUuid), targetUuid);
+                const res = await axios.post(endpoint, {
                     message: userMsg,
                     overrides: data,
                 });
@@ -207,7 +208,9 @@ export default function ChatbotStudio({
                 details: resData
             }]);
         } catch (e) {
-            setSimulatorMessages(prev => [...prev, { role: 'assistant', content: 'Simulation test failed.' }]);
+            console.error('Simulator test error:', e);
+            const errMsg = e.response?.data?.error || e.response?.data?.message || e.message || 'Simulation test failed.';
+            setSimulatorMessages(prev => [...prev, { role: 'assistant', content: `Simulation test error: ${errMsg}` }]);
         } finally {
             setSimulatorLoading(false);
         }
