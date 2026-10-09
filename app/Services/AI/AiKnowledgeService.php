@@ -570,7 +570,7 @@ class AiKnowledgeService
                         }
 
                         // Check agent assignment
-                        if ($agentId !== null && ! empty($doc->assigned_agents) && ! in_array($agentId, $doc->assigned_agents, false)) {
+                        if (! $this->isAgentAuthorizedForDoc($agentId, $doc)) {
                             continue;
                         }
 
@@ -633,7 +633,7 @@ class AiKnowledgeService
                 }
 
                 // Check agent assignment
-                if ($agentId !== null && ! empty($doc->assigned_agents) && ! in_array($agentId, $doc->assigned_agents, false)) {
+                if (! $this->isAgentAuthorizedForDoc($agentId, $doc)) {
                     continue;
                 }
 
@@ -685,6 +685,36 @@ class AiKnowledgeService
         }
 
         return $topResults;
+    }
+
+    /**
+     * Check whether an agent is authorized to access a specific document.
+     */
+    private function isAgentAuthorizedForDoc(?int $agentId, ?AiKbDocument $doc): bool
+    {
+        if ($agentId === null || ! $doc || empty($doc->assigned_agents)) {
+            return true;
+        }
+
+        $assigned = $doc->assigned_agents;
+        if (! is_array($assigned)) {
+            return true;
+        }
+
+        if (in_array('all', $assigned, true) || in_array('*', $assigned, true) || in_array('all_agents', $assigned, true)) {
+            return true;
+        }
+
+        if (in_array($agentId, $assigned, false) || in_array((string) $agentId, $assigned, true)) {
+            return true;
+        }
+
+        $botUuid = \App\Modules\AI\Models\AiChatbot::where('id', $agentId)->value('uuid');
+        if ($botUuid && in_array($botUuid, $assigned, true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

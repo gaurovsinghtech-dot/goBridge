@@ -615,11 +615,20 @@ class AiAgentService
                 Log::warning("Playground simulation LLM call failed: " . $llmErr->getMessage());
             }
 
-            if ($isGreetingMsg && (empty($draftResponse) || str_contains(strtolower($draftResponse), 'verified information') || str_contains(strtolower($draftResponse), 'specialist') || $draftResponse === $agent->fallback_reply)) {
+            if ($isGreetingMsg && (empty($draftResponse) || str_contains(strtolower((string) $draftResponse), 'verified information') || str_contains(strtolower((string) $draftResponse), 'specialist') || $draftResponse === $agent->fallback_reply)) {
                 $draftResponse = "Hello! Thanks for reaching out to us. How can I assist you today?";
             }
 
-            // Fallback response formatting if LLM call is unavailable or unconfigured
+            $isFallbackMsg = $draftResponse === $agent->fallback_reply
+                || str_contains(strtolower((string) $draftResponse), 'verified information')
+                || str_contains(strtolower((string) $draftResponse), 'specialist')
+                || str_contains(strtolower((string) $draftResponse), 'do not have this information');
+
+            if (! $isGreetingMsg && $isFallbackMsg && ! empty($retrievedChunks)) {
+                $draftResponse = "";
+            }
+
+            // Fallback response formatting if LLM call is unavailable or returned fallback despite context
             if (empty($draftResponse)) {
                 if (! empty($retrievedChunks)) {
                     $topChunk = $retrievedChunks[0];
