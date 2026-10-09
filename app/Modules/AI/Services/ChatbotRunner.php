@@ -162,8 +162,8 @@ class ChatbotRunner
             $latencyMs = (int) round((microtime(true) - $startTime) * 1000);
             $totalTokens = $response->promptTokens + $response->completionTokens;
 
-            // 9. Post-response Handoff Detection (If LLM indicates uncertainty)
-            if ($bot->human_handoff_enabled && $this->isUncertaintyReply($reply)) {
+            // 9. Post-response Handoff Detection (If LLM indicates uncertainty - exempt greetings)
+            if (! $isGreetingMsg && $bot->human_handoff_enabled && $this->isUncertaintyReply($reply)) {
                 $this->handoffService->executeHandoff($conversation, $bot->human_handoff_user_id, 'AI generated handoff response');
                 $reply = $bot->human_handoff_message ?? $reply;
             }
