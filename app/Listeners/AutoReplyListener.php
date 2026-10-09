@@ -53,7 +53,7 @@ class AutoReplyListener
             $this->process($event);
         } catch (\Throwable $e) {
             Log::error('AutoReplyListener unhandled exception', [
-                'message_id' => $msgId,
+                'message_id' => $msgKey,
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

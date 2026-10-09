@@ -30,9 +30,10 @@ class AutomationTriggerListener
         $msgKey = $event->message->provider_message_id ?: $event->message->id;
 
         // Resume any runs parked on an "Ask question" node awaiting this contact's reply.
-        $this->engine->resumeAwaitingReplies($workspaceId, $contactId, $messageBody);
-
-        \Illuminate\Support\Facades\Cache::put("automation_triggered:{$msgKey}", 1, 60);
+        $resumed = $this->engine->resumeAwaitingReplies($workspaceId, $contactId, $messageBody);
+        if ($resumed) {
+            \Illuminate\Support\Facades\Cache::put("automation_triggered:{$msgKey}", 1, 60);
+        }
 
         $this->fireWithConfig('message.received', $workspaceId, $contactId, [
             'idempotency_key' => "msg_{$msgKey}",
@@ -216,6 +217,10 @@ class AutomationTriggerListener
             }
 
             \Illuminate\Support\Facades\Log::info("AutomationTriggerListener: Triggering automation #{$automation->id} ({$automation->name}) for contact #{$contactId}");
+            if (isset($context['message_id'])) {
+                $msgKey = $context['idempotency_key'] ?? $context['message_id'];
+                \Illuminate\Support\Facades\Cache::put("automation_triggered:{$msgKey}", 1, 60);
+            }
             $this->engine->triggerForContact($automation, $contactId, $context);
         }
     }
