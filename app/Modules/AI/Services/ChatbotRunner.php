@@ -83,22 +83,8 @@ class ChatbotRunner
         }
 
         // 4. Knowledge Base (RAG) Retrieval (Exempt basic greetings)
-        $contextChunks = [];
-        $queryEmbedding = [];
         $isGreetingMsg = $this->isGreeting($body);
-        $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
-        if ($kbId && $body !== '' && ! $isGreetingMsg) {
-            try {
-                $embeddings = $this->llmGateway->embed($workspaceId, [$body]);
-                $queryEmbedding = $embeddings[0] ?? [];
-                if (! empty($queryEmbedding)) {
-                    $results = $this->embedStore->search($kbId, $queryEmbedding, $bot->max_context_chunks ?? 5);
-                    $contextChunks = array_column($results, 'chunk');
-                }
-            } catch (\Throwable $e) {
-                Log::warning("AI RAG lookup failed for bot {$bot->id}: {$e->getMessage()}");
-            }
-        }
+        $contextChunks = $this->fetchKnowledgeChunks($bot, $body, $workspaceId);
 
         // 5. Strict Knowledge Mode Guard (Exempt basic greetings and pleasantries)
         if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '' && ! $isGreetingMsg) {
@@ -196,22 +182,8 @@ class ChatbotRunner
     public function runForApi(AiChatbot $bot, string $message, int $workspaceId, array $history = []): array
     {
         $startTime = microtime(true);
-        $contextChunks = [];
-        $queryEmbedding = [];
         $isGreetingMsg = $this->isGreeting($message);
-
-        $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
-        if ($kbId && trim($message) !== '' && ! $isGreetingMsg) {
-            try {
-                $embeddings = $this->llmGateway->embed($workspaceId, [$message]);
-                $queryEmbedding = $embeddings[0] ?? [];
-                if (! empty($queryEmbedding)) {
-                    $results = $this->embedStore->search($kbId, $queryEmbedding, $bot->max_context_chunks ?? 5);
-                    $contextChunks = array_column($results, 'chunk');
-                }
-            } catch (\Throwable) {
-            }
-        }
+        $contextChunks = $this->fetchKnowledgeChunks($bot, $message, $workspaceId);
 
         if ($bot->strict_knowledge_mode && empty($contextChunks) && trim($message) !== '' && ! $isGreetingMsg) {
             return [
@@ -439,7 +411,17 @@ class ChatbotRunner
         }
 
         if (! empty($contextChunks)) {
-            $contextText = implode("\n\n---\n\n", array_map(fn ($c) => is_array($c) ? ($c['content'] ?? '') : ($c->content ?? ''), $contextChunks));
+            $contextText = implode("\n\n---\n\n", array_map(function ($c) {
+                if (is_array($c)) {
+                    $title = $c['title'] ?? 'Knowledge Source';
+                    $content = $c['content'] ?? '';
+                    return "[Source: {$title}]\n{$content}";
+                }
+                $title = $c->document?->title ?? 'Knowledge Source';
+                $content = $c->content ?? '';
+                return "[Source: {$title}]\n{$content}";
+            }, $contextChunks));
+
             $prompt .= "\n--- RELEVANT KNOWLEDGE BASE CONTEXT ---\n".$contextText."\n";
         }
 
@@ -451,6 +433,41 @@ class ChatbotRunner
         }
 
         return $prompt;
+    }
+
+    /**
+     * Retrieve relevant knowledge base chunks using hybrid RAG search.
+     */
+    private function fetchKnowledgeChunks(AiChatbot $bot, string $body, int $workspaceId): array
+    {
+        if ($this->isGreeting($body) || trim($body) === '') {
+            return [];
+        }
+
+        $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
+        if (! $kbId) {
+            return [];
+        }
+
+        $kb = \App\Modules\AI\Models\AiKnowledgeBase::find($kbId);
+        if (! $kb) {
+            return [];
+        }
+
+        try {
+            $knowledgeService = app(\App\Services\AI\AiKnowledgeService::class);
+            return $knowledgeService->search(
+                $kb,
+                $body,
+                $bot->max_context_chunks ?? 5,
+                (bool) $bot->strict_knowledge_mode,
+                [],
+                (int) $bot->id
+            );
+        } catch (\Throwable $e) {
+            Log::warning("Knowledge Base RAG search failed for bot {$bot->id}: {$e->getMessage()}");
+            return [];
+        }
     }
 
     /**

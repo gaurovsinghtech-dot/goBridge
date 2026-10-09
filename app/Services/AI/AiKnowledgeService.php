@@ -650,10 +650,10 @@ class AiKnowledgeService
                         $matchCount++;
                     }
                 }
-                if ($matchCount === 0 || (count($keywords) > 0 && ($matchCount / count($keywords)) < 0.25)) {
+                if (count($keywords) > 0 && $matchCount === 0) {
                     continue;
                 }
-                $score = count($keywords) > 0 ? ($matchCount / count($keywords)) : 0.4;
+                $score = count($keywords) > 0 ? ($matchCount / count($keywords)) : 0.5;
                 $weightedScore = $score * (1 + ($priority / 20));
 
                 $results[$chunk->id] = [
