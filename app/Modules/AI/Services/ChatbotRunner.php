@@ -148,10 +148,12 @@ class ChatbotRunner
             $latencyMs = (int) round((microtime(true) - $startTime) * 1000);
             $totalTokens = $response->promptTokens + $response->completionTokens;
 
-            // 9. Post-response Handoff Detection (If LLM indicates uncertainty - exempt greetings)
+            // 9. Post-response Handoff Detection (If LLM explicitly indicates uncertainty - exempt greetings)
             if (! $isGreetingMsg && $bot->human_handoff_enabled && $this->isUncertaintyReply($reply)) {
                 $this->handoffService->executeHandoff($conversation, $bot->human_handoff_user_id, 'AI generated handoff response');
-                $reply = $bot->human_handoff_message ?? $reply;
+                if (empty($reply) || $reply === $bot->fallback_reply) {
+                    $reply = $bot->human_handoff_message ?? $reply;
+                }
             }
 
             // 10. Record CRM Timeline Event & Daily Telemetry
@@ -506,11 +508,14 @@ class ChatbotRunner
     {
         $lowered = strtolower($reply);
         $patterns = [
-            'connect you with our team',
-            'transfer you to a human',
-            'connecting you with a representative',
-            'i do not have this information',
-            'let me get a team member',
+            'i do not have enough verified information',
+            "i don't have enough verified information",
+            'i do not have access to',
+            "i don't have access to",
+            'cannot find this in my knowledge',
+            'not found in my verified knowledge',
+            'i am unable to answer',
+            "i can't answer this question",
         ];
 
         foreach ($patterns as $pattern) {
