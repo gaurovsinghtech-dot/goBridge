@@ -112,9 +112,10 @@ class AutoReplyListener
         } else {
             $chatbot = AiChatbot::where('workspace_id', $conversation->workspace_id)
                 ->where(function ($q) {
-                    $q->where('enabled', true)->orWhereIn('status', ['published', 'active', 'testing']);
+                    $q->where('enabled', true)->orWhereIn('status', ['published', 'active', 'testing', 'draft']);
                 })
-                ->orderByRaw("CASE status WHEN 'published' THEN 1 WHEN 'active' THEN 2 WHEN 'testing' THEN 3 ELSE 4 END")
+                ->orderByRaw("CASE status WHEN 'published' THEN 1 WHEN 'active' THEN 2 WHEN 'testing' THEN 3 WHEN 'draft' THEN 4 ELSE 5 END")
+                ->latest('updated_at')
                 ->first();
         }
 

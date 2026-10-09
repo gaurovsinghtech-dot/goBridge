@@ -31,7 +31,7 @@ class ChatbotRunner
 
     public function run(AiChatbot $bot, Message $inboundMessage): ?string
     {
-        if (! $bot->enabled && ! in_array($bot->status, ['published', 'active', 'testing'], true)) {
+        if (! $bot->enabled && ! in_array($bot->status, ['published', 'active', 'testing', 'draft'], true)) {
             return null;
         }
 
