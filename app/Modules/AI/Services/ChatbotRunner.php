@@ -54,7 +54,9 @@ class ChatbotRunner
         if (Subscription::where('workspace_id', $workspaceId)->exists()) {
             if (! EntitlementService::can($workspaceId, 'ai_agent') && ! EntitlementService::can($workspaceId, 'ai_agents')) {
                 Log::warning("AI Agent [{$bot->id}] skipped: workspace {$workspaceId} has no AI Agent entitlement.");
-                return $bot->fallback_reply ?? null;
+                return ! empty($bot->fallback_reply)
+                    ? $bot->fallback_reply
+                    : 'Hello! Thanks for reaching out to us. How can I assist you today?';
             }
 
             $usageService = app(UsageService::class);
