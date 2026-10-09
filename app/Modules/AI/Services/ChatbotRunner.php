@@ -155,7 +155,7 @@ class ChatbotRunner
 
             $reply = trim((string) $response->content);
 
-            if ($isGreetingMsg && ($reply === $bot->fallback_reply || str_contains(strtolower($reply), 'verified information') || str_contains(strtolower($reply), 'specialist'))) {
+            if ($isGreetingMsg && ($reply === $bot->fallback_reply || str_contains(strtolower($reply), 'verified information') || str_contains(strtolower($reply), 'specialist') || str_contains(strtolower($reply), 'knowledge base') || str_contains(strtolower($reply), 'do not have') || str_contains(strtolower($reply), "don't have") || str_contains(strtolower($reply), 'cannot answer'))) {
                 $reply = "Hello! Thanks for reaching out to us. How can I assist you today?";
             }
 
