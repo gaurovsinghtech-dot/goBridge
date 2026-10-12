@@ -148,7 +148,7 @@ class ChatbotRunner
                 $workspaceId,
                 $messages,
                 [
-                    'max_tokens' => min($bot->max_tokens ?: 300, 300),
+                    'max_tokens' => min($bot->max_tokens ?: 150, 150),
                     'temperature' => $bot->temperature ?? 0.3,
                 ],
                 $bot->id,
@@ -608,6 +608,7 @@ class ChatbotRunner
 
     private function extractRelevantSection(string $content, string $query): string
     {
+        $content = str_replace("\r\n", "\n", $content);
         $sections = preg_split('/\n(?=[A-Z][A-Z &]+:)/', $content);
         if (count($sections) <= 1) {
             return $content;
