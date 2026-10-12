@@ -438,6 +438,7 @@ class ChatbotRunner
             }, $contextChunks));
 
             $prompt .= "\n--- RELEVANT KNOWLEDGE BASE CONTEXT ---\n".$contextText."\n";
+            $prompt .= "IMPORTANT: Extract and present ONLY the specific details from the context above that directly answer the customer's question. Do NOT repeat the entire context verbatim — be concise and relevant.\n";
         }
 
         if ($conversation && $conversation->contact_id) {

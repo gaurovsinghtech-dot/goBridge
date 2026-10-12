@@ -280,7 +280,7 @@ class AiAgentService
                 $contextText .= "[Source {$num} - {$chunk['title']} ({$chunk['category']})]:\n{$chunk['content']}\n\n";
             }
             $instructions[] = "VERIFIED BUSINESS KNOWLEDGE:\n" . trim($contextText);
-            $instructions[] = "KNOWLEDGE RETRIEVAL INSTRUCTION: Ground your answers strictly in the verified business facts above.";
+            $instructions[] = "KNOWLEDGE RETRIEVAL INSTRUCTION: Ground your answers strictly in the verified business facts above. Extract and present ONLY the specific details that directly answer the customer's question — do NOT dump the entire knowledge context. Be concise and relevant.";
         }
 
         if ($agent->strict_knowledge_mode) {
