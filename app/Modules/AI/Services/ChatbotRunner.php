@@ -192,15 +192,6 @@ class ChatbotRunner
                 return 'Hello! Thanks for reaching out to us. How can I assist you today?';
             }
 
-            if (! empty($contextChunks)) {
-                $topChunk = $contextChunks[0];
-                $content = is_array($topChunk) ? ($topChunk['content'] ?? '') : ($topChunk->content ?? '');
-
-                if (! empty($content)) {
-                    return $content;
-                }
-            }
-
             $fallback = ! empty($bot->fallback_reply)
                 ? $bot->fallback_reply
                 : 'Thank you for reaching out! How can I help you today?';
