@@ -148,7 +148,7 @@ class ChatbotRunner
                 $workspaceId,
                 $messages,
                 [
-                    'max_tokens' => $bot->max_tokens ?: 512,
+                    'max_tokens' => min($bot->max_tokens ?: 300, 300),
                     'temperature' => $bot->temperature ?? 0.3,
                 ],
                 $bot->id,
