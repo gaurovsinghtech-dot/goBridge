@@ -454,7 +454,12 @@ class ChatbotRunner
             }, $contextChunks));
 
             $prompt .= "\n--- RELEVANT KNOWLEDGE BASE CONTEXT ---\n".$contextText."\n";
-            $prompt .= "IMPORTANT: Extract and present ONLY the specific details from the context above that directly answer the customer's question. Do NOT repeat the entire context verbatim — be concise and relevant.\n";
+            $prompt .= "\n--- RESPONSE FORMAT RULES ---\n";
+            $prompt .= "1. Answer ONLY what the customer asked — do NOT dump the entire knowledge base or unrelated sections.\n";
+            $prompt .= "2. Keep responses short and focused: a brief intro, then the relevant details, nothing more.\n";
+            $prompt .= "3. If the question is about products, list ONLY the products. Do NOT include business hours, location, pricing, or contact info unless specifically asked.\n";
+            $prompt .= "4. Use bullet points for lists. Maximum 5-8 lines for most answers.\n";
+            $prompt .= "5. Never repeat section headers like 'BUSINESS OVERVIEW' or 'PRODUCTS & SERVICES' from the knowledge base — rephrase naturally.\n";
         }
 
         if ($conversation && $conversation->contact_id) {
