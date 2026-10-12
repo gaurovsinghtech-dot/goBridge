@@ -619,10 +619,11 @@ class AiAgentService
                 $draftResponse = "Hello! Thanks for reaching out to us. How can I assist you today?";
             }
 
+            $lowerReply = strtolower((string) $draftResponse);
             $isFallbackMsg = $draftResponse === $agent->fallback_reply
-                || str_contains(strtolower((string) $draftResponse), 'verified information')
-                || str_contains(strtolower((string) $draftResponse), 'specialist')
-                || str_contains(strtolower((string) $draftResponse), 'do not have this information');
+                || preg_match('/\b(don\'?t|do not) have .*(verified|enough) information\b/i', (string) $draftResponse)
+                || preg_match('/\bconnect you with .*(specialist|human|team|agent)\b/i', (string) $draftResponse)
+                || preg_match('/\bnot (?:available|found) in (?:my|the) (?:knowledge|verified)\b/i', (string) $draftResponse);
 
             if (! $isGreetingMsg && $isFallbackMsg && ! empty($retrievedChunks)) {
                 $draftResponse = "";
@@ -654,8 +655,10 @@ class AiAgentService
                             $prodName = trim($mProd[1]);
                             $prodPrice = trim($mPrice[1]);
                             $draftResponse = "Yes, we provide {$prodName}. Our price is {$prodPrice}. Would you like information about available options and bulk orders?";
+                        } elseif (preg_match('/PRODUCTS?\s*(?:&|AND)?\s*SERVICES?:?\s*(.*?)(?=\n(?:[A-Z]{2,}[A-Z &]*:|$))/si', $content, $mSection)) {
+                            $draftResponse = "Here are our products & services:\n" . trim($mSection[1]);
                         } else {
-                            $draftResponse = "Based on our verified catalog:\n" . $content;
+                            $draftResponse = "Based on our verified catalog:\n" . mb_substr($content, 0, 600);
                         }
                     } elseif (str_contains($lowerMsg, 'deliver') || str_contains($lowerMsg, 'ship')) {
                         $draftResponse = "Yes, we provide delivery across all pin codes in India. Standard delivery typically takes 2-4 business days.";
@@ -666,7 +669,7 @@ class AiAgentService
                             $draftResponse = "You can find us at our official business location. Let us know if you need specific directions or assistance.";
                         }
                     } else {
-                        $draftResponse = "Based on our verified knowledge:\n" . $content;
+                        $draftResponse = "Based on our verified knowledge:\n" . mb_substr($content, 0, 600);
                     }
                 } else {
                     $draftResponse = "Hello! Thanks for reaching out. How can I assist you with your inquiry today?";
