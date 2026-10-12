@@ -100,7 +100,7 @@ class ChatbotRunner
         }
 
         // 6. Build Comprehensive System Instructions & Security Directives
-        $systemPrompt = $this->buildSystemPrompt($bot, $contextChunks, $conversation);
+        $systemPrompt = $this->buildSystemPrompt($bot, $contextChunks, $conversation, $body);
 
         // 7. Assemble Multi-turn Conversation History (Strictly scoped to conversation)
         $history = [];
@@ -226,7 +226,7 @@ class ChatbotRunner
             ];
         }
 
-        $systemPrompt = $this->buildSystemPrompt($bot, $contextChunks, null);
+        $systemPrompt = $this->buildSystemPrompt($bot, $contextChunks, null, $message);
 
         $messages = array_merge(
             [['role' => 'system', 'content' => $systemPrompt]],
@@ -406,7 +406,7 @@ class ChatbotRunner
     /**
      * Compose comprehensive prompt including guardrails, security directives, and context.
      */
-    private function buildSystemPrompt(AiChatbot $bot, array $contextChunks, ?Conversation $conversation): string
+    private function buildSystemPrompt(AiChatbot $bot, array $contextChunks, ?Conversation $conversation, string $userQuery = ''): string
     {
         $language = $bot->language ?: 'en';
         $tone = $bot->tone ?: ($bot->response_style ?: 'professional and concise');
@@ -444,13 +444,13 @@ class ChatbotRunner
         }
 
         if (! empty($contextChunks)) {
-            $contextText = implode("\n\n---\n\n", array_map(function ($c) use ($body) {
+            $contextText = implode("\n\n---\n\n", array_map(function ($c) use ($userQuery) {
                 if (is_array($c)) {
                     $content = $c['content'] ?? '';
                 } else {
                     $content = $c->content ?? '';
                 }
-                $content = $this->extractRelevantSection($content, $body);
+                $content = $this->extractRelevantSection($content, $userQuery);
                 if (mb_strlen($content) > 600) {
                     $content = mb_substr($content, 0, 600) . '…';
                 }
