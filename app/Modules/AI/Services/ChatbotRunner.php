@@ -148,7 +148,7 @@ class ChatbotRunner
                 $workspaceId,
                 $messages,
                 [
-                    'max_tokens' => min($bot->max_tokens ?: 150, 150),
+                    'max_tokens' => $bot->max_tokens ?: 350,
                     'temperature' => $bot->temperature ?? 0.3,
                 ],
                 $bot->id,
@@ -519,11 +519,20 @@ class ChatbotRunner
                 return [];
             }
 
+            $searchTerms = [];
+            foreach ($keywords as $kw) {
+                $searchTerms[] = $kw;
+                if (mb_strlen($kw) > 4) {
+                    $searchTerms[] = mb_substr($kw, 0, 4);
+                }
+            }
+            $searchTerms = array_unique($searchTerms);
+
             $fallbackChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
                 ->where('kb_id', $kb->id)
-                ->where(function ($q) use ($keywords) {
-                    foreach ($keywords as $kw) {
-                        $q->orWhere('content', 'LIKE', '%' . $kw . '%');
+                ->where(function ($q) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $q->orWhere('content', 'LIKE', '%' . $term . '%');
                     }
                 })
                 ->take($bot->max_context_chunks ?? 5)
@@ -615,10 +624,13 @@ class ChatbotRunner
             'time' => ['BUSINESS HOURS', 'HOURS'],
             'open' => ['BUSINESS HOURS', 'HOURS'],
             'location' => ['LOCATION', 'CONTACT', 'ADDRESS'],
+            'located' => ['LOCATION', 'CONTACT', 'ADDRESS'],
+            'factory' => ['LOCATION', 'CONTACT', 'ADDRESS'],
             'address' => ['LOCATION', 'CONTACT', 'ADDRESS'],
             'contact' => ['LOCATION', 'CONTACT', 'PHONE'],
             'phone' => ['LOCATION', 'CONTACT', 'PHONE'],
             'deliver' => ['LOCATION', 'DELIVERY'],
+            'where' => ['LOCATION', 'CONTACT', 'ADDRESS'],
         ];
 
         $matchHeaders = [];
