@@ -110,9 +110,22 @@ class ChatbotRunner
             ->take(20)
             ->get();
 
+        $fallbackReply = $bot->fallback_reply ?? '';
         foreach ($recentMessages as $m) {
             if (! $m->body) {
                 continue;
+            }
+            // Skip bot fallback responses from history to prevent the LLM from
+            // learning and repeating the fallback pattern in ongoing conversations.
+            if ($m->direction === 'out' && $m->sent_by === 'bot') {
+                $lowerBody = strtolower($m->body);
+                if (
+                    ($fallbackReply !== '' && $m->body === $fallbackReply)
+                    || preg_match('/\b(don\'?t|do not) have .*(verified|enough) information\b/i', $m->body)
+                    || preg_match('/\bconnect you with .*(specialist|human|team)\b/i', $m->body)
+                ) {
+                    continue;
+                }
             }
             $history[] = [
                 'role' => $m->direction === 'out' ? 'assistant' : 'user',
