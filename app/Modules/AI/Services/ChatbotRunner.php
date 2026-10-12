@@ -487,6 +487,41 @@ class ChatbotRunner
             return [];
         }
 
+        // For small KBs (≤20 chunks), always load all chunks so the LLM has full context
+        $totalChunks = \App\Modules\AI\Models\AiKbChunk::where('kb_id', $kb->id)->count();
+
+        if ($totalChunks <= 20) {
+            $allChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
+                ->where('kb_id', $kb->id)
+                ->get();
+
+            $results = [];
+            foreach ($allChunks as $chunk) {
+                if (! $chunk->document) {
+                    continue;
+                }
+                $doc = $chunk->document;
+                if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                    continue;
+                }
+                $results[] = [
+                    'chunk_id' => $chunk->id,
+                    'document_id' => $chunk->document_id,
+                    'title' => $doc->title ?? 'Knowledge Item',
+                    'source_type' => $doc->source_type ?? 'text',
+                    'category' => $doc->category ?? 'general',
+                    'priority' => (int) ($doc->priority ?? 5),
+                    'content' => $chunk->content,
+                    'score' => 1.0,
+                    'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
+                ];
+            }
+
+            Log::info("ChatbotRunner: Small KB ({$totalChunks} chunks) — loaded all for bot {$bot->id}, kb={$kb->id}, query: {$body}");
+            return $results;
+        }
+
+        // For larger KBs, use embedding search with fallbacks
         try {
             $knowledgeService = app(\App\Services\AI\AiKnowledgeService::class);
             $chunks = $knowledgeService->search(
@@ -568,39 +603,7 @@ class ChatbotRunner
             Log::error("ChatbotRunner: Keyword fallback failed for bot {$bot->id}: {$e->getMessage()}");
         }
 
-        // Final fallback: load all chunks directly for small knowledge bases
-        $allChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
-            ->where('kb_id', $kb->id)
-            ->take(10)
-            ->get();
-
-        $results = [];
-        foreach ($allChunks as $chunk) {
-            if (! $chunk->document) {
-                continue;
-            }
-            $doc = $chunk->document;
-            if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
-                continue;
-            }
-            $results[] = [
-                'chunk_id' => $chunk->id,
-                'document_id' => $chunk->document_id,
-                'title' => $doc->title ?? 'Knowledge Item',
-                'source_type' => $doc->source_type ?? 'text',
-                'category' => $doc->category ?? 'general',
-                'priority' => (int) ($doc->priority ?? 5),
-                'content' => $chunk->content,
-                'score' => 0.3,
-                'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
-            ];
-        }
-
-        if (! empty($results)) {
-            Log::info("ChatbotRunner: Loaded all {$allChunks->count()} chunks directly for bot {$bot->id}, kb={$kb->id}");
-        }
-
-        return $results;
+        return [];
     }
 
     /**
