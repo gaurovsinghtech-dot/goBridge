@@ -68,6 +68,7 @@ class ChatbotRunner
 
         // 2. Business Hours Evaluation
         if (! $this->isWithinBusinessHours($bot)) {
+            Log::warning("AI Agent [{$bot->id}] outside business hours — mode={$bot->business_hours_mode}, server_time=" . now()->toDateTimeString() . ", day=" . strtolower(now()->format('l')));
             if (($bot->outside_hours_action ?? 'custom_message') === 'handoff' && $bot->human_handoff_enabled) {
                 $this->handoffService->executeHandoff($conversation, $bot->human_handoff_user_id, 'Outside business hours inquiry');
                 return $bot->human_handoff_message ?? 'We are currently outside our operating hours. Your message has been forwarded to our team.';
