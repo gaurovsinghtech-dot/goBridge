@@ -116,21 +116,23 @@ class ChatbotRunner
             if (! $m->body) {
                 continue;
             }
-            // Skip bot fallback responses from history to prevent the LLM from
-            // learning and repeating the fallback pattern in ongoing conversations.
             if ($m->direction === 'out' && $m->sent_by === 'bot') {
-                $lowerBody = strtolower($m->body);
                 if (
                     ($fallbackReply !== '' && $m->body === $fallbackReply)
                     || preg_match('/\b(don\'?t|do not) have .*(verified|enough) information\b/i', $m->body)
                     || preg_match('/\bconnect you with .*(specialist|human|team)\b/i', $m->body)
+                    || mb_strlen($m->body) > 500
                 ) {
                     continue;
                 }
             }
+            $content = (string) $m->body;
+            if (mb_strlen($content) > 400) {
+                $content = mb_substr($content, 0, 400) . '…';
+            }
             $history[] = [
                 'role' => $m->direction === 'out' ? 'assistant' : 'user',
-                'content' => (string) $m->body,
+                'content' => $content,
             ];
         }
 
@@ -450,14 +452,14 @@ class ChatbotRunner
                     $title = $c->document?->title ?? 'Knowledge Source';
                     $content = $c->content ?? '';
                 }
-                if (mb_strlen($content) > 1500) {
-                    $content = mb_substr($content, 0, 1500) . '…';
+                if (mb_strlen($content) > 800) {
+                    $content = mb_substr($content, 0, 800) . '…';
                 }
                 return "[Source: {$title}]\n{$content}";
             }, $contextChunks));
 
-            if (mb_strlen($contextText) > 3000) {
-                $contextText = mb_substr($contextText, 0, 3000) . '…';
+            if (mb_strlen($contextText) > 2000) {
+                $contextText = mb_substr($contextText, 0, 2000) . '…';
             }
 
             $prompt .= "\n--- REFERENCE CONTEXT (use selectively, do NOT copy verbatim) ---\n".$contextText."\n";
