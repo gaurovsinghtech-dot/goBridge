@@ -562,16 +562,45 @@ class ChatbotRunner
 
             if (! empty($results)) {
                 Log::info("ChatbotRunner: Direct keyword fallback found " . count($results) . " chunks for bot {$bot->id}, kb={$kb->id}");
-            } else {
-                $totalChunks = \App\Modules\AI\Models\AiKbChunk::where('kb_id', $kb->id)->count();
-                Log::warning("ChatbotRunner: Keyword fallback also returned 0 chunks. KB {$kb->id} has {$totalChunks} total chunks. Query: " . mb_substr($body, 0, 100));
+                return $results;
             }
-
-            return $results;
         } catch (\Throwable $e) {
             Log::error("ChatbotRunner: Keyword fallback failed for bot {$bot->id}: {$e->getMessage()}");
-            return [];
         }
+
+        // Final fallback: load all chunks directly for small knowledge bases
+        $allChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
+            ->where('kb_id', $kb->id)
+            ->take(10)
+            ->get();
+
+        $results = [];
+        foreach ($allChunks as $chunk) {
+            if (! $chunk->document) {
+                continue;
+            }
+            $doc = $chunk->document;
+            if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                continue;
+            }
+            $results[] = [
+                'chunk_id' => $chunk->id,
+                'document_id' => $chunk->document_id,
+                'title' => $doc->title ?? 'Knowledge Item',
+                'source_type' => $doc->source_type ?? 'text',
+                'category' => $doc->category ?? 'general',
+                'priority' => (int) ($doc->priority ?? 5),
+                'content' => $chunk->content,
+                'score' => 0.3,
+                'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
+            ];
+        }
+
+        if (! empty($results)) {
+            Log::info("ChatbotRunner: Loaded all {$allChunks->count()} chunks directly for bot {$bot->id}, kb={$kb->id}");
+        }
+
+        return $results;
     }
 
     /**
