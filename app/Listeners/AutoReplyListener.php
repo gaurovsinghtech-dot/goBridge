@@ -120,8 +120,11 @@ class AutoReplyListener
         }
 
         if (! $chatbot) {
+            Log::info("AutoReplyListener: No chatbot found for workspace {$conversation->workspace_id}, channel={$message->channel}");
             return;
         }
+
+        Log::info("AutoReplyListener: Using bot '{$chatbot->name}' (id={$chatbot->id}, kb_id={$chatbot->ai_kb_id}, strict_mode=" . ($chatbot->strict_knowledge_mode ? 'yes' : 'no') . ") for '{$message->channel}' message: " . mb_substr($message->body ?? '', 0, 80));
 
         try {
             $reply = $this->runner->run($chatbot, $message);

@@ -485,14 +485,69 @@ class ChatbotRunner
                 (int) $bot->id
             );
 
-            if (empty($chunks)) {
-                $totalChunks = \App\Modules\AI\Models\AiKbChunk::where('kb_id', $kb->id)->count();
-                Log::warning("ChatbotRunner: RAG search returned 0 chunks for bot {$bot->id}, kb={$kb->id} (total chunks in KB: {$totalChunks}), query: " . mb_substr($body, 0, 100));
+            if (! empty($chunks)) {
+                return $chunks;
             }
 
-            return $chunks;
+            Log::warning("ChatbotRunner: Primary RAG search returned 0 chunks for bot {$bot->id}, kb={$kb->id}. Attempting direct keyword fallback.");
         } catch (\Throwable $e) {
-            Log::warning("Knowledge Base RAG search failed for bot {$bot->id}: {$e->getMessage()}");
+            Log::warning("ChatbotRunner: RAG search exception for bot {$bot->id}: {$e->getMessage()}. Attempting direct keyword fallback.");
+        }
+
+        // Direct keyword fallback — bypasses embedding search entirely
+        try {
+            $stopWords = ['the', 'and', 'for', 'with', 'this', 'that', 'from', 'have', 'what', 'when', 'where', 'which', 'who', 'whom', 'will', 'would', 'could', 'should', 'are', 'was', 'were', 'about', 'does', 'into', 'some', 'than', 'them', 'then', 'there', 'they', 'our', 'your', 'how', 'can', 'you'];
+            $keywords = array_filter(
+                explode(' ', strtolower(preg_replace('/[^a-zA-Z0-9\s]/', '', $body))),
+                fn ($w) => strlen($w) > 2 && ! in_array($w, $stopWords, true)
+            );
+
+            if (empty($keywords)) {
+                return [];
+            }
+
+            $fallbackChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
+                ->where('kb_id', $kb->id)
+                ->where(function ($q) use ($keywords) {
+                    foreach ($keywords as $kw) {
+                        $q->orWhere('content', 'LIKE', '%' . $kw . '%');
+                    }
+                })
+                ->take($bot->max_context_chunks ?? 5)
+                ->get();
+
+            $results = [];
+            foreach ($fallbackChunks as $chunk) {
+                if (! $chunk->document) {
+                    continue;
+                }
+                $doc = $chunk->document;
+                if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                    continue;
+                }
+                $results[] = [
+                    'chunk_id' => $chunk->id,
+                    'document_id' => $chunk->document_id,
+                    'title' => $doc->title ?? 'Knowledge Item',
+                    'source_type' => $doc->source_type ?? 'text',
+                    'category' => $doc->category ?? 'general',
+                    'priority' => (int) ($doc->priority ?? 5),
+                    'content' => $chunk->content,
+                    'score' => 0.5,
+                    'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
+                ];
+            }
+
+            if (! empty($results)) {
+                Log::info("ChatbotRunner: Direct keyword fallback found " . count($results) . " chunks for bot {$bot->id}, kb={$kb->id}");
+            } else {
+                $totalChunks = \App\Modules\AI\Models\AiKbChunk::where('kb_id', $kb->id)->count();
+                Log::warning("ChatbotRunner: Keyword fallback also returned 0 chunks. KB {$kb->id} has {$totalChunks} total chunks. Query: " . mb_substr($body, 0, 100));
+            }
+
+            return $results;
+        } catch (\Throwable $e) {
+            Log::error("ChatbotRunner: Keyword fallback failed for bot {$bot->id}: {$e->getMessage()}");
             return [];
         }
     }
