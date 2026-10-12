@@ -572,7 +572,7 @@ class ChatbotRunner
     private function isWithinBusinessHours(AiChatbot $bot): bool
     {
         $mode = $bot->business_hours_mode ?? 'always_on';
-        if ($mode === 'always_on') {
+        if (in_array($mode, ['always_on', 'always'], true)) {
             return true;
         }
 
