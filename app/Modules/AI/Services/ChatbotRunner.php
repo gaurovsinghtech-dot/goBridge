@@ -446,20 +446,26 @@ class ChatbotRunner
                 if (is_array($c)) {
                     $title = $c['title'] ?? 'Knowledge Source';
                     $content = $c['content'] ?? '';
-                    return "[Source: {$title}]\n{$content}";
+                } else {
+                    $title = $c->document?->title ?? 'Knowledge Source';
+                    $content = $c->content ?? '';
                 }
-                $title = $c->document?->title ?? 'Knowledge Source';
-                $content = $c->content ?? '';
+                if (mb_strlen($content) > 1500) {
+                    $content = mb_substr($content, 0, 1500) . '…';
+                }
                 return "[Source: {$title}]\n{$content}";
             }, $contextChunks));
 
-            $prompt .= "\n--- RELEVANT KNOWLEDGE BASE CONTEXT ---\n".$contextText."\n";
+            if (mb_strlen($contextText) > 3000) {
+                $contextText = mb_substr($contextText, 0, 3000) . '…';
+            }
+
+            $prompt .= "\n--- REFERENCE CONTEXT (use selectively, do NOT copy verbatim) ---\n".$contextText."\n";
             $prompt .= "\n--- RESPONSE FORMAT RULES ---\n";
-            $prompt .= "1. Answer ONLY what the customer asked — do NOT dump the entire knowledge base or unrelated sections.\n";
-            $prompt .= "2. Keep responses short and focused: a brief intro, then the relevant details, nothing more.\n";
-            $prompt .= "3. If the question is about products, list ONLY the products. Do NOT include business hours, location, pricing, or contact info unless specifically asked.\n";
-            $prompt .= "4. Use bullet points for lists. Maximum 5-8 lines for most answers.\n";
-            $prompt .= "5. Never repeat section headers like 'BUSINESS OVERVIEW' or 'PRODUCTS & SERVICES' from the knowledge base — rephrase naturally.\n";
+            $prompt .= "1. Answer ONLY what the customer asked. NEVER dump the full document.\n";
+            $prompt .= "2. Keep responses under 6 lines. A short intro sentence, then bullet points with the relevant facts.\n";
+            $prompt .= "3. Do NOT include sections the customer did not ask about (e.g. if they ask about products, omit business hours, location, pricing, contact info).\n";
+            $prompt .= "4. Rephrase naturally — never copy section headers like 'BUSINESS OVERVIEW' or 'PRODUCTS & SERVICES' from the context.\n";
         }
 
         if ($conversation && $conversation->contact_id) {
