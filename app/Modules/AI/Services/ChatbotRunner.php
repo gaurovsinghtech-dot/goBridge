@@ -141,11 +141,13 @@ class ChatbotRunner
 
             $reply = trim((string) $response->content);
 
-            if (! $isGreetingMsg && ($reply === $bot->fallback_reply || str_contains(strtolower($reply), 'verified information')) && ! empty($contextChunks)) {
-                $topChunk = $contextChunks[0];
-                $content = is_array($topChunk) ? ($topChunk['content'] ?? '') : ($topChunk->content ?? '');
-                if (! empty($content)) {
-                    $reply = $content;
+            if (! $isGreetingMsg && ! empty($contextChunks)) {
+                $lowerReply = strtolower($reply);
+                $isLlmFallback = $reply === $bot->fallback_reply
+                    || preg_match('/\b(don\'?t|do not) have .*(verified|enough) information\b/i', $reply)
+                    || preg_match('/\bnot (?:available|found) in (?:my|the) (?:knowledge|verified)\b/i', $reply);
+                if ($isLlmFallback) {
+                    Log::info("ChatbotRunner: LLM returned fallback despite having context chunks, re-prompting would improve quality. Bot {$bot->id}");
                 }
             }
 
@@ -462,17 +464,19 @@ class ChatbotRunner
 
         $kbId = $bot->ai_kb_id ?: (\App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->value('id'));
         if (! $kbId) {
+            Log::warning("ChatbotRunner: No KB found for bot {$bot->id} (ai_kb_id={$bot->ai_kb_id}, workspace={$workspaceId})");
             return [];
         }
 
         $kb = \App\Modules\AI\Models\AiKnowledgeBase::find($kbId);
         if (! $kb) {
+            Log::warning("ChatbotRunner: KB id={$kbId} not found in database for bot {$bot->id}");
             return [];
         }
 
         try {
             $knowledgeService = app(\App\Services\AI\AiKnowledgeService::class);
-            return $knowledgeService->search(
+            $chunks = $knowledgeService->search(
                 $kb,
                 $body,
                 $bot->max_context_chunks ?? 5,
@@ -480,6 +484,13 @@ class ChatbotRunner
                 [],
                 (int) $bot->id
             );
+
+            if (empty($chunks)) {
+                $totalChunks = \App\Modules\AI\Models\AiKbChunk::where('kb_id', $kb->id)->count();
+                Log::warning("ChatbotRunner: RAG search returned 0 chunks for bot {$bot->id}, kb={$kb->id} (total chunks in KB: {$totalChunks}), query: " . mb_substr($body, 0, 100));
+            }
+
+            return $chunks;
         } catch (\Throwable $e) {
             Log::warning("Knowledge Base RAG search failed for bot {$bot->id}: {$e->getMessage()}");
             return [];

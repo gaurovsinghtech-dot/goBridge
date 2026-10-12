@@ -551,7 +551,8 @@ class AiKnowledgeService
             try {
                 $embeddings = $this->llmGateway->embed($kb->workspace_id, [$query]);
                 $queryEmbedding = $embeddings[0] ?? [];
-            } catch (\Throwable) {
+            } catch (\Throwable $embedErr) {
+                Log::warning("KnowledgeService: Embedding failed for kb={$kb->id}: {$embedErr->getMessage()}");
                 $queryEmbedding = [];
             }
         }
@@ -623,17 +624,21 @@ class AiKnowledgeService
 
         $matchingChunks = $chunksQuery->take(25)->get();
 
+        $debugSkipped = ['no_doc' => 0, 'disabled' => 0, 'unauthorized' => 0, 'duplicate' => 0];
         foreach ($matchingChunks as $chunk) {
             if (! isset($results[$chunk->id]) && $chunk->document) {
                 $doc = $chunk->document;
 
                 // Check status & visibility
                 if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                    $debugSkipped['disabled']++;
                     continue;
                 }
 
                 // Check agent assignment
                 if (! $this->isAgentAuthorizedForDoc($agentId, $doc)) {
+                    $debugSkipped['unauthorized']++;
+                    Log::debug("KnowledgeService: Doc '{$doc->title}' (id={$doc->id}) NOT authorized for agent {$agentId}, assigned_agents=" . json_encode($doc->assigned_agents));
                     continue;
                 }
 
@@ -668,6 +673,10 @@ class AiKnowledgeService
                     'citation' => "Source: " . ($doc->title ?? 'Knowledge Base') . " (Part " . ($chunk->ord + 1) . ")",
                 ];
             }
+        }
+
+        if (empty($results)) {
+            Log::warning("KnowledgeService: Search returned 0 results for kb={$kb->id}, agent={$agentId}, query='" . mb_substr($query, 0, 80) . "'. Keyword matches={$matchingChunks->count()}, embed_ok=" . (empty($queryEmbedding) ? 'no' : 'yes') . ", skipped=" . json_encode($debugSkipped));
         }
 
         // Sort by score descending
