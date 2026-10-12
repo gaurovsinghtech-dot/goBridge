@@ -444,30 +444,25 @@ class ChatbotRunner
         }
 
         if (! empty($contextChunks)) {
-            $contextText = implode("\n\n---\n\n", array_map(function ($c) {
+            $contextText = implode("\n\n---\n\n", array_map(function ($c) use ($body) {
                 if (is_array($c)) {
-                    $title = $c['title'] ?? 'Knowledge Source';
                     $content = $c['content'] ?? '';
                 } else {
-                    $title = $c->document?->title ?? 'Knowledge Source';
                     $content = $c->content ?? '';
                 }
-                if (mb_strlen($content) > 800) {
-                    $content = mb_substr($content, 0, 800) . '…';
+                $content = $this->extractRelevantSection($content, $body);
+                if (mb_strlen($content) > 600) {
+                    $content = mb_substr($content, 0, 600) . '…';
                 }
-                return "[Source: {$title}]\n{$content}";
+                return $content;
             }, $contextChunks));
 
-            if (mb_strlen($contextText) > 2000) {
-                $contextText = mb_substr($contextText, 0, 2000) . '…';
+            if (mb_strlen($contextText) > 1200) {
+                $contextText = mb_substr($contextText, 0, 1200) . '…';
             }
 
-            $prompt .= "\n--- REFERENCE CONTEXT (use selectively, do NOT copy verbatim) ---\n".$contextText."\n";
-            $prompt .= "\n--- RESPONSE FORMAT RULES ---\n";
-            $prompt .= "1. Answer ONLY what the customer asked. NEVER dump the full document.\n";
-            $prompt .= "2. Keep responses under 6 lines. A short intro sentence, then bullet points with the relevant facts.\n";
-            $prompt .= "3. Do NOT include sections the customer did not ask about (e.g. if they ask about products, omit business hours, location, pricing, contact info).\n";
-            $prompt .= "4. Rephrase naturally — never copy section headers like 'BUSINESS OVERVIEW' or 'PRODUCTS & SERVICES' from the context.\n";
+            $prompt .= "\nRelevant facts:\n".$contextText."\n";
+            $prompt .= "\nUsing ONLY the facts above, write a short, natural reply (3-5 lines max). Do NOT copy the text verbatim — summarize in your own words.\n";
         }
 
         if ($conversation && $conversation->contact_id) {
@@ -609,6 +604,54 @@ class ChatbotRunner
         $end = Carbon::createFromTimeString($endStr, $now->getTimezone());
 
         return $now->between($start, $end);
+    }
+
+    private function extractRelevantSection(string $content, string $query): string
+    {
+        $sections = preg_split('/\n(?=[A-Z][A-Z &]+:)/', $content);
+        if (count($sections) <= 1) {
+            return $content;
+        }
+
+        $queryLower = strtolower($query);
+        $keywords = [
+            'product' => ['PRODUCTS', 'SERVICES'],
+            'machine' => ['PRODUCTS', 'SERVICES'],
+            'price' => ['PRICING', 'ORDERS'],
+            'cost' => ['PRICING', 'ORDERS'],
+            'hour' => ['BUSINESS HOURS', 'HOURS'],
+            'time' => ['BUSINESS HOURS', 'HOURS'],
+            'open' => ['BUSINESS HOURS', 'HOURS'],
+            'location' => ['LOCATION', 'CONTACT', 'ADDRESS'],
+            'address' => ['LOCATION', 'CONTACT', 'ADDRESS'],
+            'contact' => ['LOCATION', 'CONTACT', 'PHONE'],
+            'phone' => ['LOCATION', 'CONTACT', 'PHONE'],
+            'deliver' => ['LOCATION', 'DELIVERY'],
+        ];
+
+        $matchHeaders = [];
+        foreach ($keywords as $word => $headers) {
+            if (str_contains($queryLower, $word)) {
+                $matchHeaders = array_merge($matchHeaders, $headers);
+            }
+        }
+
+        if (empty($matchHeaders)) {
+            return $content;
+        }
+
+        $matched = [];
+        foreach ($sections as $section) {
+            $sectionHeader = strtoupper(strtok(trim($section), "\n"));
+            foreach ($matchHeaders as $header) {
+                if (str_contains($sectionHeader, $header)) {
+                    $matched[] = trim($section);
+                    break;
+                }
+            }
+        }
+
+        return ! empty($matched) ? implode("\n\n", $matched) : $content;
     }
 
     private function isUncertaintyReply(string $reply): bool
