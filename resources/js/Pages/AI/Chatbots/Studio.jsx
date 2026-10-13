@@ -91,6 +91,7 @@ export default function ChatbotStudio({
         human_handoff_enabled: agent.human_handoff_enabled !== undefined ? Boolean(agent.human_handoff_enabled) : true,
         human_handoff_user_id: agent.human_handoff_user_id || null,
         human_handoff_message: agent.human_handoff_message || "Thanks. I'll connect you with a member of our team right away.",
+        specialist_phone: agent.specialist_phone || '',
         handoff_conditions: agent.handoff_conditions || ['customer_asks_human', 'low_confidence', 'complaint_detected'],
         handoff_target_type: agent.handoff_target_type || 'team',
         handoff_target_team: agent.handoff_target_team || 'sales',
@@ -128,6 +129,7 @@ export default function ChatbotStudio({
         human_handoff_enabled: true,
         human_handoff_user_id: null,
         human_handoff_message: "Thanks. I'll connect you with a member of our team right away.",
+        specialist_phone: '',
         handoff_conditions: ['customer_asks_human', 'low_confidence', 'complaint_detected', 'callback_request'],
         handoff_target_type: 'team',
         handoff_target_team: 'sales',
@@ -210,6 +212,7 @@ export default function ChatbotStudio({
                     strict_knowledge_mode: Boolean(data.strict_knowledge_mode),
                     fallback_reply: data.fallback_reply,
                     confidence_threshold: data.confidence_threshold ? Number(data.confidence_threshold) : 75,
+                    specialist_phone: data.specialist_phone || null,
                 };
                 const res = await axios.post(endpoint, {
                     message: userMsg,
@@ -953,6 +956,17 @@ export default function ChatbotStudio({
                                         className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block font-semibold text-neutral-700 dark:text-neutral-300 mb-1">Specialist Phone Number</label>
+                                <p className="text-[11px] text-neutral-400 mb-1">When the bot can't fully answer, it will suggest scheduling a call and show a call button with this number on WhatsApp.</p>
+                                <input
+                                    type="text"
+                                    value={data.specialist_phone || ''}
+                                    onChange={e => setData('specialist_phone', e.target.value)}
+                                    placeholder="+91 99378 79754"
+                                    className="w-full p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                                />
                             </div>
                         </div>
 

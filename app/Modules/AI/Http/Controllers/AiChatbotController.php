@@ -336,7 +336,7 @@ class AiChatbotController extends Controller
                     'emoji_style', 'language', 'objectives', 'guardrails',
                     'system_prompt', 'response_rules', 'ai_kb_id', 'strict_knowledge_mode',
                     'fallback_reply', 'confidence_threshold', 'human_handoff_enabled',
-                    'human_handoff_message',
+                    'human_handoff_message', 'specialist_phone',
                 ];
                 foreach ($allowed as $field) {
                     if (array_key_exists($field, $overrides)) {
@@ -405,6 +405,7 @@ class AiChatbotController extends Controller
             'human_handoff_enabled' => ['nullable', 'boolean'],
             'human_handoff_user_id' => ['nullable', 'integer'],
             'human_handoff_message' => ['nullable', 'string', 'max:500'],
+            'specialist_phone' => ['nullable', 'string', 'max:30'],
             'handoff_conditions' => ['nullable', 'array'],
             'handoff_target_type' => ['nullable', 'string', 'in:team,user'],
             'handoff_target_team' => ['nullable', 'string', 'in:sales,support,general'],

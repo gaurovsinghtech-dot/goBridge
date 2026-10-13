@@ -127,34 +127,83 @@ class AutoReplyListener
         Log::info("AutoReplyListener: Using bot '{$chatbot->name}' (id={$chatbot->id}, kb_id={$chatbot->ai_kb_id}, strict_mode=" . ($chatbot->strict_knowledge_mode ? 'yes' : 'no') . ") for '{$message->channel}' message: " . mb_substr($message->body ?? '', 0, 80));
 
         try {
-            $reply = $this->runner->run($chatbot, $message);
-            if ($reply === null) {
+            $result = $this->runner->run($chatbot, $message);
+            if ($result === null) {
                 return;
             }
 
-            $botMessage = Message::create([
-                'conversation_id' => $conversation->id,
-                'direction' => 'out',
-                'channel' => $message->channel,
-                'type' => 'text',
-                'body' => $reply,
-                'payload' => [],
-                'status' => 'queued',
-                'sent_by' => 'bot',
-                'sent_at' => now(),
-            ]);
+            $scheduleCall = false;
+            $specialistPhone = null;
+            if (is_array($result)) {
+                $reply = $result['reply'] ?? '';
+                $scheduleCall = $result['schedule_call'] ?? false;
+                $specialistPhone = $result['specialist_phone'] ?? null;
+            } else {
+                $reply = $result;
+            }
+
+            if ($scheduleCall && $specialistPhone && $message->channel === 'whatsapp') {
+                $botMessage = Message::create([
+                    'conversation_id' => $conversation->id,
+                    'direction' => 'out',
+                    'channel' => $message->channel,
+                    'type' => 'interactive',
+                    'body' => $reply,
+                    'payload' => [
+                        'interactive' => [
+                            'type' => 'cta_url',
+                            'body' => ['text' => $reply],
+                            'action' => [
+                                'name' => 'cta_url',
+                                'parameters' => [
+                                    'display_text' => '📞 Schedule a Call',
+                                    'url' => 'tel:' . $specialistPhone,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'status' => 'queued',
+                    'sent_by' => 'bot',
+                    'sent_at' => now(),
+                ]);
+            } else {
+                $botMessage = Message::create([
+                    'conversation_id' => $conversation->id,
+                    'direction' => 'out',
+                    'channel' => $message->channel,
+                    'type' => 'text',
+                    'body' => $reply,
+                    'payload' => [],
+                    'status' => 'queued',
+                    'sent_by' => 'bot',
+                    'sent_at' => now(),
+                ]);
+            }
 
             try {
                 $driver = $this->channelManager->driver($message->channel);
                 $providerId = $driver->send($botMessage);
                 $botMessage->update(['status' => 'sent', 'provider_message_id' => $providerId]);
             } catch (\Throwable $sendErr) {
-                $botMessage->update(['status' => 'failed', 'error_json' => ['message' => $sendErr->getMessage()]]);
-                Log::warning('AutoReplyListener AI chatbot send failed', [
-                    'message_id' => $botMessage->id,
-                    'channel' => $message->channel,
-                    'error' => $sendErr->getMessage(),
-                ]);
+                if ($scheduleCall && $botMessage->type === 'interactive') {
+                    $botMessage->update(['type' => 'text', 'payload' => []]);
+                    try {
+                        $driver = $this->channelManager->driver($message->channel);
+                        $fallbackText = $reply . "\n\n📞 Call our specialist: " . $specialistPhone;
+                        $botMessage->update(['body' => $fallbackText]);
+                        $providerId = $driver->send($botMessage);
+                        $botMessage->update(['status' => 'sent', 'provider_message_id' => $providerId]);
+                    } catch (\Throwable $fallbackErr) {
+                        $botMessage->update(['status' => 'failed', 'error_json' => ['message' => $fallbackErr->getMessage()]]);
+                    }
+                } else {
+                    $botMessage->update(['status' => 'failed', 'error_json' => ['message' => $sendErr->getMessage()]]);
+                    Log::warning('AutoReplyListener AI chatbot send failed', [
+                        'message_id' => $botMessage->id,
+                        'channel' => $message->channel,
+                        'error' => $sendErr->getMessage(),
+                    ]);
+                }
             }
 
             $conversation->update(['last_message_at' => now()]);

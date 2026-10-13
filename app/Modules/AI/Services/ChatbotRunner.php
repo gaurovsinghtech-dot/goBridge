@@ -181,8 +181,23 @@ class ChatbotRunner
             // 10. Convert Markdown bold (**text**) to WhatsApp bold (*text*)
             $reply = preg_replace('/\*\*(.+?)\*\*/', '*$1*', $reply);
 
-            // 11. Record CRM Timeline Event & Daily Telemetry
+            // 11. Detect [SCHEDULE_CALL] marker and prepare call button data
+            $scheduleCall = false;
+            if (! empty($bot->specialist_phone) && str_contains($reply, '[SCHEDULE_CALL]')) {
+                $scheduleCall = true;
+                $reply = trim(str_replace('[SCHEDULE_CALL]', '', $reply));
+            }
+
+            // 12. Record CRM Timeline Event & Daily Telemetry
             $this->recordTelemetry($bot, $conversation, $response, $latencyMs, $executionId);
+
+            if ($scheduleCall) {
+                return [
+                    'reply' => $reply,
+                    'schedule_call' => true,
+                    'specialist_phone' => $bot->specialist_phone,
+                ];
+            }
 
             return $reply;
         } catch (\Throwable $e) {
@@ -460,6 +475,10 @@ class ChatbotRunner
             $defaultRules = "1. Use ONLY the facts above — never make up information.\n2. Include specific details: names, numbers, prices, addresses, phone numbers when available.\n3. Keep replies concise (2-4 lines). No filler phrases like 'Let me know if you need more details'.\n4. Answer the question directly — start with the answer, not 'Sure!' or 'Great question!'.\n5. If the facts contain exact figures (prices, hours, phone numbers), always include them.\n6. Format for WhatsApp readability:\n   - Use *single asterisks* to bold key items like product names, prices, and important details. Do NOT use double asterisks (**).\n   - Put each product or feature on a separate line.\n   - Put the follow-up question on its own line, separated by a blank line from the main answer.\n   - Never write everything in one long paragraph.";
             $rules = ! empty($bot->response_rules) ? $bot->response_rules : $defaultRules;
             $prompt .= "\nRules for your reply:\n{$rules}\n";
+        }
+
+        if (! empty($bot->specialist_phone)) {
+            $prompt .= "\nCall scheduling instruction:\nWhen the customer asks for more details that are not in the facts above, or wants personalized help, pricing quotes, or a consultation, end your reply with the exact marker [SCHEDULE_CALL] on its own line. Do NOT include a phone number — the system will automatically attach a call button. Only use [SCHEDULE_CALL] when genuinely helpful, not for every message.\n";
         }
 
         if ($conversation && $conversation->contact_id) {

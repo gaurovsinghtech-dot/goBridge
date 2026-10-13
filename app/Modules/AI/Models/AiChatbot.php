@@ -70,6 +70,7 @@ class AiChatbot extends Model
         'human_handoff_enabled',
         'human_handoff_user_id',
         'human_handoff_message',
+        'specialist_phone',
         'handoff_conditions',
         'handoff_target_type',
         'handoff_target_team',
