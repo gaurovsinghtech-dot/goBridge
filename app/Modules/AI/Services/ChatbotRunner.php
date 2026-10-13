@@ -178,7 +178,10 @@ class ChatbotRunner
                 }
             }
 
-            // 10. Record CRM Timeline Event & Daily Telemetry
+            // 10. Convert Markdown bold (**text**) to WhatsApp bold (*text*)
+            $reply = preg_replace('/\*\*(.+?)\*\*/', '*$1*', $reply);
+
+            // 11. Record CRM Timeline Event & Daily Telemetry
             $this->recordTelemetry($bot, $conversation, $response, $latencyMs, $executionId);
 
             return $reply;
