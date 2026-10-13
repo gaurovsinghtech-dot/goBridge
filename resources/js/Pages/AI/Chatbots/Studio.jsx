@@ -12,6 +12,17 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
 
+function formatMessage(text) {
+    if (!text) return text;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+        }
+        return part;
+    });
+}
+
 function safeRoute(name, fallback = '#', ...args) {
     try {
         if (typeof route === 'function' && route().has(name)) {
@@ -1025,7 +1036,7 @@ export default function ChatbotStudio({
                                                     ? 'bg-brand-600 text-white rounded-tr-xs'
                                                     : 'bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 rounded-tl-xs'
                                             }`}>
-                                                <p className="whitespace-pre-wrap">{m.content}</p>
+                                                <p className="whitespace-pre-wrap">{formatMessage(m.content)}</p>
                                                 {m.details?.sources_used?.length > 0 && (
                                                     <div className="text-[10px] opacity-75 pt-1 border-t border-black/10 dark:border-white/10 flex items-center gap-1">
                                                         <BookOpen className="w-3 h-3" /> Source: {m.details.sources_used[0].title}
