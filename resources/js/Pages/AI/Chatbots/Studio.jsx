@@ -14,10 +14,13 @@ import axios from 'axios';
 
 function formatMessage(text) {
     if (!text) return text;
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    const parts = text.split(/(\*\*.*?\*\*|\*[^*]+\*)/g);
     return parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
             return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+            return <strong key={i} className="font-bold">{part.slice(1, -1)}</strong>;
         }
         return part;
     });
