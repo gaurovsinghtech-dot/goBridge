@@ -83,6 +83,7 @@ class AiChatbot extends Model
         'knowledge_source_ids',
         'voice_config',
         'system_prompt',
+        'response_rules',
         'tone',
         'max_context_chunks',
         'fallback_reply',

@@ -64,6 +64,7 @@ export default function ChatbotStudio({
         objectives: agent.objectives || ['answer_questions', 'generate_leads', 'collect_customer_info', 'create_crm_lead'],
         guardrails: agent.guardrails || ['no_hallucinations', 'protect_internal_data', 'protect_system_prompt', 'no_unauthorized_promises', 'escalate_complaints'],
         system_prompt: agent.system_prompt || '',
+        response_rules: agent.response_rules || '',
         ai_kb_id: agent.ai_kb_id || (knowledgeBases[0]?.id || null),
         knowledge_source_ids: agent.knowledge_source_ids || [],
         strict_knowledge_mode: agent.strict_knowledge_mode !== undefined ? Boolean(agent.strict_knowledge_mode) : true,
@@ -100,6 +101,7 @@ export default function ChatbotStudio({
         objectives: ['answer_questions', 'generate_leads', 'collect_customer_info', 'create_crm_lead', 'schedule_callback'],
         guardrails: ['no_hallucinations', 'protect_internal_data', 'protect_system_prompt', 'no_unauthorized_promises', 'escalate_complaints', 'escalate_low_confidence'],
         system_prompt: template?.system_prompt || "You are the helpful sales assistant for Growbridge Connect. Always use the verified Knowledge Base to answer business questions accurately. Never invent pricing or policies.",
+        response_rules: '',
         ai_kb_id: knowledgeBases[0]?.id || null,
         knowledge_source_ids: [],
         strict_knowledge_mode: true,
@@ -189,6 +191,7 @@ export default function ChatbotStudio({
                     emoji_style: data.emoji_style,
                     language: data.language,
                     system_prompt: data.system_prompt,
+                    response_rules: data.response_rules,
                     ai_kb_id: data.ai_kb_id ? Number(data.ai_kb_id) : null,
                     strict_knowledge_mode: Boolean(data.strict_knowledge_mode),
                     fallback_reply: data.fallback_reply,
@@ -659,6 +662,23 @@ export default function ChatbotStudio({
                                 </p>
                             </div>
                         )}
+
+                        {/* Response Formatting Rules */}
+                        <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                            <label className="block font-bold text-neutral-800 dark:text-neutral-200">
+                                Response Formatting Rules <span className="text-neutral-400 font-normal">(optional)</span>
+                            </label>
+                            <p className="text-[11px] text-neutral-400">
+                                Custom rules that control how the AI formats its replies. Leave blank to use the default rules (concise answers with specific details, no filler).
+                            </p>
+                            <textarea
+                                value={data.response_rules}
+                                onChange={e => setData('response_rules', e.target.value)}
+                                rows={6}
+                                placeholder={`1. Use ONLY the facts above — never make up information.\n2. Include specific details: names, numbers, prices, addresses.\n3. Keep it to 2-3 short sentences max.\n4. Answer the question directly.\n5. Always include exact figures when available.`}
+                                className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 font-mono text-xs text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-600"
+                            />
+                        </div>
 
                         <div className="flex justify-between pt-3">
                             <button

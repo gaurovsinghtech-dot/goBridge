@@ -453,12 +453,10 @@ class ChatbotRunner
             }
 
             $prompt .= "\nRelevant facts:\n".$contextText."\n";
-            $prompt .= "\nRules for your reply:
-1. Use ONLY the facts above — never make up information.
-2. Include specific details: names, numbers, prices, addresses, phone numbers when available.
-3. Keep it to 2-3 short sentences max. No filler phrases like 'Let me know if you need more details' or 'How can I assist you further'.
-4. Answer the question directly — start with the answer, not 'Sure!' or 'Great question!'.
-5. If the facts contain exact figures (prices, hours, phone numbers), always include them.\n";
+
+            $defaultRules = "1. Use ONLY the facts above — never make up information.\n2. Include specific details: names, numbers, prices, addresses, phone numbers when available.\n3. Keep it to 2-3 short sentences max. No filler phrases like 'Let me know if you need more details' or 'How can I assist you further'.\n4. Answer the question directly — start with the answer, not 'Sure!' or 'Great question!'.\n5. If the facts contain exact figures (prices, hours, phone numbers), always include them.";
+            $rules = ! empty($bot->response_rules) ? $bot->response_rules : $defaultRules;
+            $prompt .= "\nRules for your reply:\n{$rules}\n";
         }
 
         if ($conversation && $conversation->contact_id) {

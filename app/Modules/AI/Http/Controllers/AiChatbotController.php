@@ -334,7 +334,7 @@ class AiChatbotController extends Controller
                 $allowed = [
                     'name', 'purpose', 'description', 'tone', 'response_style',
                     'emoji_style', 'language', 'objectives', 'guardrails',
-                    'system_prompt', 'ai_kb_id', 'strict_knowledge_mode',
+                    'system_prompt', 'response_rules', 'ai_kb_id', 'strict_knowledge_mode',
                     'fallback_reply', 'confidence_threshold', 'human_handoff_enabled',
                     'human_handoff_message',
                 ];
@@ -392,6 +392,7 @@ class AiChatbotController extends Controller
             'objectives' => ['nullable', 'array'],
             'guardrails' => ['nullable', 'array'],
             'system_prompt' => ['nullable', 'string', 'max:10000'],
+            'response_rules' => ['nullable', 'string', 'max:5000'],
             'ai_kb_id' => ['nullable', 'integer'],
             'knowledge_source_ids' => ['nullable', 'array'],
             'strict_knowledge_mode' => ['nullable', 'boolean'],
