@@ -837,15 +837,26 @@ class ChatbotRunner
         $normalized = strtolower(trim($message));
         $clean = preg_replace('/[^\w\s]/', '', $normalized);
 
-        $greetings = [
+        if (mb_strlen($clean) > 40) {
+            return false;
+        }
+
+        $exactGreetings = [
             'hi', 'hello', 'hey', 'heya', 'hola', 'namaste', 'whats up', 'whatsup', 'sup',
             'how are you', 'how r u', 'hi there', 'hey there', 'good morning', 'good afternoon',
             'good evening', 'good day', 'good night', 'thanks', 'thank you', 'bye', 'goodbye',
-            'start', 'help', 'info', 'want caption', 'caption',
+            'start', 'help', 'info', 'yes', 'no', 'ok', 'okay',
         ];
 
-        foreach ($greetings as $g) {
-            if ($clean === $g || str_starts_with($clean, $g . ' ') || str_contains($clean, $g)) {
+        foreach ($exactGreetings as $g) {
+            if ($clean === $g) {
+                return true;
+            }
+        }
+
+        $prefixGreetings = ['hi ', 'hello ', 'hey ', 'namaste ', 'good morning', 'good evening', 'good afternoon'];
+        foreach ($prefixGreetings as $g) {
+            if (str_starts_with($clean, $g)) {
                 return true;
             }
         }
