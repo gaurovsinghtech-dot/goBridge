@@ -466,7 +466,7 @@ export default function ChatbotsIndex({
                             ) : (
                                 testMessages.map((m, idx) => (
                                     <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
+                                        <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
                                             m.role === 'user'
                                                 ? 'bg-brand-600 text-white rounded-br-md'
                                                 : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-bl-md'
