@@ -225,6 +225,15 @@ body {
     }
 }
 
+/* Logo pulse for loading screen */
+@keyframes pulse-logo {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.95); }
+}
+.animate-pulse-logo {
+    animation: pulse-logo 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* RTL: logical spacing where needed (Tailwind rtl: variant used in components) */
 [dir="rtl"] .text-left {
     text-align: right;
