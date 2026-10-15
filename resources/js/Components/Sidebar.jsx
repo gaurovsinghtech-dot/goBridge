@@ -109,11 +109,14 @@ export default function Sidebar({
                     logo
                 ) : (
                     <Link href={route('client.dashboard')} className="flex items-center gap-2.5 group transition-transform duration-150 hover:scale-[1.01]">
-                        <img
-                            src={logoUrl || '/images/brand/logo-full.png'}
-                            alt={appName || 'Growbridge Connect'}
-                            className="h-8 max-w-[180px] object-contain drop-shadow-xs"
-                        />
+                        {logoUrl ? (
+                            <img src={logoUrl} alt={appName || 'Growbridge Connect'} className="h-8 max-w-[180px] object-contain drop-shadow-xs" />
+                        ) : (
+                            <>
+                                <img src="/images/brand/logo-full.png" alt={appName || 'Growbridge Connect'} className="h-8 max-w-[180px] object-contain drop-shadow-xs dark:hidden" />
+                                <img src="/images/brand/logo-full-dark.png" alt={appName || 'Growbridge Connect'} className="h-8 max-w-[180px] object-contain drop-shadow-xs hidden dark:block" />
+                            </>
+                        )}
                     </Link>
                 )}
             </div>

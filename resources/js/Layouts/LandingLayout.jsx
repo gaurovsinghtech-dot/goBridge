@@ -104,18 +104,7 @@ export default function LandingLayout({ children }) {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 box-border">
                         {/* Brand Logo */}
                         <Link href={route('home')} className="flex items-center gap-3 group shrink-0" aria-label="Growbridge Connect">
-                            {logoUrl ? (
-                                <img src={logoUrl} alt={appName} className="h-9 w-auto max-w-[180px] object-contain" />
-                            ) : (
-                                <div className="flex items-center gap-2.5">
-                                    <div className="h-9 w-9 rounded-lg bg-[#2563EB] flex items-center justify-center shadow-sm group-hover:bg-[#1D4ED8] transition-colors">
-                                        <span className="text-xl font-bold text-white leading-none tracking-tight">G</span>
-                                    </div>
-                                    <span className="text-lg font-bold text-[#171717] tracking-tight">
-                                        Growbridge <span className="text-[#2563EB]">Connect</span>
-                                    </span>
-                                </div>
-                            )}
+                            <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-9 w-auto max-w-[200px] object-contain" />
                         </Link>
 
                         {/* Desktop Navigation Links */}
@@ -381,18 +370,7 @@ export default function LandingLayout({ children }) {
                         {/* Brand */}
                         <div className="col-span-2 sm:col-span-1">
                             <Link href={route('home')} className="flex items-center mb-4">
-                                {logoUrl ? (
-                                    <img src={logoUrl} alt={appName} className="h-9 w-auto max-w-[180px] object-contain" />
-                                ) : (
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="h-8 w-8 rounded-lg bg-[#2563EB] flex items-center justify-center shadow-sm">
-                                            <span className="text-lg font-bold text-white leading-none tracking-tight">G</span>
-                                        </div>
-                                        <span className="text-base font-bold text-[#171717] tracking-tight">
-                                            Growbridge <span className="text-[#2563EB]">Connect</span>
-                                        </span>
-                                    </div>
-                                )}
+                                <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-9 w-auto max-w-[200px] object-contain" />
                             </Link>
                             <p className="text-sm text-[#737373] leading-relaxed max-w-xs">
                                 {t('landing.footer_tagline', { defaultValue: 'Connect. Engage. Automate. Grow.' })}

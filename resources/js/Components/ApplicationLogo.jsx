@@ -1,11 +1,5 @@
 import { usePage } from '@inertiajs/react';
 
-/**
- * Official Growbridge Connect Application Logo Component
- * Uses the uploaded official brand assets:
- * - Icon: /images/brand/logo-icon.png (emerald/teal "G" leaf icon)
- * - Full Wordmark: /images/brand/logo-full.png
- */
 export default function ApplicationLogo({ className = 'h-9 w-auto', style, alt, variant = 'icon' }) {
     let customLogoUrl = null;
     try {
@@ -15,15 +9,42 @@ export default function ApplicationLogo({ className = 'h-9 w-auto', style, alt, 
         customLogoUrl = null;
     }
 
-    const defaultSrc = variant === 'full' 
-        ? '/images/brand/logo-full.png' 
-        : '/images/brand/logo-icon.png';
+    if (customLogoUrl) {
+        return (
+            <img
+                src={customLogoUrl}
+                alt={alt ?? 'Growbridge Connect'}
+                className={`object-contain transition-transform duration-200 ${className}`}
+                style={style}
+                loading="eager"
+            />
+        );
+    }
 
-    const src = customLogoUrl || defaultSrc;
+    if (variant === 'full') {
+        return (
+            <>
+                <img
+                    src="/images/brand/logo-full.png"
+                    alt={alt ?? 'Growbridge Connect'}
+                    className={`object-contain transition-transform duration-200 dark:hidden ${className}`}
+                    style={style}
+                    loading="eager"
+                />
+                <img
+                    src="/images/brand/logo-full-dark.png"
+                    alt={alt ?? 'Growbridge Connect'}
+                    className={`object-contain transition-transform duration-200 hidden dark:block ${className}`}
+                    style={style}
+                    loading="eager"
+                />
+            </>
+        );
+    }
 
     return (
         <img
-            src={src}
+            src="/images/brand/logo-icon.png"
             alt={alt ?? 'Growbridge Connect'}
             className={`object-contain transition-transform duration-200 ${className}`}
             style={style}
