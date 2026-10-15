@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { subscribeLoading } from '@/lib/navigationLoading';
-import { useBranding } from '@/hooks/useBranding';
 
 export default function LoadingScreen() {
     const [visible, setVisible] = useState(false);
     const showTimer = useRef(null);
-    const { logoUrl } = useBranding();
 
     useEffect(() => {
         return subscribeLoading((active) => {
@@ -30,7 +28,7 @@ export default function LoadingScreen() {
             <div className="flex flex-col items-center gap-4">
                 <div className="animate-pulse-logo">
                     <img
-                        src={logoUrl || '/images/brand/logo-full.png'}
+                        src="/images/brand/logo-full.png"
                         alt="Loading"
                         className="h-12 w-auto max-w-[220px] object-contain drop-shadow-md dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)]"
                     />
