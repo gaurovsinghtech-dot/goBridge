@@ -9,35 +9,13 @@ export default function ApplicationLogo({ className = 'h-9 w-auto', style, alt, 
         customLogoUrl = null;
     }
 
-    if (customLogoUrl) {
-        return (
-            <img
-                src={customLogoUrl}
-                alt={alt ?? 'Growbridge Connect'}
-                className={`object-contain transition-transform duration-200 ${className}`}
-                style={style}
-                loading="eager"
-            />
-        );
-    }
-
-    if (variant === 'full') {
-        return (
-            <img
-                src="/images/brand/logo-full.png"
-                alt={alt ?? 'Growbridge Connect'}
-                className={`object-contain transition-transform duration-200 drop-shadow-sm dark:invert dark:hue-rotate-180 ${className}`}
-                style={style}
-                loading="eager"
-            />
-        );
-    }
+    const src = customLogoUrl || (variant === 'full' ? '/images/brand/logo-full.png' : '/images/brand/logo-icon.png');
 
     return (
         <img
-            src="/images/brand/logo-icon.png"
+            src={src}
             alt={alt ?? 'Growbridge Connect'}
-            className={`object-contain transition-transform duration-200 ${className}`}
+            className={`object-contain transition-transform duration-200 drop-shadow-sm dark:invert dark:hue-rotate-180 ${className}`}
             style={style}
             loading="eager"
         />
