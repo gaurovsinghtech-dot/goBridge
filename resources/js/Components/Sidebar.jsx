@@ -48,7 +48,7 @@ function NavGroup({ label, items, onClose }) {
 
             {open && (
                 <div id={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`} className="mt-0.5 space-y-0.5">
-                    {items.map((item, i) => {
+                    {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
                         return (
                             <Link
@@ -129,7 +129,7 @@ export default function Sidebar({
             <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
                 {/* Standalone Nav Items (e.g. Dashboard, Clients) */}
                 {navItems.length > 0 &&
-                    navItems.map((item, i) => {
+                    navItems.filter(item => !item.locked).map((item, i) => {
                         if (item.type === 'divider') {
                             return <hr key={`div-${i}`} className="my-2 border-neutral-200 dark:border-neutral-800" />;
                         }
