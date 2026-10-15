@@ -3,8 +3,7 @@ import InboxLayout from '@/Layouts/InboxLayout';
 import NewConversationModal from '@/Components/Inbox/NewConversationModal';
 import {
     MessageSquare, Inbox, CheckCircle, Clock, User,
-    Search, Plus, Bot, PhoneCall, Mail,
-    Sparkles, Check, CheckCheck, Tag, Filter, X, Settings
+    Search, Plus, Bot, Check, CheckCheck, X, Settings
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +27,17 @@ const CHANNELS = [
     { key: 'phone',     label: 'Phone / Calls', icon: 'voice',     countKey: 'calls' },
 ];
 
+const AVATAR_COLORS = [
+    'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500',
+    'bg-violet-500', 'bg-cyan-500', 'bg-orange-500', 'bg-pink-500',
+];
+
+function getAvatarColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 function ConversationListItem({ conv, isActive, userTz }) {
     const channel = conv.channel || conv.channel_account?.channel || 'whatsapp';
     const lastMsg = conv.last_message ?? {};
@@ -37,85 +47,67 @@ function ConversationListItem({ conv, isActive, userTz }) {
 
     const isBot = conv.assigned_to === 'bot' || conv.assigned_to === 'ai';
     const isUnread = (conv.unread_count ?? 0) > 0;
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
 
     return (
         <Link
             href={route('client.inbox.show', conv.uuid)}
-            className={`block px-3.5 py-3 border-b border-neutral-200 dark:border-neutral-800 transition-colors ${
+            className={`group block px-3 py-2.5 transition-colors ${
                 isActive
-                    ? 'bg-blue-50/80 dark:bg-neutral-800 border-l-4 border-l-blue-600'
+                    ? 'bg-blue-50 dark:bg-blue-950/30 border-l-[3px] border-l-blue-600'
                     : isUnread
-                        ? 'bg-blue-50/30 dark:bg-neutral-900/60'
-                        : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
+                        ? 'bg-blue-50/40 dark:bg-neutral-800/50 border-l-[3px] border-l-transparent'
+                        : 'border-l-[3px] border-l-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
             }`}
         >
-            <div className="flex items-start gap-3">
-                {/* Profile Avatar */}
+            <div className="flex items-center gap-2.5">
                 <div className="relative shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-neutral-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-neutral-700 flex items-center justify-center text-xs font-bold shadow-xs">
-                        {name[0]?.toUpperCase() ?? '?'}
+                    <div className={`h-9 w-9 rounded-full ${getAvatarColor(name)} text-white flex items-center justify-center text-[11px] font-bold`}>
+                        {initials}
                     </div>
-                    <span className="absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow-xs">
-                        <ChannelBrandIcon channel={channel} className="h-3 w-3" />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-white dark:bg-neutral-900 flex items-center justify-center">
+                        <ChannelBrandIcon channel={channel} className="h-2.5 w-2.5" />
                     </span>
                 </div>
 
-                {/* Main Info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                            <span className={`text-xs truncate ${isUnread ? 'font-bold text-neutral-900 dark:text-white' : 'font-semibold text-neutral-800 dark:text-neutral-200'}`}>
-                                {name}
-                            </span>
-                            {/* AI / Human Indicator */}
-                            {isBot ? (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" /> AI
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-medium bg-neutral-100 border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" /> Human
-                                </span>
-                            )}
-                        </div>
-                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 font-medium">
+                        <span className={`text-[13px] truncate ${isUnread ? 'font-bold text-neutral-900 dark:text-white' : 'font-medium text-neutral-700 dark:text-neutral-200'}`}>
+                            {name}
+                        </span>
+                        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
                             {conv.last_message_at ? formatTimeTz(conv.last_message_at, userTz) : ''}
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 mt-1">
-                        {lastMsg.direction === 'out' && (
-                            <span className="shrink-0 text-neutral-400">
-                                {lastMsg.status === 'read' ? (
-                                    <CheckCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                                ) : (
-                                    <Check className="w-3.5 h-3.5" />
-                                )}
-                            </span>
-                        )}
-                        <p className={`text-xs truncate flex-1 ${isUnread ? 'font-semibold text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400'}`}>
-                            {lastMsg.body || '(media message)'}
-                        </p>
-                        {isUnread && (
-                            <span className="shrink-0 h-4 min-w-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-xs">
-                                {conv.unread_count > 99 ? '99+' : conv.unread_count}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Contact Tags */}
-                    {conv.contact?.tags?.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                            {conv.contact.tags.slice(0, 3).map(tag => (
-                                <span
-                                    key={tag.id}
-                                    className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-neutral-100 border border-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
-                                >
-                                    {tag.name}
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                        <div className="flex items-center gap-1 min-w-0 flex-1">
+                            {lastMsg.direction === 'out' && (
+                                <span className="shrink-0 text-neutral-400">
+                                    {lastMsg.status === 'read' ? (
+                                        <CheckCheck className="w-3 h-3 text-blue-500" />
+                                    ) : (
+                                        <Check className="w-3 h-3" />
+                                    )}
                                 </span>
-                            ))}
+                            )}
+                            <p className={`text-xs truncate ${isUnread ? 'font-medium text-neutral-800 dark:text-neutral-200' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                                {lastMsg.body || '(media)'}
+                            </p>
                         </div>
-                    )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            {isBot && (
+                                <span className="inline-flex items-center gap-0.5 px-1 py-px rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                    <span className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />AI
+                                </span>
+                            )}
+                            {isUnread && (
+                                <span className="h-4.5 min-w-4.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center px-1">
+                                    {conv.unread_count > 99 ? '99+' : conv.unread_count}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </Link>
@@ -170,30 +162,22 @@ export default function InboxIndex({
 
             <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
                 {/* 1. LEFT COLUMN: CHANNELS & FILTERS SIDEBAR */}
-                <div className="w-56 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden md:flex">
-                    {/* Brand / Header */}
-                    <div className="p-3.5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
-                                GC
-                            </div>
-                            <div>
-                                <h2 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">CHANNELS</h2>
-                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Omnichannel Hub</p>
-                            </div>
-                        </div>
+                <div className="w-52 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden md:flex">
+                    {/* Header */}
+                    <div className="px-3 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                        <h2 className="text-[11px] font-bold text-neutral-900 dark:text-white uppercase tracking-widest">Inbox</h2>
                         <Link
                             href={route('client.inbox.setup')}
-                            title="Channel & Integration Setup"
-                            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-white dark:hover:bg-neutral-800 transition"
+                            title="Channel Setup"
+                            className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 dark:hover:text-white dark:hover:bg-neutral-800 transition"
                         >
-                            <Settings className="w-4 h-4" />
+                            <Settings className="w-3.5 h-3.5" />
                         </Link>
                     </div>
 
-                    {/* Views Section */}
-                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 px-2 py-1">Views</p>
+                    {/* Views */}
+                    <div className="px-2 pt-3 pb-2 space-y-0.5">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 px-2 mb-1.5">Views</p>
                         {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
                             const isSelected = activeFolder === key && !activeChannel;
                             const count = counts[countKey] ?? 0;
@@ -202,37 +186,33 @@ export default function InboxIndex({
                                 <button
                                     key={label}
                                     onClick={() => handleFilterChange({ folder: key, channel: null })}
-                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
-                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
+                                            ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <Icon className="h-4 w-4 shrink-0" />
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <Icon className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{label}</span>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
-                                    }`}>
-                                        {count}
-                                    </span>
+                                    {count > 0 && (
+                                        <span className={`text-[10px] font-semibold tabular-nums ${
+                                            isSelected ? 'text-blue-100' : 'text-neutral-400 dark:text-neutral-500'
+                                        }`}>
+                                            {count}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}
                     </div>
 
-                    {/* Channels Section */}
-                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
-                        <div className="flex items-center justify-between px-2 py-1">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Channels</p>
-                            <Link
-                                href={route('client.inbox.setup')}
-                                className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-                            >
-                                <Settings className="w-3 h-3" /> Setup
-                            </Link>
-                        </div>
+                    <hr className="border-neutral-200 dark:border-neutral-800 mx-3" />
+
+                    {/* Channels */}
+                    <div className="px-2 pt-3 pb-2 space-y-0.5">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 px-2 mb-1.5">Channels</p>
                         {CHANNELS.map(ch => {
                             const isSelected = activeChannel === ch.key;
                             const count = counts[ch.countKey] ?? 0;
@@ -241,21 +221,23 @@ export default function InboxIndex({
                                 <button
                                     key={ch.key}
                                     onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
-                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
-                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
+                                            ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <ChannelBrandIcon channel={ch.icon} className="h-4 w-4 shrink-0" />
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <ChannelBrandIcon channel={ch.icon} className="h-3.5 w-3.5 shrink-0" />
                                         <span className="truncate">{ch.label}</span>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
-                                    }`}>
-                                        {count}
-                                    </span>
+                                    {count > 0 && (
+                                        <span className={`text-[10px] font-semibold tabular-nums ${
+                                            isSelected ? 'text-blue-100' : 'text-neutral-400 dark:text-neutral-500'
+                                        }`}>
+                                            {count}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}
@@ -263,72 +245,73 @@ export default function InboxIndex({
 
                     {/* Tags / Labels */}
                     {labels.length > 0 && (
-                        <div className="p-2 space-y-1">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 px-2 py-1">Tags</p>
-                            {labels.map(lbl => (
-                                <button
-                                    key={lbl.id}
-                                    onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
-                                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition ${
-                                        String(filters.label) === String(lbl.id)
-                                            ? 'bg-blue-50 dark:bg-neutral-800 border border-blue-200 dark:border-neutral-700 text-blue-700 dark:text-white font-bold'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white'
-                                    }`}
-                                >
-                                    <span className="h-2 w-2 rounded-full shrink-0 bg-blue-600" />
-                                    <span className="truncate">{lbl.name}</span>
-                                </button>
-                            ))}
-                        </div>
+                        <>
+                            <hr className="border-neutral-200 dark:border-neutral-800 mx-3" />
+                            <div className="px-2 pt-3 pb-2 space-y-0.5">
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 px-2 mb-1.5">Tags</p>
+                                {labels.map(lbl => (
+                                    <button
+                                        key={lbl.id}
+                                        onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
+                                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] transition ${
+                                            String(filters.label) === String(lbl.id)
+                                                ? 'bg-blue-50 dark:bg-neutral-800 text-blue-700 dark:text-blue-300 font-semibold'
+                                                : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                        }`}
+                                    >
+                                        <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-blue-500" />
+                                        <span className="truncate">{lbl.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
 
                 {/* 2. CENTER COLUMN: CONVERSATION LIST */}
                 <div className="w-full md:w-80 lg:w-96 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0">
-                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-950">
+                    <div className="px-3 py-2.5 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="flex items-center justify-between gap-2 mb-2">
-                            <h1 className="text-sm font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Conversations</h1>
+                            <h1 className="text-[13px] font-semibold text-neutral-900 dark:text-white">Conversations</h1>
                             <button
                                 onClick={() => setShowNewModal(true)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold shadow-sm transition"
                             >
-                                <Plus className="w-3.5 h-3.5" /> New
+                                <Plus className="w-3 h-3" /> New
                             </button>
                         </div>
 
-                        {/* Debounced Search */}
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+                            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-neutral-400" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={e => handleSearchChange(e.target.value)}
-                                placeholder="Search customer, phone, text..."
-                                className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl pl-9 pr-8 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-neutral-400 dark:placeholder-neutral-500 transition"
+                                placeholder="Search conversations..."
+                                className="w-full text-[12px] bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg pl-8 pr-7 py-1.5 text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-neutral-400 dark:placeholder-neutral-500 transition"
                             />
                             {search && (
                                 <button
                                     onClick={() => handleSearchChange('')}
-                                    className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                                    className="absolute right-2.5 top-2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-3.5 h-3.5" />
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    {/* Conversation List Stream */}
-                    <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/60">
+                    <div className="flex-1 overflow-y-auto">
                         {convList.length === 0 ? (
                             <div className="p-8 text-center">
-                                <MessageSquare className="w-8 h-8 text-neutral-400 dark:text-neutral-600 mx-auto mb-2" />
-                                <p className="text-xs font-bold text-neutral-900 dark:text-white">No conversations found</p>
-                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 mb-3">Try selecting another channel or starting a new thread.</p>
+                                <MessageSquare className="w-7 h-7 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
+                                <p className="text-[13px] font-medium text-neutral-700 dark:text-neutral-200">No conversations</p>
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 mb-3">Try a different filter or start a new thread.</p>
                                 <Link
                                     href={route('client.inbox.setup')}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-700 text-xs font-bold transition shadow-xs"
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-[11px] font-medium transition"
                                 >
-                                    <Settings className="w-3.5 h-3.5" /> Connect Channels & Setup
+                                    <Settings className="w-3 h-3" /> Connect Channels
                                 </Link>
                             </div>
                         ) : (
@@ -344,29 +327,21 @@ export default function InboxIndex({
                     </div>
                 </div>
 
-                {/* 3. RIGHT COLUMN: EMPTY / PROMPT STATE */}
-                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-[#FAFAF9] dark:bg-neutral-950">
-                    <div className="h-14 w-14 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
-                        <Sparkles className="w-7 h-7" />
+                {/* 3. RIGHT COLUMN: EMPTY STATE */}
+                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-neutral-50 dark:bg-neutral-950">
+                    <div className="h-11 w-11 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-blue-500 flex items-center justify-center mb-3">
+                        <MessageSquare className="w-5 h-5" />
                     </div>
-                    <h2 className="text-base font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Unified Omnichannel Hub</h2>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mt-1 leading-relaxed">
-                        Select any conversation from the list to view customer details, message stream, phone call audio transcripts, AI/Human toggles, and send responses.
+                    <h2 className="text-sm font-semibold text-neutral-800 dark:text-white">Select a conversation</h2>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs mt-1 leading-relaxed">
+                        Choose a conversation from the list to view messages and reply.
                     </p>
-                    <div className="mt-5 flex items-center justify-center gap-2.5">
-                        <button
-                            onClick={() => setShowNewModal(true)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition"
-                        >
-                            <Plus className="w-4 h-4" /> Start New Conversation
-                        </button>
-                        <Link
-                            href={route('client.inbox.setup')}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-white text-xs font-bold shadow-xs transition"
-                        >
-                            <Settings className="w-4 h-4" /> Channel Setup
-                        </Link>
-                    </div>
+                    <button
+                        onClick={() => setShowNewModal(true)}
+                        className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold shadow-sm transition"
+                    >
+                        <Plus className="w-3.5 h-3.5" /> New Conversation
+                    </button>
                 </div>
             </div>
 
