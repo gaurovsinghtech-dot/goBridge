@@ -24,7 +24,7 @@ export default function AuthLayout({
             {/* ── Top Header / Brand Logo ── */}
             <header className="pt-8 pb-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex justify-center items-center">
                 <Link href={route('home')} className="flex items-center gap-3 group transition-transform duration-200 hover:scale-[1.02]" aria-label="Growbridge Connect">
-                    <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-10 w-auto max-w-[260px] object-contain drop-shadow-sm dark:invert dark:hue-rotate-180" />
+                    <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-10 w-auto max-w-[260px] object-contain drop-shadow-sm dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)]" />
                     {variant === 'admin' && (
                         <span className="ms-2 inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[11px] font-bold text-[#2563EB] uppercase tracking-wider shadow-sm">
                             Admin Panel

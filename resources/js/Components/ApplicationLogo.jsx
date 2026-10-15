@@ -15,7 +15,7 @@ export default function ApplicationLogo({ className = 'h-9 w-auto', style, alt, 
         <img
             src={src}
             alt={alt ?? 'Growbridge Connect'}
-            className={`object-contain transition-transform duration-200 drop-shadow-sm dark:invert dark:hue-rotate-180 ${className}`}
+            className={`object-contain transition-transform duration-200 drop-shadow-sm dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)] ${className}`}
             style={style}
             loading="eager"
         />
