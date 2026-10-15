@@ -27,14 +27,14 @@ export default function ApplicationLogo({ className = 'h-9 w-auto', style, alt, 
                 <img
                     src="/images/brand/logo-full.png"
                     alt={alt ?? 'Growbridge Connect'}
-                    className={`object-contain transition-transform duration-200 dark:hidden ${className}`}
+                    className={`object-contain transition-transform duration-200 drop-shadow-sm dark:hidden ${className}`}
                     style={style}
                     loading="eager"
                 />
                 <img
                     src="/images/brand/logo-full-dark.png"
                     alt={alt ?? 'Growbridge Connect'}
-                    className={`object-contain transition-transform duration-200 hidden dark:block ${className}`}
+                    className={`object-contain transition-transform duration-200 drop-shadow-sm hidden dark:block ${className}`}
                     style={style}
                     loading="eager"
                 />
