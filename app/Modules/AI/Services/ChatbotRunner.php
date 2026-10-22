@@ -460,14 +460,14 @@ class ChatbotRunner
                     $content = $c->content ?? '';
                 }
                 $content = $this->extractRelevantSection($content, $userQuery);
-                if (mb_strlen($content) > 600) {
-                    $content = mb_substr($content, 0, 600) . '…';
+                if (mb_strlen($content) > 1000) {
+                    $content = mb_substr($content, 0, 1000) . '…';
                 }
                 return $content;
             }, $contextChunks));
 
-            if (mb_strlen($contextText) > 1200) {
-                $contextText = mb_substr($contextText, 0, 1200) . '…';
+            if (mb_strlen($contextText) > 3000) {
+                $contextText = mb_substr($contextText, 0, 3000) . '…';
             }
 
             $prompt .= "\nRelevant facts:\n".$contextText."\n";
@@ -579,8 +579,33 @@ class ChatbotRunner
                 return [];
             }
 
-            $searchTerms = [];
+            $domainSynonyms = [
+                'emi' => ['financing', 'installment', 'payment', 'loan', 'emi'],
+                'financing' => ['emi', 'installment', 'payment', 'loan', 'financing'],
+                'installment' => ['emi', 'financing', 'payment', 'installment'],
+                'loan' => ['emi', 'financing', 'loan'],
+                'price' => ['pricing', 'cost', 'rate', 'price'],
+                'cost' => ['pricing', 'price', 'rate', 'cost'],
+                'automatic' => ['automatic', 'semi-automatic', 'machine', 'fully'],
+                'machine' => ['machine', 'automatic', 'semi-automatic', 'manual', 'fully'],
+                'semi' => ['semi-automatic', 'automatic', 'manual', 'machine'],
+                'fully' => ['fully', 'automatic', 'machine'],
+                'warranty' => ['warranty', 'guarantee'],
+                'guarantee' => ['warranty', 'guarantee'],
+                'raw' => ['raw material', 'material'],
+                'material' => ['raw material', 'material'],
+            ];
+
+            $expandedKeywords = $keywords;
             foreach ($keywords as $kw) {
+                if (isset($domainSynonyms[$kw])) {
+                    $expandedKeywords = array_merge($expandedKeywords, $domainSynonyms[$kw]);
+                }
+            }
+            $expandedKeywords = array_unique($expandedKeywords);
+
+            $searchTerms = [];
+            foreach ($expandedKeywords as $kw) {
                 $searchTerms[] = $kw;
                 if (mb_strlen($kw) > 4) {
                     $searchTerms[] = mb_substr($kw, 0, 4);
@@ -674,9 +699,23 @@ class ChatbotRunner
         $queryLower = strtolower($query);
         $keywords = [
             'product' => ['PRODUCTS', 'SERVICES'],
-            'machine' => ['PRODUCTS', 'SERVICES'],
-            'price' => ['PRICING', 'ORDERS'],
-            'cost' => ['PRICING', 'ORDERS'],
+            'machine' => ['PRODUCTS', 'SERVICES', 'PRICING'],
+            'automatic' => ['PRODUCTS', 'SERVICES', 'PRICING'],
+            'semi' => ['PRODUCTS', 'SERVICES', 'PRICING'],
+            'manual' => ['PRODUCTS', 'SERVICES', 'PRICING'],
+            'fully' => ['PRODUCTS', 'SERVICES', 'PRICING'],
+            'price' => ['PRICING', 'ORDERS', 'PRODUCTS'],
+            'cost' => ['PRICING', 'ORDERS', 'PRODUCTS'],
+            'rate' => ['PRICING', 'ORDERS'],
+            'emi' => ['PRICING', 'EMI', 'FINANCING', 'PAYMENT'],
+            'financing' => ['PRICING', 'EMI', 'FINANCING', 'PAYMENT'],
+            'installment' => ['PRICING', 'EMI', 'FINANCING', 'PAYMENT'],
+            'loan' => ['PRICING', 'EMI', 'FINANCING', 'PAYMENT'],
+            'payment' => ['PRICING', 'EMI', 'FINANCING', 'PAYMENT'],
+            'warranty' => ['WARRANTY', 'POLICIES', 'PRODUCTS'],
+            'guarantee' => ['WARRANTY', 'POLICIES', 'PRODUCTS'],
+            'raw' => ['PRODUCTS', 'RAW MATERIAL', 'SERVICES'],
+            'material' => ['PRODUCTS', 'RAW MATERIAL', 'SERVICES'],
             'hour' => ['BUSINESS HOURS', 'HOURS'],
             'time' => ['BUSINESS HOURS', 'HOURS'],
             'open' => ['BUSINESS HOURS', 'HOURS'],
