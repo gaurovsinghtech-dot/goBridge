@@ -33,11 +33,6 @@ export default function LoadingScreen() {
                         className="h-12 w-auto max-w-[220px] object-contain drop-shadow-md dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)]"
                     />
                 </div>
-                <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-bounce [animation-delay:0ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-bounce [animation-delay:150ms]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-bounce [animation-delay:300ms]" />
-                </div>
             </div>
         </div>
     );
