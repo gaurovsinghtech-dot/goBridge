@@ -87,8 +87,47 @@ class ChatbotRunner
         $isGreetingMsg = $this->isGreeting($body);
         $contextChunks = $this->fetchKnowledgeChunks($bot, $body, $workspaceId);
 
+        // 4b. If no chunks found and bot has no KB linked, try any KB in the workspace
+        if (empty($contextChunks) && ! $isGreetingMsg && $body !== '') {
+            $botKbId = $bot->ai_kb_id;
+            $anyKb = \App\Modules\AI\Models\AiKnowledgeBase::where('workspace_id', $workspaceId)->first();
+            if ($anyKb && (! $botKbId || $botKbId != $anyKb->id)) {
+                Log::info("ChatbotRunner: Bot {$bot->id} has no chunks from kb_id={$botKbId}. Trying workspace KB id={$anyKb->id}");
+                $fallbackChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
+                    ->where('kb_id', $anyKb->id)
+                    ->take(10)
+                    ->get();
+
+                foreach ($fallbackChunks as $chunk) {
+                    if (! $chunk->document) {
+                        continue;
+                    }
+                    $doc = $chunk->document;
+                    if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                        continue;
+                    }
+                    $contextChunks[] = [
+                        'chunk_id' => $chunk->id,
+                        'document_id' => $chunk->document_id,
+                        'title' => $doc->title ?? 'Knowledge Item',
+                        'source_type' => $doc->source_type ?? 'text',
+                        'category' => $doc->category ?? 'general',
+                        'priority' => (int) ($doc->priority ?? 5),
+                        'content' => $chunk->content,
+                        'score' => 0.3,
+                        'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
+                    ];
+                }
+                if (! empty($contextChunks)) {
+                    Log::info("ChatbotRunner: Workspace KB fallback loaded " . count($contextChunks) . " chunks for bot {$bot->id}");
+                }
+            }
+        }
+
         // 5. Strict Knowledge Mode Guard (Exempt basic greetings and pleasantries)
         if ($bot->strict_knowledge_mode && empty($contextChunks) && $body !== '' && ! $isGreetingMsg) {
+            Log::warning("ChatbotRunner: Strict mode fallback triggered. Bot {$bot->id}, kb_id={$bot->ai_kb_id}, workspace={$workspaceId}, query: " . mb_substr($body, 0, 100));
+
             AiUnknownQuestion::updateOrCreate(
                 ['workspace_id' => $workspaceId, 'ai_agent_id' => $bot->id, 'question' => mb_substr($body, 0, 500)],
                 ['last_asked_at' => now()]
@@ -651,6 +690,45 @@ class ChatbotRunner
             }
         } catch (\Throwable $e) {
             Log::error("ChatbotRunner: Keyword fallback failed for bot {$bot->id}: {$e->getMessage()}");
+        }
+
+        // Last resort: load all chunks from the KB regardless of keyword matching
+        try {
+            $lastResortChunks = \App\Modules\AI\Models\AiKbChunk::with('document')
+                ->where('kb_id', $kb->id)
+                ->take($bot->max_context_chunks ?? 10)
+                ->get();
+
+            $results = [];
+            foreach ($lastResortChunks as $chunk) {
+                if (! $chunk->document) {
+                    continue;
+                }
+                $doc = $chunk->document;
+                if ($doc->status === 'disabled' || $doc->visibility === 'disabled') {
+                    continue;
+                }
+                $results[] = [
+                    'chunk_id' => $chunk->id,
+                    'document_id' => $chunk->document_id,
+                    'title' => $doc->title ?? 'Knowledge Item',
+                    'source_type' => $doc->source_type ?? 'text',
+                    'category' => $doc->category ?? 'general',
+                    'priority' => (int) ($doc->priority ?? 5),
+                    'content' => $chunk->content,
+                    'score' => 0.3,
+                    'citation' => "Source: " . ($doc->title ?? 'Knowledge Base'),
+                ];
+            }
+
+            if (! empty($results)) {
+                Log::info("ChatbotRunner: Last-resort loaded " . count($results) . " chunks for bot {$bot->id}, kb={$kb->id}, query: " . mb_substr($body, 0, 80));
+                return $results;
+            }
+
+            Log::warning("ChatbotRunner: All retrieval methods exhausted — 0 chunks found. Bot {$bot->id}, kb={$kb->id}, totalChunks={$totalChunks}, query: " . mb_substr($body, 0, 80));
+        } catch (\Throwable $e) {
+            Log::error("ChatbotRunner: Last-resort chunk load failed for bot {$bot->id}: {$e->getMessage()}");
         }
 
         return [];
