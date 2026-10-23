@@ -272,7 +272,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 3. POWERFUL FEATURES GRID ── */}
-            <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 15%, #FFF3C4 50%, #FFF8E1 85%, #FFFDF5 100%)' }}>
+            <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl -translate-y-1/2 translate-x-1/4" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#C4A83A]/[0.05] blur-3xl translate-y-1/2 -translate-x-1/4" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
@@ -357,49 +357,41 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 4. STATS COUNTER BAR ── */}
-            <section className="py-16 border-y border-[#E5E5E0] bg-[#FAFAF5]">
+            <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 30%, #FAFAF5 70%, #FFFDF5 100%)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
-                        <div className="flex flex-col items-center">
-                            <Users className="h-7 w-7 text-[#C4A83A] mb-2" />
-                            <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">50K+</div>
-                            <div className="text-sm text-[#6A6A6A] mt-1">Businesses</div>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <MessageSquare className="h-7 w-7 text-[#C4A83A] mb-2" />
-                            <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">10M+</div>
-                            <div className="text-sm text-[#6A6A6A] mt-1">Messages</div>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <ShieldCheck className="h-7 w-7 text-[#C4A83A] mb-2" />
-                            <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">99.9%</div>
-                            <div className="text-sm text-[#6A6A6A] mt-1">Uptime</div>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <Headphones className="h-7 w-7 text-[#C4A83A] mb-2" />
-                            <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">24/7</div>
-                            <div className="text-sm text-[#6A6A6A] mt-1">Support</div>
-                        </div>
-                        <div className="flex flex-col items-center col-span-2 md:col-span-1">
-                            <Calendar className="h-7 w-7 text-[#C4A83A] mb-2" />
-                            <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">14 Days</div>
-                            <div className="text-sm text-[#6A6A6A] mt-1">Free Trial</div>
-                        </div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+                        {[
+                            { icon: Users, value: '50K+', label: 'Businesses' },
+                            { icon: MessageSquare, value: '10M+', label: 'Messages' },
+                            { icon: ShieldCheck, value: '99.9%', label: 'Uptime' },
+                            { icon: Headphones, value: '24/7', label: 'Support' },
+                            { icon: Calendar, value: '14 Days', label: 'Free Trial', span: true },
+                        ].map((stat, idx) => (
+                            <div key={idx} className={`group flex flex-col items-center p-6 rounded-2xl hover:bg-white/60 hover:shadow-sm transition-all duration-300 ${stat.span ? 'col-span-2 md:col-span-1' : ''}`}>
+                                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#FFF8E1] to-[#F5E6A3] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                                    <stat.icon className="h-5 w-5 text-[#C4A83A]" />
+                                </div>
+                                <div className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">{stat.value}</div>
+                                <div className="text-sm text-[#6A6A6A] mt-1">{stat.label}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
 
             {/* ── 5. INTERACTIVE CHANNELS SHOWCASE ── */}
-            <section id="channels" className="py-24 bg-[#FFF8E1]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section id="channels" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                     <div className="text-center max-w-3xl mx-auto mb-14">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF8E1] border border-[#E8D44D]/30 text-[#C4A83A] text-xs font-semibold uppercase tracking-wider mb-3">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
                             CHANNELS
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-semibold text-[#1A1A1A]">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">
                             Meet Your Customers Where They Live
                         </h2>
-                        <p className="mt-3 text-base text-[#6A6A6A]">
+                        <p className="mt-4 text-base text-[#6A6A6A] leading-relaxed">
                             Switch between channels effortlessly. All messages converge into a single, clean inbox.
                         </p>
                     </div>
@@ -513,12 +505,13 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 6. PRICING PREVIEW ── */}
-            <section id="pricing" className="py-24 bg-[#FAFAF5] border-t border-[#E5E5E0]">
+            <section id="pricing" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 20%, #FAFAF5 80%, #FFFDF5 100%)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF8E1] border border-[#E8D44D]/30 text-[#C4A83A] text-xs font-semibold uppercase tracking-wider mb-3">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
                         PRICING
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-semibold text-[#1A1A1A]">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A1A]">
                         Simple, Predictable Plans for Every Stage
                     </h2>
                     <p className="mt-3 text-base text-[#6A6A6A] max-w-xl mx-auto">
@@ -624,7 +617,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 7. FREQUENTLY ASKED QUESTIONS ── */}
-            <section id="faq" className="py-24 bg-[#FFF8E1] border-t border-[#E5E5E0]">
+            <section id="faq" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF8E1] border border-[#E8D44D]/30 text-[#C4A83A] text-xs font-semibold uppercase tracking-wider mb-3">
@@ -675,7 +668,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 8. BOTTOM CONVERSION BANNER ── */}
-            <section className="py-20 bg-[#FFF8E1]">
+            <section className="py-20 relative" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="rounded-[24px] border border-[#E5E5E0] bg-[#FAFAF5] p-10 sm:p-14 text-center shadow-sm relative overflow-hidden">
                         <h2 className="text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight mb-4">
