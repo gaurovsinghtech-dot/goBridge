@@ -241,90 +241,118 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 2. TRUSTED BY BUSINESSES ── */}
-            <section className="border-y border-[#E5E5E0] bg-[#FAFAF5] py-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#6A6A6A] mb-6">
-                        TRUSTED BY BUSINESSES WORLDWIDE
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 text-[#6A6A6A]">
-                        <div className="flex items-center gap-2 font-semibold text-sm text-[#1A1A1A]">
-                            <MessageSquare className="h-4 w-4 text-[#C4A83A]" /> WhatsApp Cloud API
-                        </div>
-                        <div className="flex items-center gap-2 font-semibold text-sm text-[#1A1A1A]">
-                            <span className="text-[#C4A83A]">∞</span> Meta Business Partner
-                        </div>
-                        <div className="flex items-center gap-2 font-semibold text-sm text-[#1A1A1A]">
-                            <Sparkles className="h-4 w-4 text-[#C4A83A]" /> OpenAI Integration
-                        </div>
-                        <div className="flex items-center gap-2 font-semibold text-sm text-[#1A1A1A]">
-                            <PhoneCall className="h-4 w-4 text-[#C4A83A]" /> Twilio Voice
-                        </div>
-                        <div className="px-3 py-1 rounded-full border border-[#E5E5E0] bg-[#FFF8E1] text-[#C4A83A] font-semibold text-xs">
-                            +50+ Integrations
+            <section className="relative py-14 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 50%, #FFFDF5 100%)' }}>
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #C4A83A 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                    <div className="flex items-center justify-center gap-3 mb-8">
+                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-[#E8D44D]/40" />
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#C4A83A]">
+                            Trusted by Businesses Worldwide
+                        </p>
+                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-[#E8D44D]/40" />
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-4 md:gap-5">
+                        {[
+                            { icon: MessageSquare, label: 'WhatsApp Cloud API' },
+                            { icon: null, label: 'Meta Business Partner', symbol: '∞' },
+                            { icon: Sparkles, label: 'OpenAI Integration' },
+                            { icon: PhoneCall, label: 'Twilio Voice' },
+                        ].map((item, idx) => (
+                            <div key={idx} className="group flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E8D44D]/15 hover:border-[#E8D44D]/40 hover:shadow-lg hover:shadow-[#E8D44D]/10 hover:-translate-y-0.5 transition-all duration-300">
+                                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#FFF8E1] to-[#F5E6A3] flex items-center justify-center group-hover:from-[#1A1A1A] group-hover:to-[#333] transition-all duration-300">
+                                    {item.icon ? <item.icon className="h-4 w-4 text-[#C4A83A] group-hover:text-[#E8D44D] transition-colors" /> : <span className="text-sm font-bold text-[#C4A83A] group-hover:text-[#E8D44D] transition-colors">{item.symbol}</span>}
+                                </div>
+                                <span className="text-sm font-semibold text-[#1A1A1A]">{item.label}</span>
+                            </div>
+                        ))}
+                        <div className="group flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#1A1A1A] to-[#333] text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
+                            <Plug className="h-4 w-4 text-[#E8D44D]" />
+                            <span className="text-sm font-semibold">+50 Integrations</span>
+                            <ArrowRight className="h-3.5 w-3.5 text-[#E8D44D] group-hover:translate-x-0.5 transition-transform" />
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* ── 3. POWERFUL FEATURES GRID ── */}
-            <section id="features" className="py-24 bg-[#FFF8E1]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF8E1] border border-[#E8D44D]/30 text-[#C4A83A] text-xs font-semibold uppercase tracking-wider mb-3">
+            <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(165deg, #FFFDF5 0%, #FFF8E1 30%, #FFF3C4 60%, #FFF8E1 100%)' }}>
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#C4A83A]/[0.05] blur-3xl translate-y-1/2 -translate-x-1/4" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
                         FEATURES
                     </div>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#1A1A1A] tracking-tight">
-                        Everything You Need to Engage & Grow
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A1A] tracking-tight">
+                        Everything You Need to{' '}
+                        <span className="relative inline-block">
+                            <span className="relative z-10">Engage & Grow</span>
+                            <span className="absolute bottom-1 left-0 right-0 h-3 bg-[#E8D44D]/20 -skew-x-3 rounded" />
+                        </span>
                     </h2>
-                    <p className="mt-4 text-base sm:text-lg text-[#6A6A6A] max-w-2xl mx-auto leading-relaxed">
+                    <p className="mt-5 text-base sm:text-lg text-[#6A6A6A] max-w-2xl mx-auto leading-relaxed">
                         All the tools you need to manage conversations, automate workflows, and grow your business — in one minimalist platform.
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-14 text-left">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16 text-left">
                         {[
                             {
                                 icon: MessageSquare,
                                 title: 'Unified Inbox',
                                 desc: 'Manage all conversations from WhatsApp, Instagram, Messenger, Email & more in one shared inbox.',
+                                accent: 'from-[#E8D44D] to-[#C4A83A]',
                             },
                             {
                                 icon: Bot,
                                 title: 'AI Automation',
                                 desc: 'Automate replies, qualify leads, and engage customers 24/7 with intelligent AI agents.',
+                                accent: 'from-[#1A1A1A] to-[#3D3A1E]',
                             },
                             {
                                 icon: Megaphone,
                                 title: 'Smart Campaigns',
                                 desc: 'Create, schedule and send targeted campaigns across multiple channels with ease.',
+                                accent: 'from-[#C4A83A] to-[#E8D44D]',
                             },
                             {
                                 icon: PhoneCall,
                                 title: 'AI Voice Agents',
                                 desc: 'Deploy AI voice agents with Twilio telephony to handle calls, qualify leads & book appointments.',
+                                accent: 'from-[#3D3A1E] to-[#1A1A1A]',
                             },
                             {
                                 icon: BarChart3,
                                 title: 'Analytics & Reports',
                                 desc: 'Track performance, monitor conversations and get actionable insights to grow faster.',
+                                accent: 'from-[#E8D44D] to-[#F5E6A3]',
                             },
                             {
                                 icon: Plug,
                                 title: 'API & Integrations',
                                 desc: 'Connect your favorite tools and automate with powerful API & webhook support.',
+                                accent: 'from-[#1A1A1A] to-[#C4A83A]',
                             },
                         ].map((card, idx) => (
                             <div
                                 key={idx}
-                                className="rounded-xl border border-[#E5E5E0] bg-white p-7 hover:border-[#E8D44D]/50 hover:shadow-md transition-all duration-200 group"
+                                className="group relative rounded-2xl bg-white/80 backdrop-blur-sm p-8 hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(200,180,60,0.12)]"
                             >
-                                <div className="h-11 w-11 rounded-lg bg-[#FFF8E1] text-[#C4A83A] flex items-center justify-center mb-5 group-hover:bg-[#1A1A1A] group-hover:text-white transition-colors duration-200">
-                                    <card.icon className="h-5 w-5" />
+                                <div className="absolute inset-0 rounded-2xl border border-[#E8D44D]/0 group-hover:border-[#E8D44D]/30 transition-colors duration-300" />
+                                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-2xl" style={{ backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` }}>
                                 </div>
-                                <h3 className="text-xl font-semibold text-[#1A1A1A] mb-2.5">
+                                <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${card.accent} flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300`}>
+                                    <card.icon className="h-5.5 w-5.5 text-white" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">
                                     {card.title}
                                 </h3>
-                                <p className="text-base text-[#6A6A6A] leading-relaxed">
+                                <p className="text-[15px] text-[#6A6A6A] leading-relaxed">
                                     {card.desc}
                                 </p>
+                                <div className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-[#C4A83A] opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                    <span>Learn more</span>
+                                    <ArrowRight className="h-3.5 w-3.5" />
+                                </div>
                             </div>
                         ))}
                     </div>
