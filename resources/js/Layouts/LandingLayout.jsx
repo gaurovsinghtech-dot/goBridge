@@ -97,7 +97,7 @@ export default function LandingLayout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#B8B8C8] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A]">
+        <div className="min-h-screen bg-[#FFFDF5] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A]">
             {/* ── Header / Navbar ── */}
             <header className="sticky top-0 z-50 w-full border-b border-[#E5E5E0] bg-[#FAFAF5]/90 backdrop-blur-md transition-colors">
                 <nav className="w-full">

@@ -29,7 +29,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             />
 
             {/* ── 1. HERO SECTION ── */}
-            <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 bg-[#B8B8C8] overflow-hidden">
+            <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden" style={{ background: 'linear-gradient(135deg, #FFF8E1 0%, #FEFCF3 25%, #FFF3C4 50%, #FFF8E1 75%, #FFFDF5 100%)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* Left Column: Value Proposition */}
