@@ -29,7 +29,7 @@ class ChatbotRunner
         private HumanHandoffService $handoffService,
     ) {}
 
-    public function run(AiChatbot $bot, Message $inboundMessage): ?string
+    public function run(AiChatbot $bot, Message $inboundMessage): null|string|array
     {
         if (! $bot->enabled && ! in_array($bot->status, ['published', 'active', 'testing', 'draft'], true)) {
             return null;
