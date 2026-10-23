@@ -29,7 +29,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             />
 
             {/* ── 1. HERO SECTION ── */}
-            <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden" style={{ background: 'linear-gradient(135deg, #FFF8E1 0%, #FEFCF3 25%, #FFF3C4 50%, #FFF8E1 75%, #FFFDF5 100%)' }}>
+            <section className="relative pt-12 pb-0 lg:pt-20 lg:pb-0 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF8E1 0%, #FEFCF3 20%, #FFF3C4 45%, #FFF8E1 70%, #FFFDF5 100%)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* Left Column: Value Proposition */}
@@ -238,18 +238,15 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
                         </div>
                     </div>
                 </div>
-            </section>
 
-            {/* ── 2. TRUSTED BY BUSINESSES ── */}
-            <section className="relative py-14 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 50%, #FFFDF5 100%)' }}>
-                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #C4A83A 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                {/* ── 2. TRUSTED BY BUSINESSES (inside hero for seamless flow) ── */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-24 lg:pb-20 relative">
                     <div className="flex items-center justify-center gap-3 mb-8">
-                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-[#E8D44D]/40" />
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#C4A83A]">
+                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-[#E8D44D]/30" />
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#C4A83A]/70">
                             Trusted by Businesses Worldwide
                         </p>
-                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-[#E8D44D]/40" />
+                        <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-[#E8D44D]/30" />
                     </div>
                     <div className="flex flex-wrap items-center justify-center gap-4 md:gap-5">
                         {[
@@ -258,7 +255,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
                             { icon: Sparkles, label: 'OpenAI Integration' },
                             { icon: PhoneCall, label: 'Twilio Voice' },
                         ].map((item, idx) => (
-                            <div key={idx} className="group flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E8D44D]/15 hover:border-[#E8D44D]/40 hover:shadow-lg hover:shadow-[#E8D44D]/10 hover:-translate-y-0.5 transition-all duration-300">
+                            <div key={idx} className="group flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/50 backdrop-blur-sm border border-[#E8D44D]/10 hover:border-[#E8D44D]/30 hover:bg-white/80 hover:shadow-lg hover:shadow-[#E8D44D]/10 hover:-translate-y-0.5 transition-all duration-300">
                                 <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#FFF8E1] to-[#F5E6A3] flex items-center justify-center group-hover:from-[#1A1A1A] group-hover:to-[#333] transition-all duration-300">
                                     {item.icon ? <item.icon className="h-4 w-4 text-[#C4A83A] group-hover:text-[#E8D44D] transition-colors" /> : <span className="text-sm font-bold text-[#C4A83A] group-hover:text-[#E8D44D] transition-colors">{item.symbol}</span>}
                                 </div>
@@ -275,7 +272,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 3. POWERFUL FEATURES GRID ── */}
-            <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(165deg, #FFFDF5 0%, #FFF8E1 30%, #FFF3C4 60%, #FFF8E1 100%)' }}>
+            <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 15%, #FFF3C4 50%, #FFF8E1 85%, #FFFDF5 100%)' }}>
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl -translate-y-1/2 translate-x-1/4" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#C4A83A]/[0.05] blur-3xl translate-y-1/2 -translate-x-1/4" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
