@@ -8,15 +8,15 @@ import {
     ChevronDown, Check
 } from 'lucide-react';
 
-function FloatingOrbs({ count = 4, colors = ['#E8D44D', '#C4A83A', '#F5E6A3', '#D4E4C1'], className = '' }) {
+function FloatingOrbs({ count = 6, colors = ['#E8D44D', '#C4A83A', '#F5E6A3', '#D4B82E', '#FFD700', '#E6C619'], className = '' }) {
     const orbs = useMemo(() => Array.from({ length: count }, (_, i) => ({
-        size: 120 + Math.random() * 280,
+        size: 180 + Math.random() * 350,
         x: Math.random() * 100,
         y: Math.random() * 100,
         color: colors[i % colors.length],
-        opacity: 0.04 + Math.random() * 0.06,
-        duration: 18 + Math.random() * 14,
-        delay: Math.random() * -20,
+        opacity: 0.12 + Math.random() * 0.18,
+        duration: 14 + Math.random() * 10,
+        delay: Math.random() * -15,
         reverse: i % 2 === 0,
     })), []);
     return (
@@ -36,7 +36,7 @@ function FloatingOrbs({ count = 4, colors = ['#E8D44D', '#C4A83A', '#F5E6A3', '#
                         opacity: orb.opacity,
                         animationDuration: `${orb.duration}s`,
                         animationDelay: `${orb.delay}s`,
-                        filter: 'blur(40px)',
+                        filter: 'blur(30px)',
                     }}
                 />
             ))}
@@ -44,13 +44,14 @@ function FloatingOrbs({ count = 4, colors = ['#E8D44D', '#C4A83A', '#F5E6A3', '#
     );
 }
 
-function RisingParticles({ count = 12 }) {
+function RisingParticles({ count = 20 }) {
     const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
         x: Math.random() * 100,
-        size: 2 + Math.random() * 4,
-        duration: 12 + Math.random() * 18,
-        delay: Math.random() * -30,
-        opacity: 0.15 + Math.random() * 0.25,
+        size: 4 + Math.random() * 6,
+        duration: 8 + Math.random() * 12,
+        delay: Math.random() * -20,
+        opacity: 0.35 + Math.random() * 0.4,
+        color: i % 3 === 0 ? '#FFD700' : i % 3 === 1 ? '#E8D44D' : '#F5E6A3',
     })), []);
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -65,10 +66,11 @@ function RisingParticles({ count = 12 }) {
                         width: p.size,
                         height: p.size,
                         borderRadius: '50%',
-                        backgroundColor: '#E8D44D',
+                        backgroundColor: p.color,
                         opacity: p.opacity,
                         animationDuration: `${p.duration}s`,
                         animationDelay: `${p.delay}s`,
+                        boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
                     }}
                 />
             ))}
@@ -100,9 +102,11 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             <section className="relative pt-12 pb-0 lg:pt-20 lg:pb-0 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF8E1 0%, #FEFCF3 20%, #FFF3C4 45%, #FFF8E1 70%, #FFFDF5 100%)' }}>
                 <FloatingOrbs count={5} />
                 <RisingParticles count={10} />
-                <div className="absolute top-20 left-10 w-2 h-2 rounded-full bg-[#E8D44D]/30 animate-pulse-glow" />
-                <div className="absolute top-40 right-20 w-3 h-3 rounded-full bg-[#C4A83A]/20 animate-pulse-glow" style={{ animationDelay: '-2s' }} />
-                <div className="absolute bottom-32 left-1/4 w-2 h-2 rounded-full bg-[#E8D44D]/25 animate-pulse-glow" style={{ animationDelay: '-1s' }} />
+                <div className="absolute top-20 left-10 w-4 h-4 rounded-full bg-[#FFD700]/50 animate-pulse-glow" style={{ boxShadow: '0 0 20px 8px rgba(255,215,0,0.3)' }} />
+                <div className="absolute top-40 right-20 w-5 h-5 rounded-full bg-[#E8D44D]/40 animate-pulse-glow" style={{ animationDelay: '-2s', boxShadow: '0 0 25px 10px rgba(232,212,77,0.25)' }} />
+                <div className="absolute bottom-32 left-1/4 w-4 h-4 rounded-full bg-[#FFD700]/45 animate-pulse-glow" style={{ animationDelay: '-1s', boxShadow: '0 0 20px 8px rgba(255,215,0,0.3)' }} />
+                <div className="absolute top-1/3 right-1/3 w-3 h-3 rounded-full bg-[#C4A83A]/50 animate-pulse-glow" style={{ animationDelay: '-3s', boxShadow: '0 0 15px 6px rgba(196,168,58,0.3)' }} />
+                <div className="absolute bottom-20 right-10 w-4 h-4 rounded-full bg-[#E8D44D]/45 animate-pulse-glow" style={{ animationDelay: '-0.5s', boxShadow: '0 0 20px 8px rgba(232,212,77,0.3)' }} />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* Left Column: Value Proposition */}
@@ -433,8 +437,9 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             {/* ── 4. STATS COUNTER BAR ── */}
             <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 30%, #FAFAF5 70%, #FFFDF5 100%)' }}>
                 <div className="absolute inset-0 animate-shimmer pointer-events-none" />
-                <div className="absolute top-10 left-[15%] w-2 h-2 rounded-full bg-[#E8D44D]/20 animate-pulse-glow" />
-                <div className="absolute bottom-10 right-[20%] w-2.5 h-2.5 rounded-full bg-[#C4A83A]/20 animate-pulse-glow" style={{ animationDelay: '-1.5s' }} />
+                <div className="absolute top-10 left-[15%] w-4 h-4 rounded-full bg-[#FFD700]/50 animate-pulse-glow" style={{ boxShadow: '0 0 20px 8px rgba(255,215,0,0.3)' }} />
+                <div className="absolute bottom-10 right-[20%] w-5 h-5 rounded-full bg-[#E8D44D]/45 animate-pulse-glow" style={{ animationDelay: '-1.5s', boxShadow: '0 0 25px 10px rgba(232,212,77,0.25)' }} />
+                <div className="absolute top-1/2 left-[40%] w-3 h-3 rounded-full bg-[#C4A83A]/50 animate-pulse-glow" style={{ animationDelay: '-2.5s', boxShadow: '0 0 15px 6px rgba(196,168,58,0.3)' }} />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
                         {[
