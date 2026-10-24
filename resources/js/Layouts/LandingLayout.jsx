@@ -453,7 +453,7 @@ export default function LandingLayout({ children }) {
             <main className="flex-1 w-full max-w-full">{children}</main>
 
             {/* ── Footer ── */}
-            <footer className="w-full bg-[#FAFAF5] border-t border-[#E5E5E0]">
+            <footer className="w-full bg-[#FFFDF5] border-t border-[#E8D44D]/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 box-border">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
                         {/* Brand */}

@@ -430,7 +430,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 4. STATS COUNTER BAR ── */}
-            <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 30%, #FAFAF5 70%, #FFFDF5 100%)' }}>
+            <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
                 <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
@@ -580,7 +580,7 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 6. PRICING PREVIEW ── */}
-            <section id="pricing" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 20%, #FAFAF5 80%, #FFFDF5 100%)' }}>
+            <section id="pricing" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF8E1 80%, #FFFDF5 100%)' }}>
                 <FloatingOrbs count={3} colors={['#E8D44D', '#C4A83A', '#F5E6A3']} />
                 <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
