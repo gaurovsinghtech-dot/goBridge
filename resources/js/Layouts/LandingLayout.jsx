@@ -99,7 +99,7 @@ export default function LandingLayout({ children }) {
     return (
         <div className="min-h-screen bg-[#FFFDF5] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A]">
             {/* ── Header / Navbar ── */}
-            <header className="sticky top-0 z-50 w-full border-b border-[#E5E5E0] bg-[#FAFAF5]/90 backdrop-blur-md transition-colors">
+            <header className="sticky top-0 z-50 w-full bg-[#FFFDF5]/85 backdrop-blur-xl transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                 <nav className="w-full">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 box-border">
                         {/* Brand Logo */}
@@ -116,22 +116,22 @@ export default function LandingLayout({ children }) {
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'features' && (
-                                    <div className="absolute top-full left-0 w-72 bg-white border border-[#E5E5E0] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] transition">
+                                    <div className="absolute top-full left-0 w-72 bg-white/95 backdrop-blur-lg border border-[#E8D44D]/15 rounded-2xl p-2 shadow-xl shadow-[#E8D44D]/5 animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#FFF8E1] text-[#1A1A1A] transition">
                                             <div className="p-2 rounded-lg bg-[#FFF8E1] text-[#C4A83A]"><MessageSquare className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">Unified Inbox</div>
                                                 <div className="text-xs text-[#6A6A6A]">All channels in one place</div>
                                             </div>
                                         </Link>
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] transition">
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#FFF8E1] text-[#1A1A1A] transition">
                                             <div className="p-2 rounded-lg bg-[#FFF8E1] text-[#C4A83A]"><Bot className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">AI Automation</div>
                                                 <div className="text-xs text-[#6A6A6A]">24/7 intelligent workflows</div>
                                             </div>
                                         </Link>
-                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] transition">
+                                        <Link href="/#features" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#FFF8E1] text-[#1A1A1A] transition">
                                             <div className="p-2 rounded-lg bg-[#FFF8E1] text-[#C4A83A]"><PhoneCall className="h-4 w-4" /></div>
                                             <div>
                                                 <div className="text-sm font-semibold">AI Voice Agents</div>
@@ -149,7 +149,7 @@ export default function LandingLayout({ children }) {
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'channels' && (
-                                    <div className="absolute top-full left-0 w-64 bg-white border border-[#E5E5E0] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                    <div className="absolute top-full left-0 w-64 bg-white/95 backdrop-blur-lg border border-[#E8D44D]/15 rounded-2xl p-2 shadow-xl shadow-[#E8D44D]/5 animate-in fade-in slide-in-from-top-2 duration-150">
                                         <Link href="/#channels" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] text-sm font-medium transition">
                                             <span className="h-2 w-2 rounded-full bg-emerald-500" />
                                             WhatsApp Cloud API
@@ -177,7 +177,7 @@ export default function LandingLayout({ children }) {
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'solutions' && (
-                                    <div className="absolute top-full left-0 w-64 bg-white border border-[#E5E5E0] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                    <div className="absolute top-full left-0 w-64 bg-white/95 backdrop-blur-lg border border-[#E8D44D]/15 rounded-2xl p-2 shadow-xl shadow-[#E8D44D]/5 animate-in fade-in slide-in-from-top-2 duration-150">
                                         <Link href="/use-cases" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] text-sm font-medium transition">
                                             Lead Generation & Sales
                                         </Link>
@@ -202,7 +202,7 @@ export default function LandingLayout({ children }) {
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
                                 {activeDropdown === 'resources' && (
-                                    <div className="absolute top-full left-0 w-56 bg-white border border-[#E5E5E0] rounded-xl p-2 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                                    <div className="absolute top-full left-0 w-56 bg-white/95 backdrop-blur-lg border border-[#E8D44D]/15 rounded-2xl p-2 shadow-xl shadow-[#E8D44D]/5 animate-in fade-in slide-in-from-top-2 duration-150">
                                         <Link href="/integrations" className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-50 text-[#1A1A1A] text-sm font-medium transition">
                                             Integrations
                                         </Link>
@@ -227,7 +227,7 @@ export default function LandingLayout({ children }) {
                                 <div className="flex items-center gap-2.5">
                                     <Link
                                         href={route('client.dashboard')}
-                                        className="rounded-lg bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-sm px-5 py-2.5 shadow-sm transition-all flex items-center gap-1.5"
+                                        className="rounded-full bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-sm px-6 py-2.5 shadow-sm hover:shadow-md transition-all flex items-center gap-1.5"
                                     >
                                         <span>Dashboard</span>
                                         <ArrowRight className="h-4 w-4" />
@@ -236,7 +236,7 @@ export default function LandingLayout({ children }) {
                                         type="button"
                                         onClick={handleSignOut}
                                         disabled={isSigningOut}
-                                        className="rounded-lg border border-[#E5E5E0] bg-white hover:bg-neutral-50 px-4 py-2.5 text-sm text-[#1A1A1A] transition font-medium"
+                                        className="rounded-full border border-[#E5E5E0] bg-white/80 hover:bg-white hover:border-[#E8D44D]/30 px-5 py-2.5 text-sm text-[#1A1A1A] transition font-medium"
                                     >
                                         {isSigningOut ? 'Signing out...' : 'Sign Out'}
                                     </button>
@@ -245,13 +245,13 @@ export default function LandingLayout({ children }) {
                                 <div className="flex items-center gap-2.5">
                                     <Link
                                         href={signinHref}
-                                        className="rounded-lg border border-[#E5E5E0] bg-white hover:bg-neutral-50 px-4.5 py-2.5 text-sm font-semibold text-[#1A1A1A] transition-all"
+                                        className="rounded-full border border-[#E5E5E0] bg-white/80 hover:bg-white hover:border-[#E8D44D]/30 px-5 py-2.5 text-sm font-semibold text-[#1A1A1A] transition-all"
                                     >
                                         {signinLabel}
                                     </Link>
                                     <Link
                                         href={getStartedHref}
-                                        className="rounded-lg bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-sm px-5 py-2.5 shadow-sm transition-all flex items-center gap-1.5 group"
+                                        className="rounded-full bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-sm px-6 py-2.5 shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 group"
                                     >
                                         <span>{getStartedLabel}</span>
                                         <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
