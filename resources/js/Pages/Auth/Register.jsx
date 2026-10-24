@@ -60,7 +60,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
     };
 
     const inputClass =
-        'w-full rounded-lg bg-white border border-[#E5E5E5] focus:border-[#2563EB] focus:ring-1 focus:ring-blue-100 pl-10 pr-4 py-2.5 text-sm text-[#171717] placeholder:text-[#737373] transition-colors';
+        'w-full rounded-lg bg-white/90 border border-[#E8D44D]/20 focus:border-[#C4A83A] focus:ring-1 focus:ring-[#E8D44D]/20 pl-10 pr-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#737373] transition-colors';
 
     return (
         <AuthLayout
@@ -213,15 +213,15 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                             type="checkbox"
                             checked={data.agree_terms}
                             onChange={(e) => setData('agree_terms', e.target.checked)}
-                            className="mt-0.5 rounded bg-white border-[#E5E5E5] text-[#2563EB] focus:ring-blue-100 h-4 w-4 cursor-pointer"
+                            className="mt-0.5 rounded bg-white border-[#E8D44D]/30 text-[#C4A83A] focus:ring-[#E8D44D]/20 h-4 w-4 cursor-pointer"
                         />
                         <span className="leading-snug">
                             I agree to the{' '}
-                            <a href="/p/terms" target="_blank" className="text-[#2563EB] hover:underline font-semibold">
+                            <a href="/p/terms" target="_blank" className="text-[#C4A83A] hover:underline font-semibold">
                                 Terms of Service
                             </a>{' '}
                             and{' '}
-                            <a href="/p/privacy" target="_blank" className="text-[#2563EB] hover:underline font-semibold">
+                            <a href="/p/privacy" target="_blank" className="text-[#C4A83A] hover:underline font-semibold">
                                 Privacy Policy
                             </a>
                         </span>
@@ -232,7 +232,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold py-3 text-sm shadow-sm transition-all duration-200 flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer mt-3"
+                    className="w-full rounded-full bg-[#1A1A1A] hover:bg-[#C4A83A] text-white font-semibold py-3 text-sm shadow-sm transition-all duration-200 flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer mt-3"
                 >
                     <span>{processing ? 'Creating Account...' : 'Create Account'}</span>
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
@@ -241,10 +241,10 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 {/* Divider */}
                 <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-[#E5E5E5]" />
+                        <div className="w-full border-t border-[#E8D44D]/15" />
                     </div>
                     <div className="relative flex justify-center">
-                        <span className="bg-white px-3 text-xs text-[#737373]">
+                        <span className="bg-white/80 px-3 text-xs text-[#6A6A6A]">
                             or sign up with
                         </span>
                     </div>
@@ -255,7 +255,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'google' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/70 border border-[#E8D44D]/15 hover:border-[#E8D44D]/30 hover:bg-[#FFF8E1] text-xs font-semibold text-[#1A1A1A] transition-all"
                     >
                         <GoogleIcon />
                         <span>Google</span>
@@ -263,7 +263,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'microsoft' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/70 border border-[#E8D44D]/15 hover:border-[#E8D44D]/30 hover:bg-[#FFF8E1] text-xs font-semibold text-[#1A1A1A] transition-all"
                     >
                         <MicrosoftIcon />
                         <span>Microsoft</span>
@@ -271,7 +271,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     <button
                         type="button"
                         onClick={() => window.location.href = route('auth.social.redirect', { provider: 'apple' })}
-                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-white border border-[#E5E5E5] hover:border-blue-300 hover:bg-neutral-50 text-xs font-semibold text-[#171717] transition-all"
+                        className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/70 border border-[#E8D44D]/15 hover:border-[#E8D44D]/30 hover:bg-[#FFF8E1] text-xs font-semibold text-[#1A1A1A] transition-all"
                     >
                         <AppleIcon />
                         <span>Apple</span>
@@ -283,7 +283,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                     Already have an account?{' '}
                     <Link
                         href={route('login')}
-                        className="text-[#2563EB] hover:text-[#1D4ED8] font-semibold transition"
+                        className="text-[#C4A83A] hover:text-[#A08930] font-semibold transition"
                     >
                         Log in
                     </Link>
