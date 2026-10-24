@@ -347,7 +347,6 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
                 <FloatingOrbs count={3} colors={['#C4A83A', '#E8D44D', '#D4E4C1']} />
                 <RisingParticles count={8} />
-                <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
@@ -431,7 +430,6 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 4. STATS COUNTER BAR ── */}
             <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
-                <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
                         {[
@@ -582,7 +580,6 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             {/* ── 6. PRICING PREVIEW ── */}
             <section id="pricing" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF8E1 80%, #FFFDF5 100%)' }}>
                 <FloatingOrbs count={3} colors={['#E8D44D', '#C4A83A', '#F5E6A3']} />
-                <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
@@ -750,7 +747,6 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
                 <FloatingOrbs count={4} colors={['#E8D44D', '#C4A83A', '#F5E6A3', '#D4E4C1']} />
                 <RisingParticles count={10} />
-                <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="rounded-[24px] border border-[#E5E5E0] bg-[#FAFAF5] p-10 sm:p-14 text-center shadow-sm relative overflow-hidden">
                         <h2 className="text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight mb-4">
