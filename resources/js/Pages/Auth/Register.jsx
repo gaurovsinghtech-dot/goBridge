@@ -60,7 +60,7 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
     };
 
     const inputClass =
-        'w-full rounded-lg bg-white/90 border border-[#E8D44D]/20 focus:border-[#C4A83A] focus:ring-1 focus:ring-[#E8D44D]/20 pl-10 pr-4 py-2.5 text-sm text-[#1A1A1A] placeholder:text-[#737373] transition-colors';
+        'w-full rounded-xl bg-[#FFFDF5] border border-[#E8D44D]/25 focus:border-[#C4A83A] focus:ring-2 focus:ring-[#E8D44D]/15 pl-10 pr-4 py-3 text-sm text-[#1A1A1A] placeholder:text-[#9A9A8A] transition-all shadow-sm';
 
     return (
         <AuthLayout
@@ -76,11 +76,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Full name */}
                     <div>
-                        <label className="block text-xs font-semibold text-[#171717] mb-1">
+                        <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                             Full name
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C4A83A]">
                                 <User className="h-4 w-4" />
                             </div>
                             <input
@@ -100,11 +100,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                     {/* Business name (optional) */}
                     <div>
-                        <label className="block text-xs font-semibold text-[#171717] mb-1">
+                        <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                             Business name <span className="text-[#737373] font-normal">(optional)</span>
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C4A83A]">
                                 <Building className="h-4 w-4" />
                             </div>
                             <input
@@ -122,11 +122,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                 {/* Email Address */}
                 <div>
-                    <label className="block text-xs font-semibold text-[#171717] mb-1">
+                    <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                         Email address
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C4A83A]">
                             <Mail className="h-4 w-4" />
                         </div>
                         <input
@@ -145,11 +145,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                 {/* Password */}
                 <div>
-                    <label className="block text-xs font-semibold text-[#171717] mb-1">
+                    <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                         Password
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C4A83A]">
                             <Lock className="h-4 w-4" />
                         </div>
                         <input
@@ -178,11 +178,11 @@ export default function Register({ plan_id = null, cycle = 'month' }) {
 
                 {/* Confirm Password */}
                 <div>
-                    <label className="block text-xs font-semibold text-[#171717] mb-1">
+                    <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                         Confirm password
                     </label>
                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#737373]">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#C4A83A]">
                             <Lock className="h-4 w-4" />
                         </div>
                         <input
