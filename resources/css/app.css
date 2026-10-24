@@ -80,6 +80,11 @@ body {
     @apply bg-surface dark:bg-neutral-900 text-gray-900 dark:text-neutral-100;
 }
 
+/* Custom cursor: hide default on landing pages */
+.cursor-none, .cursor-none * {
+    cursor: none !important;
+}
+
 @layer components {
     .card {
         @apply bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl shadow-sm dark:shadow-none;

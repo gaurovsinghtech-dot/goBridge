@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/context/ThemeContext';
@@ -96,8 +96,97 @@ export default function LandingLayout({ children }) {
         });
     };
 
+    const dotRef = useRef(null);
+    const ringRef = useRef(null);
+    const pos = useRef({ x: 0, y: 0 });
+    const ringPos = useRef({ x: 0, y: 0 });
+    const [cursorHover, setCursorHover] = useState(false);
+    const [cursorVisible, setCursorVisible] = useState(false);
+
+    useEffect(() => {
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) return;
+
+        const onMove = (e) => {
+            pos.current = { x: e.clientX, y: e.clientY };
+            if (dotRef.current) {
+                dotRef.current.style.transform = `translate(${e.clientX - 4}px, ${e.clientY - 4}px)`;
+            }
+            if (!cursorVisible) setCursorVisible(true);
+        };
+
+        const onEnter = () => setCursorVisible(true);
+        const onLeave = () => setCursorVisible(false);
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseenter', onEnter);
+        document.addEventListener('mouseleave', onLeave);
+
+        let raf;
+        const animateRing = () => {
+            ringPos.current.x += (pos.current.x - ringPos.current.x) * 0.15;
+            ringPos.current.y += (pos.current.y - ringPos.current.y) * 0.15;
+            if (ringRef.current) {
+                ringRef.current.style.transform = `translate(${ringPos.current.x - 20}px, ${ringPos.current.y - 20}px)`;
+            }
+            raf = requestAnimationFrame(animateRing);
+        };
+        raf = requestAnimationFrame(animateRing);
+
+        const hoverTargets = () => document.querySelectorAll('a, button, [role="button"], input, textarea, select, [data-cursor-hover]');
+        const addHover = () => setCursorHover(true);
+        const removeHover = () => setCursorHover(false);
+
+        const observer = new MutationObserver(() => {
+            hoverTargets().forEach((el) => {
+                el.addEventListener('mouseenter', addHover);
+                el.addEventListener('mouseleave', removeHover);
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        hoverTargets().forEach((el) => {
+            el.addEventListener('mouseenter', addHover);
+            el.addEventListener('mouseleave', removeHover);
+        });
+
+        return () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseenter', onEnter);
+            document.removeEventListener('mouseleave', onLeave);
+            cancelAnimationFrame(raf);
+            observer.disconnect();
+        };
+    }, []);
+
     return (
-        <div className="min-h-screen bg-[#FFFDF5] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A]">
+        <div className="min-h-screen bg-[#FFFDF5] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A] cursor-none">
+            {/* Custom Cursor */}
+            <div
+                ref={dotRef}
+                className="fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference"
+                style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: '#E8D44D',
+                    opacity: cursorVisible ? 1 : 0,
+                    transition: 'opacity 0.2s, width 0.2s, height 0.2s',
+                    ...(cursorHover ? { width: 12, height: 12, transform: `translate(${pos.current.x - 6}px, ${pos.current.y - 6}px)` } : {}),
+                }}
+            />
+            <div
+                ref={ringRef}
+                className="fixed top-0 left-0 z-[9998] pointer-events-none"
+                style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    border: '1.5px solid rgba(232, 212, 77, 0.5)',
+                    opacity: cursorVisible ? 1 : 0,
+                    transition: cursorHover ? 'opacity 0.2s, width 0.25s, height 0.25s, border-color 0.2s' : 'opacity 0.2s',
+                    ...(cursorHover ? { width: 56, height: 56, borderColor: 'rgba(196, 168, 58, 0.7)', transform: `translate(${ringPos.current.x - 28}px, ${ringPos.current.y - 28}px)` } : {}),
+                }}
+            />
             {/* ── Header / Navbar ── */}
             <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-2xl transition-all duration-300 border-b border-black/[0.04]">
                 <nav className="w-full">
