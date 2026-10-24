@@ -85,6 +85,43 @@ body {
     cursor: none !important;
 }
 
+/* Landing page background animations */
+@keyframes float-slow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -40px) scale(1.05); }
+    50% { transform: translate(-20px, -80px) scale(0.95); }
+    75% { transform: translate(40px, -30px) scale(1.02); }
+}
+@keyframes float-reverse {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(-40px, 30px) scale(0.97); }
+    50% { transform: translate(30px, 60px) scale(1.04); }
+    75% { transform: translate(-20px, 20px) scale(0.98); }
+}
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.15); }
+}
+@keyframes drift-up {
+    0% { transform: translateY(100%) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+}
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.animate-float-slow { animation: float-slow 20s ease-in-out infinite; }
+.animate-float-reverse { animation: float-reverse 25s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+.animate-drift-up { animation: drift-up linear infinite; }
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(232,212,77,0.08) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 8s ease-in-out infinite;
+}
+
 @layer components {
     .card {
         @apply bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl shadow-sm dark:shadow-none;

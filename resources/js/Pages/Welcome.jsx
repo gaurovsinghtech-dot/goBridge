@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from '@inertiajs/react';
 import LandingLayout from '@/Layouts/LandingLayout';
 import SeoHead from '@/Components/SeoHead';
@@ -7,6 +7,74 @@ import {
     PhoneCall, BarChart3, Plug, Users, ShieldCheck, Headphones, Layers, Zap,
     ChevronDown, Check
 } from 'lucide-react';
+
+function FloatingOrbs({ count = 4, colors = ['#E8D44D', '#C4A83A', '#F5E6A3', '#D4E4C1'], className = '' }) {
+    const orbs = useMemo(() => Array.from({ length: count }, (_, i) => ({
+        size: 120 + Math.random() * 280,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        color: colors[i % colors.length],
+        opacity: 0.04 + Math.random() * 0.06,
+        duration: 18 + Math.random() * 14,
+        delay: Math.random() * -20,
+        reverse: i % 2 === 0,
+    })), []);
+    return (
+        <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
+            {orbs.map((orb, i) => (
+                <div
+                    key={i}
+                    className={orb.reverse ? 'animate-float-slow' : 'animate-float-reverse'}
+                    style={{
+                        position: 'absolute',
+                        left: `${orb.x}%`,
+                        top: `${orb.y}%`,
+                        width: orb.size,
+                        height: orb.size,
+                        borderRadius: '50%',
+                        background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
+                        opacity: orb.opacity,
+                        animationDuration: `${orb.duration}s`,
+                        animationDelay: `${orb.delay}s`,
+                        filter: 'blur(40px)',
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
+
+function RisingParticles({ count = 12 }) {
+    const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
+        x: Math.random() * 100,
+        size: 2 + Math.random() * 4,
+        duration: 12 + Math.random() * 18,
+        delay: Math.random() * -30,
+        opacity: 0.15 + Math.random() * 0.25,
+    })), []);
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {particles.map((p, i) => (
+                <div
+                    key={i}
+                    className="animate-drift-up"
+                    style={{
+                        position: 'absolute',
+                        left: `${p.x}%`,
+                        bottom: 0,
+                        width: p.size,
+                        height: p.size,
+                        borderRadius: '50%',
+                        backgroundColor: '#E8D44D',
+                        opacity: p.opacity,
+                        animationDuration: `${p.duration}s`,
+                        animationDelay: `${p.delay}s`,
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
 
 export default function Welcome({ auth, canLogin, canRegister, landing = {}, plans = [] }) {
     const s = (key, def = '') => landing[`landing.${key}`] ?? def;
@@ -30,7 +98,12 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 1. HERO SECTION ── */}
             <section className="relative pt-12 pb-0 lg:pt-20 lg:pb-0 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF8E1 0%, #FEFCF3 20%, #FFF3C4 45%, #FFF8E1 70%, #FFFDF5 100%)' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <FloatingOrbs count={5} />
+                <RisingParticles count={10} />
+                <div className="absolute top-20 left-10 w-2 h-2 rounded-full bg-[#E8D44D]/30 animate-pulse-glow" />
+                <div className="absolute top-40 right-20 w-3 h-3 rounded-full bg-[#C4A83A]/20 animate-pulse-glow" style={{ animationDelay: '-2s' }} />
+                <div className="absolute bottom-32 left-1/4 w-2 h-2 rounded-full bg-[#E8D44D]/25 animate-pulse-glow" style={{ animationDelay: '-1s' }} />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* Left Column: Value Proposition */}
                         <div className="lg:col-span-5 space-y-6 text-left">
@@ -273,8 +346,9 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 3. POWERFUL FEATURES GRID ── */}
             <section id="features" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl -translate-y-1/2 translate-x-1/4" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#C4A83A]/[0.05] blur-3xl translate-y-1/2 -translate-x-1/4" />
+                <FloatingOrbs count={3} colors={['#C4A83A', '#E8D44D', '#D4E4C1']} />
+                <RisingParticles count={8} />
+                <div className="absolute inset-0 animate-shimmer pointer-events-none" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
@@ -358,7 +432,10 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 4. STATS COUNTER BAR ── */}
             <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 30%, #FAFAF5 70%, #FFFDF5 100%)' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="absolute inset-0 animate-shimmer pointer-events-none" />
+                <div className="absolute top-10 left-[15%] w-2 h-2 rounded-full bg-[#E8D44D]/20 animate-pulse-glow" />
+                <div className="absolute bottom-10 right-[20%] w-2.5 h-2.5 rounded-full bg-[#C4A83A]/20 animate-pulse-glow" style={{ animationDelay: '-1.5s' }} />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
                         {[
                             { icon: Users, value: '50K+', label: 'Businesses' },
@@ -381,7 +458,8 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 5. INTERACTIVE CHANNELS SHOWCASE ── */}
             <section id="channels" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[#E8D44D]/[0.04] blur-3xl" />
+                <FloatingOrbs count={3} colors={['#E8D44D', '#F5E6A3', '#C4A83A']} />
+                <RisingParticles count={6} />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                     <div className="text-center max-w-3xl mx-auto mb-14">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
@@ -506,7 +584,9 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 6. PRICING PREVIEW ── */}
             <section id="pricing" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FAFAF5 20%, #FAFAF5 80%, #FFFDF5 100%)' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <FloatingOrbs count={3} colors={['#E8D44D', '#C4A83A', '#F5E6A3']} />
+                <div className="absolute inset-0 animate-shimmer pointer-events-none" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#E8D44D]/25 text-[#C4A83A] text-xs font-bold uppercase tracking-[0.15em] mb-4 shadow-sm">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#E8D44D] animate-pulse" />
                         PRICING
@@ -618,7 +698,9 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
 
             {/* ── 7. FREQUENTLY ASKED QUESTIONS ── */}
             <section id="faq" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 20%, #FFF3C4 50%, #FFF8E1 80%, #FFFDF5 100%)' }}>
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <FloatingOrbs count={2} colors={['#E8D44D', '#D4E4C1']} />
+                <RisingParticles count={6} />
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF8E1] border border-[#E8D44D]/30 text-[#C4A83A] text-xs font-semibold uppercase tracking-wider mb-3">
                             FAQ
@@ -668,8 +750,11 @@ export default function Welcome({ auth, canLogin, canRegister, landing = {}, pla
             </section>
 
             {/* ── 8. BOTTOM CONVERSION BANNER ── */}
-            <section className="py-20 relative" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFFDF5 0%, #FFF8E1 30%, #FFF8E1 70%, #FFFDF5 100%)' }}>
+                <FloatingOrbs count={4} colors={['#E8D44D', '#C4A83A', '#F5E6A3', '#D4E4C1']} />
+                <RisingParticles count={10} />
+                <div className="absolute inset-0 animate-shimmer pointer-events-none" />
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="rounded-[24px] border border-[#E5E5E0] bg-[#FAFAF5] p-10 sm:p-14 text-center shadow-sm relative overflow-hidden">
                         <h2 className="text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight mb-4">
                             Ready to Transform Your Customer Experience?
