@@ -1,1 +1,0 @@
-import{j as o}from"./vendor-framework-DO4sTpfm.js";import t from"./Wizard-CW_6-YTV.js";import"./vendor-i18n-0ZByZwl2.js";import"./Tabs-BZZ2MSkV.js";import"./Input-DE-Ho_4_.js";import"./Modal-BT5kJaTn.js";import"./TimezonePicker-D1Ya2mX9.js";import"./app-64BK__pe.js";import"./vendor-realtime-BIe3dSi9.js";function u(r){return o.jsx(t,{...r})}export{u as default};

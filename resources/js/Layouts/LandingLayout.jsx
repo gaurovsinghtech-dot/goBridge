@@ -99,9 +99,9 @@ export default function LandingLayout({ children }) {
     return (
         <div className="min-h-screen bg-[#FFFDF5] text-[#1A1A1A] flex flex-col w-full max-w-full overflow-x-hidden font-sans selection:bg-[#E8D44D] selection:text-[#1A1A1A]">
             {/* ── Header / Navbar ── */}
-            <header className="sticky top-0 z-50 w-full bg-[#FFFDF5]/85 backdrop-blur-xl transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-2xl transition-all duration-300 border-b border-black/[0.04]">
                 <nav className="w-full">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 box-border">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4 box-border">
                         {/* Brand Logo */}
                         <Link href={route('home')} className="flex items-center gap-3 group shrink-0" aria-label="Growbridge Connect">
                             <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-9 w-auto max-w-[200px] object-contain" />
@@ -111,7 +111,7 @@ export default function LandingLayout({ children }) {
                         <div className="hidden lg:flex items-center gap-1 xl:gap-2">
                             {/* Features dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('features')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                     <span>Features</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
@@ -144,7 +144,7 @@ export default function LandingLayout({ children }) {
 
                             {/* Channels dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('channels')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                     <span>Channels</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
@@ -172,7 +172,7 @@ export default function LandingLayout({ children }) {
 
                             {/* Solutions dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('solutions')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                     <span>Solutions</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
@@ -191,13 +191,13 @@ export default function LandingLayout({ children }) {
                                 )}
                             </div>
 
-                            <Link href="/pricing" className="px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                            <Link href="/pricing" className="px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                 Pricing
                             </Link>
 
                             {/* Resources dropdown */}
                             <div className="relative group" onMouseEnter={() => setActiveDropdown('resources')} onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                                <button className="flex items-center gap-1 px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                     <span>Resources</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-[#6A6A6A] group-hover:text-[#C4A83A] transition-transform group-hover:rotate-180 duration-200" />
                                 </button>
@@ -213,10 +213,10 @@ export default function LandingLayout({ children }) {
                                 )}
                             </div>
 
-                            <Link href="/about" className="px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                            <Link href="/about" className="px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                 About
                             </Link>
-                            <Link href="/contact" className="px-3 py-2 text-sm text-[#6A6A6A] hover:text-[#1A1A1A] font-medium transition-colors">
+                            <Link href="/contact" className="px-3 py-2 text-sm text-[#4A4A4A] hover:text-[#1A1A1A] font-medium transition-colors">
                                 Contact
                             </Link>
                         </div>
@@ -245,13 +245,13 @@ export default function LandingLayout({ children }) {
                                 <div className="flex items-center gap-2.5">
                                     <Link
                                         href={signinHref}
-                                        className="rounded-full border border-[#E5E5E0] bg-white/80 hover:bg-white hover:border-[#E8D44D]/30 px-5 py-2.5 text-sm font-semibold text-[#1A1A1A] transition-all"
+                                        className="px-4 py-2 text-sm font-semibold text-[#1A1A1A] hover:text-[#C4A83A] transition-colors"
                                     >
                                         {signinLabel}
                                     </Link>
                                     <Link
                                         href={getStartedHref}
-                                        className="rounded-full bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-sm px-6 py-2.5 shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 group"
+                                        className="rounded-full bg-[#1A1A1A] hover:bg-[#C4A83A] text-white font-semibold text-sm px-6 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 group"
                                     >
                                         <span>{getStartedLabel}</span>
                                         <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
