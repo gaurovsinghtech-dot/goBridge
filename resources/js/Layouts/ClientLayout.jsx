@@ -106,12 +106,12 @@ function ClientLayoutFooter() {
         <div className="border-t border-neutral-200 dark:border-neutral-800 pt-3 space-y-2">
             {user && (
                 <div className="flex items-center gap-3 px-2.5 py-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60">
-                    <div className="flex-shrink-0 h-9 w-9 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-xs font-bold shadow-inner">
+                    <div className="flex-shrink-0 h-9 w-9 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 border border-brand-200 dark:border-brand-800 flex items-center justify-center text-xs font-bold shadow-inner">
                         {initials}
                     </div>
                     <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">{user.name || 'User'}</p>
-                        <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400 capitalize truncate">{user.client_role || 'Admin'}</p>
+                        <p className="text-[10px] font-medium text-brand-600 dark:text-brand-400 capitalize truncate">{user.client_role || 'Admin'}</p>
                     </div>
                     <button
                         type="button"

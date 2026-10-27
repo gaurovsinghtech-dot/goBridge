@@ -59,7 +59,7 @@ function NavGroup({ label, items, onClose }) {
                                 className={[
                                     'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
                                     isActive
-                                        ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                                        ? 'bg-brand-500 text-white shadow-xs font-semibold'
                                         : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
@@ -118,7 +118,7 @@ export default function Sidebar({
                 <div className="shrink-0 p-3 pb-2 border-b border-neutral-200 dark:border-neutral-800">
                     <button
                         type="button"
-                        className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs transition duration-150"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-xs transition duration-150"
                     >
                         <Plus className="h-4 w-4" />
                         {t('common.create')}
@@ -143,7 +143,7 @@ export default function Sidebar({
                                 className={[
                                     'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
                                     isActive
-                                        ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                                        ? 'bg-brand-500 text-white shadow-xs font-semibold'
                                         : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
