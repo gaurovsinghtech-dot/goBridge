@@ -3,7 +3,27 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
-import { checkIsActive } from '@/utils/navActive';
+
+function checkIsActive(item) {
+    if (typeof item.active === 'function') {
+        try { return item.active(); } catch { return false; }
+    }
+    if (item.active !== undefined) return Boolean(item.active);
+    try {
+        if (typeof route === 'function') {
+            if (item.route && route().current(item.route)) return true;
+            if (item.activePattern) {
+                if (Array.isArray(item.activePattern)) {
+                    return item.activePattern.some(p => route().current(p));
+                }
+                return route().current(item.activePattern);
+            }
+        }
+    } catch {
+        return false;
+    }
+    return false;
+}
 
 function NavGroup({ label, items, onClose }) {
     const [open, setOpen] = useState(true);
@@ -75,7 +95,6 @@ export default function Sidebar({
     title,
     logo,
     showCreateButton = true,
-    desktopVisible = true,
 }) {
     const { t } = useTranslation();
     const { appName, logoUrl } = useBranding();
@@ -166,12 +185,10 @@ export default function Sidebar({
 
     return (
         <>
-            {/* Desktop: always visible, unless a different desktop shell (e.g. IconRail) replaces it */}
-            {desktopVisible && (
-                <div className="hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:left-0 rtl:lg:left-auto rtl:lg:right-0">
-                    {content}
-                </div>
-            )}
+            {/* Desktop: always visible */}
+            <div className="hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:left-0 rtl:lg:left-auto rtl:lg:right-0">
+                {content}
+            </div>
 
             {/* Mobile: overlay + drawer */}
             {open && (

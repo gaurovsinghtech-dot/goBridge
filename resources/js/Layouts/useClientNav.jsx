@@ -32,7 +32,6 @@ export default function useClientNav() {
 
     const primaryItems = [
         {
-            key: 'dashboard',
             label: t('nav.dashboard', 'Dashboard'),
             href: safeRoute('client.dashboard'),
             icon: <LayoutDashboard className={iconClass} />,
@@ -40,7 +39,6 @@ export default function useClientNav() {
             dataTour: 'nav-dashboard',
         },
         {
-            key: 'inbox',
             label: t('nav.inbox', 'Inbox'),
             href: safeRoute('client.inbox.index'),
             icon: <Inbox className={iconClass} />,
@@ -48,7 +46,6 @@ export default function useClientNav() {
             dataTour: 'nav-inbox',
         },
         {
-            key: 'contacts',
             label: t('nav.contacts', 'Contacts & Leads'),
             href: safeRoute('client.contacts.index'),
             icon: <Users className={iconClass} />,
@@ -56,7 +53,6 @@ export default function useClientNav() {
             dataTour: 'nav-contacts',
         },
         {
-            key: 'campaigns',
             label: t('nav.campaigns', 'Campaigns'),
             href: safeRoute('client.campaigns.index'),
             icon: <Megaphone className={iconClass} />,
@@ -64,7 +60,6 @@ export default function useClientNav() {
             dataTour: 'nav-campaigns',
         },
         {
-            key: 'automations',
             label: t('nav.automations', 'Automations'),
             href: safeRoute('client.automations.index'),
             icon: <Workflow className={iconClass} />,
@@ -72,7 +67,6 @@ export default function useClientNav() {
             dataTour: 'nav-automations',
         },
         {
-            key: 'ai-agents',
             label: t('nav.ai_agents', 'AI Agents'),
             href: safeRoute('client.ai.chatbots.index'),
             icon: <Bot className={iconClass} />,
@@ -80,21 +74,18 @@ export default function useClientNav() {
             dataTour: 'nav-ai-agents',
         },
         {
-            key: 'playground',
             label: t('nav.playground', 'AI Playground'),
             href: safeRoute('client.ai.playground.index'),
             icon: <FlaskConical className={iconClass} />,
             activePattern: 'client.ai.playground.*',
         },
         {
-            key: 'knowledge-base',
             label: t('nav.knowledge_base', 'Knowledge Base'),
             href: safeRoute('client.ai.knowledge.index'),
             icon: <BookOpen className={iconClass} />,
             activePattern: 'client.ai.knowledge.*',
         },
         {
-            key: 'ai-analytics',
             label: t('nav.ai_analytics', 'AI Analytics'),
             href: safeRoute('client.ai.analytics.index'),
             icon: <BarChart3 className={iconClass} />,
@@ -102,7 +93,6 @@ export default function useClientNav() {
         },
         // Voice & Telephony Modules (Unlocked or Pro Badge)
         {
-            key: 'voice-studio',
             label: t('nav.voice_studio', 'Voice Studio'),
             href: hasVoice ? safeRoute('client.ai.voice-studio.index') : safeRoute('client.pricing'),
             icon: <Mic className={iconClass} />,
@@ -112,7 +102,6 @@ export default function useClientNav() {
             dataTour: 'nav-voice-studio',
         },
         {
-            key: 'call-center',
             label: t('nav.call_center', 'Call Center'),
             href: hasVoice ? safeRoute('client.voice.call-center') : safeRoute('client.pricing'),
             icon: <Headset className={iconClass} />,
@@ -121,7 +110,6 @@ export default function useClientNav() {
             badge: !hasVoice ? '🔒' : null,
         },
         {
-            key: 'voice-campaigns',
             label: t('nav.voice_campaigns', 'Voice Campaigns'),
             href: hasVoice ? safeRoute('client.voice.campaigns.index') : safeRoute('client.pricing'),
             icon: <PhoneCall className={iconClass} />,
@@ -130,7 +118,6 @@ export default function useClientNav() {
             badge: !hasVoice ? '🔒' : null,
         },
         {
-            key: 'smart-queue',
             label: t('nav.smart_queue', 'Calling Queue'),
             href: hasVoice ? safeRoute('client.voice.queue.index') : safeRoute('client.pricing'),
             icon: <Zap className={iconClass} />,
@@ -139,7 +126,6 @@ export default function useClientNav() {
             badge: !hasVoice ? '🔒' : null,
         },
         {
-            key: 'voice-follow-ups',
             label: t('nav.voice_follow_ups', 'Follow-ups'),
             href: hasVoice ? safeRoute('client.voice.follow-ups.index') : safeRoute('client.pricing'),
             icon: <ListTodo className={iconClass} />,
@@ -148,7 +134,6 @@ export default function useClientNav() {
             badge: !hasVoice ? '🔒' : null,
         },
         {
-            key: 'voice-agents',
             label: t('nav.voice_agents', 'Voice Agents'),
             href: hasVoice ? safeRoute('client.voice.index') : safeRoute('client.pricing'),
             icon: <Bot className={iconClass} />,
@@ -158,7 +143,6 @@ export default function useClientNav() {
             dataTour: 'nav-voice-agents',
         },
         {
-            key: 'phone-numbers',
             label: t('nav.phone_numbers', 'Phone Numbers'),
             href: hasVoice ? safeRoute('client.voice.numbers.index', safeRoute('client.voice.call-center')) : safeRoute('client.pricing'),
             icon: <PhoneCall className={iconClass} />,
@@ -168,7 +152,6 @@ export default function useClientNav() {
             dataTour: 'nav-phone-numbers',
         },
         {
-            key: 'channels',
             label: t('nav.channels', 'WhatsApp & Channels'),
             href: safeRoute('client.inbox.setup'),
             icon: <Share2 className={iconClass} />,
@@ -176,7 +159,6 @@ export default function useClientNav() {
             dataTour: 'nav-whatsapp',
         },
         {
-            key: 'templates',
             label: t('nav.templates', 'Templates'),
             href: safeRoute('client.whatsapp.templates.index'),
             icon: <FileText className={iconClass} />,
@@ -184,7 +166,6 @@ export default function useClientNav() {
             dataTour: 'nav-templates',
         },
         {
-            key: 'analytics',
             label: t('nav.analytics', 'Analytics'),
             href: safeRoute('client.reports.inbox.index'),
             icon: <BarChart3 className={iconClass} />,
@@ -192,7 +173,6 @@ export default function useClientNav() {
             dataTour: 'nav-analytics',
         },
         {
-            key: 'integrations',
             label: t('nav.api_connections', 'Integrations & CRM'),
             href: safeRoute('client.crm.integrations.index', '/app/crm/integrations'),
             icon: <Sliders className={iconClass} />,
@@ -200,7 +180,6 @@ export default function useClientNav() {
             dataTour: 'nav-integrations',
         },
         {
-            key: 'wallet',
             label: t('nav.wallet', 'Wallet & Usage'),
             href: safeRoute('client.billing.wallet.index', '/app/billing/wallet'),
             icon: <CreditCard className={iconClass} />,
@@ -208,7 +187,6 @@ export default function useClientNav() {
             dataTour: 'nav-wallet',
         },
         {
-            key: 'plans-billing',
             label: t('nav.plans_and_billing', 'Plans & Billing'),
             href: safeRoute('client.subscription.show', safeRoute('client.pricing', '/app/subscription')),
             icon: <CreditCard className={iconClass} />,
@@ -216,7 +194,6 @@ export default function useClientNav() {
             dataTour: 'nav-billing',
         },
         {
-            key: 'settings',
             label: t('nav.settings', 'Settings'),
             href: safeRoute('client.settings.index'),
             icon: <Settings className={iconClass} />,
