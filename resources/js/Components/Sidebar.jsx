@@ -35,19 +35,19 @@ function NavGroup({ label, items, onClose }) {
                 onClick={() => setOpen((o) => !o)}
                 aria-expanded={open}
                 aria-controls={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`}
-                className="flex w-full items-center justify-between px-3 py-1.5 mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors duration-150 select-none"
+                className="flex w-full items-center gap-1 px-2 py-1.5 mt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors duration-150 select-none"
             >
-                <span>{label}</span>
                 <ChevronDown
                     className={[
                         'h-3 w-3 transition-transform duration-200',
                         open ? 'rotate-0' : '-rotate-90',
                     ].join(' ')}
                 />
+                <span>{label}</span>
             </button>
 
             {open && (
-                <div id={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`} className="mt-0.5 space-y-0.5">
+                <div id={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`} className="space-y-px">
                     {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
                         return (
@@ -57,16 +57,16 @@ function NavGroup({ label, items, onClose }) {
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-sm font-medium transition-all duration-150',
+                                    'group flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] transition-colors duration-100',
                                     isActive
-                                        ? 'border-brand-500 bg-brand-50 text-brand-800 font-semibold dark:bg-brand-500/10 dark:text-brand-300'
-                                        : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium'
+                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
-                                        'shrink-0 transition-colors duration-150',
-                                        isActive ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
+                                        'shrink-0 transition-colors duration-100',
+                                        isActive ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
@@ -76,8 +76,6 @@ function NavGroup({ label, items, onClose }) {
                                     <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
                                         {item.badge}
                                     </span>
-                                ) : isActive ? (
-                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-500 shrink-0" />
                                 ) : null}
                             </Link>
                         );
@@ -102,36 +100,34 @@ export default function Sidebar({
     const { appName, logoUrl } = useBranding();
 
     const content = (
-        <aside className="flex h-full w-64 flex-col bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
+        <aside className="flex h-full w-64 flex-col bg-neutral-50/60 dark:bg-neutral-900 border-r border-neutral-200/70 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
             {/* Brand header */}
-            <div className="flex h-16 shrink-0 items-center gap-2.5 px-4 border-b border-neutral-200 dark:border-neutral-800">
+            <div className="flex h-14 shrink-0 items-center gap-2.5 px-3.5">
                 {logo ? (
                     logo
                 ) : (
                     <Link href={route('client.dashboard')} className="flex items-center gap-2.5 group transition-transform duration-150 hover:scale-[1.01]">
-                        <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-9 max-w-[200px] object-contain drop-shadow-sm dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)]" />
+                        <img src={logoUrl || '/images/brand/logo-full.png'} alt={appName || 'Growbridge Connect'} className="h-8 max-w-[180px] object-contain dark:[filter:invert(1)_hue-rotate(180deg)_brightness(1.15)_saturate(1.5)]" />
                     </Link>
+                )}
+
+                {showCreateButton && (
+                    <button
+                        type="button"
+                        title={t('common.create')}
+                        className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-200/70 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 transition duration-150"
+                    >
+                        <Plus className="h-4 w-4" />
+                    </button>
                 )}
             </div>
 
-            {showCreateButton && (
-                <div className="shrink-0 p-3 pb-2 border-b border-neutral-200 dark:border-neutral-800">
-                    <button
-                        type="button"
-                        className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-xs transition duration-150"
-                    >
-                        <Plus className="h-4 w-4" />
-                        {t('common.create')}
-                    </button>
-                </div>
-            )}
-
-            <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
+            <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-px scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
                 {/* Standalone Nav Items (e.g. Dashboard, Clients) */}
                 {navItems.length > 0 &&
                     navItems.filter(item => !item.locked).map((item, i) => {
                         if (item.type === 'divider') {
-                            return <hr key={`div-${i}`} className="my-2 border-neutral-200 dark:border-neutral-800" />;
+                            return <hr key={`div-${i}`} className="my-2 border-neutral-200/70 dark:border-neutral-800" />;
                         }
                         const isActive = checkIsActive(item);
                         return (
@@ -141,16 +137,16 @@ export default function Sidebar({
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-sm font-medium transition-all duration-150',
+                                    'group flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] transition-colors duration-100',
                                     isActive
-                                        ? 'border-brand-500 bg-brand-50 text-brand-800 font-semibold dark:bg-brand-500/10 dark:text-brand-300'
-                                        : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium'
+                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
-                                        'shrink-0 transition-colors duration-150',
-                                        isActive ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
+                                        'shrink-0 transition-colors duration-100',
+                                        isActive ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
@@ -160,8 +156,6 @@ export default function Sidebar({
                                     <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
                                         {item.badge}
                                     </span>
-                                ) : isActive ? (
-                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-500 shrink-0" />
                                 ) : null}
                             </Link>
                         );
@@ -180,7 +174,7 @@ export default function Sidebar({
             </nav>
 
             {footer && (
-                <div className="shrink-0 border-t border-neutral-200 dark:border-neutral-800 p-3 bg-white dark:bg-neutral-900">
+                <div className="shrink-0 border-t border-neutral-200/70 dark:border-neutral-800 p-2.5">
                     <div className="text-neutral-600 dark:text-neutral-400">
                         {footer}
                     </div>
