@@ -57,16 +57,16 @@ function NavGroup({ label, items, onClose }) {
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
+                                    'group flex items-center gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-sm font-medium transition-all duration-150',
                                     isActive
-                                        ? 'bg-brand-500 text-white shadow-xs font-semibold'
-                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'border-brand-500 bg-brand-50 text-brand-800 font-semibold dark:bg-brand-500/10 dark:text-brand-300'
+                                        : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
                                         'shrink-0 transition-colors duration-150',
-                                        isActive ? 'text-white' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
+                                        isActive ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
@@ -77,7 +77,7 @@ function NavGroup({ label, items, onClose }) {
                                         {item.badge}
                                     </span>
                                 ) : isActive ? (
-                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/80 shrink-0" />
+                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-500 shrink-0" />
                                 ) : null}
                             </Link>
                         );
@@ -141,16 +141,16 @@ export default function Sidebar({
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
+                                    'group flex items-center gap-2.5 rounded-lg border-l-2 px-2.5 py-2 text-sm font-medium transition-all duration-150',
                                     isActive
-                                        ? 'bg-brand-500 text-white shadow-xs font-semibold'
-                                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'border-brand-500 bg-brand-50 text-brand-800 font-semibold dark:bg-brand-500/10 dark:text-brand-300'
+                                        : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
                                         'shrink-0 transition-colors duration-150',
-                                        isActive ? 'text-white' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
+                                        isActive ? 'text-brand-600 dark:text-brand-400' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
@@ -161,7 +161,7 @@ export default function Sidebar({
                                         {item.badge}
                                     </span>
                                 ) : isActive ? (
-                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/80 shrink-0" />
+                                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-500 shrink-0" />
                                 ) : null}
                             </Link>
                         );
