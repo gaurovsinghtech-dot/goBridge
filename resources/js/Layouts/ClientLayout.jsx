@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Toaster, toast } from 'sonner';
 import Topbar from '@/Components/Topbar';
 import Sidebar from '@/Components/Sidebar';
+import IconRail from '@/Components/ClientShell/IconRail';
+import PillTopNav from '@/Components/ClientShell/PillTopNav';
 import UpgradeModal from '@/Components/UpgradeModal';
 import DashboardTour from '@/Components/ProductTour/DashboardTour';
 import useClientNav from '@/Layouts/useClientNav';
@@ -81,7 +83,7 @@ function UsageBanner({ usage }) {
     );
 }
 
-function ClientLayoutFooter() {
+function ClientLayoutFooter({ onSignOut }) {
     const { t } = useTranslation();
     const { auth } = usePage().props;
     const user = auth?.user;
@@ -90,17 +92,6 @@ function ClientLayoutFooter() {
         if (user?.email) return user.email[0].toUpperCase();
         return 'U';
     })();
-
-    const handleSignOut = () => {
-        router.post(route('logout'), {}, {
-            onError: () => {
-                window.location.href = route('login');
-            },
-            onSuccess: () => {
-                window.location.replace(route('home'));
-            },
-        });
-    };
 
     return (
         <div className="border-t border-neutral-200 dark:border-neutral-800 pt-3 space-y-2">
@@ -115,7 +106,7 @@ function ClientLayoutFooter() {
                     </div>
                     <button
                         type="button"
-                        onClick={handleSignOut}
+                        onClick={onSignOut}
                         title={t('nav.logout') || 'Sign Out'}
                         className="p-1.5 rounded-lg text-neutral-400 hover:text-red-600 hover:bg-neutral-200/50 dark:hover:bg-neutral-700 transition"
                     >
@@ -182,6 +173,19 @@ export default function ClientLayout({ header, children, title }) {
         router.post(impersonation?.returnUrl ?? route('admin.impersonation.stop'));
     };
 
+    const handleSignOut = () => {
+        router.post(route('logout'), {}, {
+            onError: () => {
+                window.location.href = route('login');
+            },
+            onSuccess: () => {
+                window.location.replace(route('home'));
+            },
+        });
+    };
+
+    const pillNavItems = clientNavGroups[0]?.items ?? [];
+
     const demoMode = usePage().props.demo_mode === true;
 
     const userNavItems = [
@@ -207,28 +211,32 @@ export default function ClientLayout({ header, children, title }) {
                 </div>
             )}
 
+            <IconRail onLogout={handleSignOut} />
+
+            {/* Mobile-only drawer — IconRail + PillTopNav cover desktop nav instead */}
             <Sidebar
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
                 showCreateButton={false}
+                desktopVisible={false}
                 navGroups={clientNavGroups.map(group => ({
                     ...group,
                     items: group.items.map(item => ({
                         ...item,
-                        key: item.activePattern || item.label,
                         active: () => item.activePattern ? route().current(item.activePattern) : false,
                     }))
                 }))}
-footer={<ClientLayoutFooter />}
+                footer={<ClientLayoutFooter onSignOut={handleSignOut} />}
             />
 
-            <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64">
+            <div className="lg:pl-28 rtl:lg:pl-0 rtl:lg:pr-28">
                 <Topbar
                     showLogo={false}
                     title={title}
                     userNavItems={userNavItems}
                     unreadCount={unreadCount}
                     showGlobalSearch
+                    centerContent={<PillTopNav items={pillNavItems} />}
                 />
                 <UsageBanner usage={current_workspace_usage} />
 

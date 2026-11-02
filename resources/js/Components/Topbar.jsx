@@ -22,6 +22,7 @@ export default function Topbar({
     showWorkspace = true,
     showGlobalSearch = false,
     unreadCount: externalUnreadCount,
+    centerContent,
 }) {
     const { t } = useTranslation();
     const page = usePage();
@@ -162,6 +163,12 @@ export default function Topbar({
                     </Link>
                 )}
             </div>
+
+            {centerContent && (
+                <div className="hidden shrink-0 md:flex md:items-center md:justify-center">
+                    {centerContent}
+                </div>
+            )}
 
             <div className="flex shrink-0 items-center gap-1">
                 {/* Notification bell */}
