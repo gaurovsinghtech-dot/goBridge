@@ -19,6 +19,9 @@ import {
     Moon,
     Bell,
     ArrowUpRight,
+    ArrowUp,
+    ArrowDown,
+    MoreHorizontal,
     CheckCircle2,
     Calendar,
     Radio,
@@ -74,6 +77,48 @@ function DonutSvg({ segments = [], size = 150, strokeWidth = 24 }) {
                 );
             })}
         </svg>
+    );
+}
+
+function DeltaPill({ value }) {
+    const positive = Number(value) >= 0;
+    const Icon = positive ? ArrowUp : ArrowDown;
+    return (
+        <span className={[
+            'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold',
+            positive
+                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                : 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400',
+        ].join(' ')}>
+            <Icon className="h-3 w-3" />
+            {Math.abs(Number(value))}%
+        </span>
+    );
+}
+
+function KpiCard({ icon, iconClassName, label, value, delta }) {
+    return (
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${iconClassName}`}>
+                        {icon}
+                    </div>
+                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">{label}</span>
+                </div>
+                <button type="button" className="shrink-0 text-neutral-300 hover:text-neutral-500 dark:text-neutral-700 dark:hover:text-neutral-400 transition">
+                    <MoreHorizontal className="h-4 w-4" />
+                </button>
+            </div>
+            <div className="mt-3 flex items-end gap-2">
+                <span className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+                    {Number(value || 0).toLocaleString()}
+                </span>
+                <span className="mb-0.5">
+                    <DeltaPill value={delta} />
+                </span>
+            </div>
+        </div>
     );
 }
 
@@ -161,7 +206,7 @@ export default function Dashboard({
 
             <div className="space-y-6 max-w-7xl mx-auto pb-8">
                 {/* ── TOP HERO HEADER BAR ────────────────────────────────── */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-neutral-900 p-5 sm:p-6 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
                             Welcome back, <span className="text-brand-600 dark:text-brand-400">{user?.name ? user.name.split(' ')[0] : 'User'}</span> 👋
@@ -235,113 +280,48 @@ export default function Dashboard({
 
                 {/* ── ROW 1: 6-CARD KPI GRID ────────────────────────────── */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-                    {/* 1. Contacts */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                <Users className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Contacts</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.contacts_total || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.contacts_delta || 12.5}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 2. Messages */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-brand-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 flex items-center justify-center shrink-0">
-                                <MessageSquare className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Messages</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.messages_total || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.messages_delta || 15.3}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. Active Conversations */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                <GitFork className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Active Chats</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.conversations_active || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.conversations_delta || 8.7}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 4. Campaigns */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-rose-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-rose-50 text-rose-500 dark:bg-rose-950/40 dark:text-rose-400 flex items-center justify-center shrink-0">
-                                <Megaphone className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Campaigns</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.campaigns_total || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.campaigns_delta || 20.0}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 5. Automations */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-sky-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400 flex items-center justify-center shrink-0">
-                                <Workflow className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Automations</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.automations_total || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.automations_delta || 14.3}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 6. AI Conversations */}
-                    <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between hover:border-teal-500/40 transition duration-200">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 flex items-center justify-center shrink-0">
-                                <Bot className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">AI Chats</span>
-                        </div>
-                        <div className="mt-3">
-                            <div className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                                {Number(s.ai_conversations_total || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                <span>↑ {s.ai_conversations_delta || 18.6}%</span>
-                            </div>
-                        </div>
-                    </div>
+                    <KpiCard
+                        icon={<Users className="h-3.5 w-3.5" />}
+                        iconClassName="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        label="Contacts"
+                        value={s.contacts_total}
+                        delta={s.contacts_delta ?? 12.5}
+                    />
+                    <KpiCard
+                        icon={<MessageSquare className="h-3.5 w-3.5" />}
+                        iconClassName="bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400"
+                        label="Messages"
+                        value={s.messages_total}
+                        delta={s.messages_delta ?? 15.3}
+                    />
+                    <KpiCard
+                        icon={<GitFork className="h-3.5 w-3.5" />}
+                        iconClassName="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        label="Active Chats"
+                        value={s.conversations_active}
+                        delta={s.conversations_delta ?? 8.7}
+                    />
+                    <KpiCard
+                        icon={<Megaphone className="h-3.5 w-3.5" />}
+                        iconClassName="bg-rose-50 text-rose-500 dark:bg-rose-950/40 dark:text-rose-400"
+                        label="Campaigns"
+                        value={s.campaigns_total}
+                        delta={s.campaigns_delta ?? 20.0}
+                    />
+                    <KpiCard
+                        icon={<Workflow className="h-3.5 w-3.5" />}
+                        iconClassName="bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400"
+                        label="Automations"
+                        value={s.automations_total}
+                        delta={s.automations_delta ?? 14.3}
+                    />
+                    <KpiCard
+                        icon={<Bot className="h-3.5 w-3.5" />}
+                        iconClassName="bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400"
+                        label="AI Chats"
+                        value={s.ai_conversations_total}
+                        delta={s.ai_conversations_delta ?? 18.6}
+                    />
                 </div>
 
                 {/* ── ROW 2: 3-WIDGET MIDDLE SECTION ────────────────────── */}
@@ -353,8 +333,18 @@ export default function Dashboard({
                         </h2>
 
                         <div className="flex items-center justify-between gap-4 flex-1">
-                            <div className="flex-shrink-0 flex items-center justify-center">
+                            <div className="relative flex-shrink-0 flex items-center justify-center">
                                 <DonutSvg segments={channelData} size={145} strokeWidth={22} />
+                                {(() => {
+                                    const top = [...channelData].sort((a, b) => (Number(b.count) || 0) - (Number(a.count) || 0))[0];
+                                    if (!top) return null;
+                                    return (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                            <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 truncate max-w-[80px]">{top.name}</span>
+                                            <span className="text-lg font-bold text-neutral-900 dark:text-white">{top.percent}%</span>
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
                             <div className="flex-1 space-y-2.5 min-w-0">
@@ -422,9 +412,17 @@ export default function Dashboard({
 
                     {/* Card 3: Top Channels */}
                     <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col">
-                        <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">
-                            Top Channels
-                        </h2>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                Top Channels
+                            </h2>
+                            <Link
+                                href={safeRoute('client.reports.inbox.index')}
+                                className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                            >
+                                View All
+                            </Link>
+                        </div>
 
                         <div className="space-y-4 flex-1 justify-center flex flex-col">
                             {topChannelData.map((c) => (
@@ -442,6 +440,7 @@ export default function Dashboard({
                                             }}
                                         />
                                     </div>
+                                    <p className="text-[11px] text-neutral-400 dark:text-neutral-500">{c.percent}% of total volume</p>
                                 </div>
                             ))}
                         </div>
@@ -562,9 +561,17 @@ export default function Dashboard({
 
                     {/* Card 3: Automation Overview */}
                     <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between">
-                        <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-2">
-                            Automation Overview
-                        </h2>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                Automation Overview
+                            </h2>
+                            <Link
+                                href={safeRoute('client.automations.index')}
+                                className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                            >
+                                View All
+                            </Link>
+                        </div>
 
                         <div className="grid grid-cols-3 gap-2 text-center py-3">
                             <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50">
@@ -593,16 +600,6 @@ export default function Dashboard({
                                     Failed Today
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="pt-2 text-center">
-                            <Link
-                                href={safeRoute('client.automations.index')}
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-                            >
-                                <span>Manage All Automations</span>
-                                <ArrowUpRight className="h-3.5 w-3.5" />
-                            </Link>
                         </div>
                     </div>
                 </div>
