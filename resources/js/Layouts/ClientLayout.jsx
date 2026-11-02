@@ -193,7 +193,7 @@ export default function ClientLayout({ header, children, title }) {
     ];
 
     return (
-        <div className="min-h-screen bg-surface-subtle dark:bg-neutral-950">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
             {impersonation?.active && (
                 <div className="flex items-center justify-between gap-4 bg-amber-500/90 text-white px-4 py-2 text-sm font-medium">
                     <span>{t('impersonation.impersonating', { name: impersonation.clientName })}</span>
