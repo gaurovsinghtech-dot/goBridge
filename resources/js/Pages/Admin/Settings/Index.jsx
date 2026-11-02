@@ -34,6 +34,62 @@ function ColorField({ label, hint, value, onChange, error, placeholder }) {
 }
 
 /**
+ * Curated primary/secondary pairs an admin can apply in one click instead of
+ * hand-picking hex values. Each pair is tuned the same way a manually chosen
+ * pair would be — primary anchors buttons/links, secondary anchors supporting
+ * surfaces like the sidebar — so switching presets still looks intentional.
+ */
+const THEME_PRESETS = [
+    { label: 'Gold & Navy',   primary: '#FEB51B', secondary: '#011B40' },
+    { label: 'Forest Green',  primary: '#467235', secondary: '#283F24' },
+    { label: 'Ocean Blue',    primary: '#2563EB', secondary: '#1E3A8A' },
+    { label: 'Sunset Coral',  primary: '#F04E2E', secondary: '#7A1E16' },
+    { label: 'Royal Violet',  primary: '#7C3AED', secondary: '#4C1D95' },
+    { label: 'Teal Mint',     primary: '#0D9488', secondary: '#134E4A' },
+];
+
+function ThemePresets({ onSelect, current }) {
+    const { t } = useTranslation();
+
+    return (
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                {t('settings.theme_presets') || 'Prebuilt themes'}
+            </label>
+            <div className="flex flex-wrap gap-2.5">
+                {THEME_PRESETS.map((preset) => {
+                    const active = current.primary?.toLowerCase() === preset.primary.toLowerCase()
+                        && current.secondary?.toLowerCase() === preset.secondary.toLowerCase();
+                    return (
+                        <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => onSelect(preset)}
+                            title={preset.label}
+                            className={[
+                                'flex items-center gap-2 rounded-soft-lg border px-2.5 py-1.5 text-xs font-medium transition',
+                                active
+                                    ? 'border-brand-500 ring-2 ring-brand-500/20 text-neutral-900 dark:text-neutral-100'
+                                    : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500',
+                            ].join(' ')}
+                        >
+                            <span className="relative flex h-5 w-5 shrink-0 overflow-hidden rounded-full border border-black/10 dark:border-white/10">
+                                <span className="h-full w-1/2" style={{ backgroundColor: preset.primary }} />
+                                <span className="h-full w-1/2" style={{ backgroundColor: preset.secondary }} />
+                            </span>
+                            {preset.label}
+                        </button>
+                    );
+                })}
+            </div>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {t('settings.theme_presets_hint') || 'Applies both brand colors at once — fine-tune with the pickers below.'}
+            </p>
+        </div>
+    );
+}
+
+/**
  * Shows the picked colours and font before they are saved. The swatches render the
  * exact chosen hex — that value becomes the 600 stop of the generated palette, and
  * the lighter/darker stops the UI also uses are derived from it server-side
@@ -174,6 +230,14 @@ function GeneralTab({ general, fonts, flash }) {
                                 <p className="text-xs text-neutral-500 dark:text-neutral-400">{t('settings.appearance_desc')}</p>
                             </div>
                         </div>
+
+                        <ThemePresets
+                            current={{ primary: data.primary_color, secondary: data.secondary_color }}
+                            onSelect={(preset) => {
+                                setData('primary_color', preset.primary);
+                                setData('secondary_color', preset.secondary);
+                            }}
+                        />
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <ColorField
