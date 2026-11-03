@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react';
 import { useOneSignal, isOnInboxOrDashboard, showBrowserNotification } from '@/hooks/useOneSignal';
+import { useLocale } from '@/hooks/useLocale';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster, toast } from 'sonner';
@@ -87,7 +88,12 @@ function ClientLayoutFooter() {
     const { auth } = usePage().props;
     const user = auth?.user;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [langOpen, setLangOpen] = useState(false);
     const menuRef = useRef(null);
+    const { locale: currentLocale, isRtl: currentIsRtl, locales: i18nLocales, setLocale } = useLocale();
+    const localeEntries = i18nLocales.length
+        ? i18nLocales.map((l) => [l.code, l.native_name || l.name, l.is_rtl])
+        : [['en', 'English', false]];
     const initials = (() => {
         if (user?.name) return user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
         if (user?.email) return user.email[0].toUpperCase();
@@ -114,7 +120,10 @@ function ClientLayoutFooter() {
     useEffect(() => {
         if (!menuOpen) return;
         const handler = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMenuOpen(false);
+                setLangOpen(false);
+            }
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
@@ -155,6 +164,44 @@ function ClientLayoutFooter() {
                             {link.label}
                         </Link>
                     ))}
+
+                    <div className="border-t border-neutral-100 dark:border-neutral-800">
+                        <button
+                            type="button"
+                            onClick={() => setLangOpen((o) => !o)}
+                            className="flex w-full items-center justify-between gap-2 px-3.5 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
+                        >
+                            <span>
+                                {t('topbar.language') || 'Language'}
+                                {': '}
+                                <span className="font-medium">
+                                    {i18nLocales.find((l) => l.code === currentLocale)?.native_name ?? currentLocale.toUpperCase()}
+                                </span>
+                                {currentIsRtl && <span className="ms-1.5 rounded bg-neutral-200 dark:bg-neutral-700 px-1 text-[10px] font-medium text-neutral-600 dark:text-neutral-300">RTL</span>}
+                            </span>
+                            <ChevronDown className={`h-3.5 w-3.5 text-neutral-400 shrink-0 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {langOpen && (
+                            <div className="max-h-48 overflow-y-auto border-t border-neutral-100 dark:border-neutral-800">
+                                {localeEntries.map(([code, label, isRtl]) => (
+                                    <button
+                                        key={code}
+                                        type="button"
+                                        onClick={() => { setLocale(code); setLangOpen(false); setMenuOpen(false); }}
+                                        className={`flex w-full items-center justify-between gap-2 px-3.5 py-1.5 text-sm transition ${
+                                            currentLocale === code
+                                                ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 font-medium'
+                                                : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <span>{label}</span>
+                                        {isRtl && <span className="rounded bg-neutral-200 dark:bg-neutral-700 px-1 text-[10px]">RTL</span>}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="border-t border-neutral-100 dark:border-neutral-800">
                         <button
                             type="button"

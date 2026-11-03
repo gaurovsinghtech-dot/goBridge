@@ -4,14 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Dropdown } from '@/Components/ui';
 import { useTheme } from '@/context/ThemeContext';
-import { useLocale } from '@/hooks/useLocale';
-import { Bell, X, CheckCheck, ExternalLink, Building2, ChevronDown, Globe } from 'lucide-react';
+import { Bell, X, CheckCheck, ExternalLink, Building2, ChevronDown } from 'lucide-react';
 import GlobalSearch from '@/Components/GlobalSearch';
 import axios from 'axios';
 
 /**
- * Topbar with language switcher and account menu.
- * Locale from Inertia shared props; updates via PUT /locale.
+ * Topbar: search, notifications, theme toggle, and workspace switcher.
+ * Language switcher and account menu live in the sidebar footer dropdown.
  */
 
 export default function Topbar({
@@ -33,21 +32,12 @@ export default function Topbar({
     const notifRef = useRef(null);
     const unreadCount = externalUnreadCount ?? (page.props.unreadNotificationsCount ?? 0);
 
-    const { locale: currentLocale, isRtl: currentIsRtl, locales: i18nLocales, setLocale: setLocaleCode } = useLocale();
-    const localeEntries = i18nLocales.length
-        ? i18nLocales.map((l) => [l.code, l.native_name || l.name])
-        : Object.entries(page.props.supportedLocales ?? { en: 'English' });
-
     const handleThemeToggle = () => {
         const next = theme === 'dark' ? 'light' : 'dark';
         setTheme(next);
         if (user) {
             router.post(route('theme.update'), { theme: next }, { preserveScroll: true });
         }
-    };
-
-    const handleLocale = (code) => {
-        setLocaleCode(code);
     };
 
     const openNotifDropdown = () => {
@@ -269,46 +259,6 @@ export default function Topbar({
                         </Dropdown.Content>
                     </Dropdown>
                 )}
-
-                {/* Language switcher */}
-                <Dropdown>
-                    <Dropdown.Trigger>
-                        <button
-                            type="button"
-                            className="flex items-center gap-1.5 rounded-soft px-2.5 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 transition duration-150"
-                            aria-label={t('topbar.language')}
-                        >
-                            <svg className="h-4 w-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                                <circle cx="12" cy="12" r="9" />
-                                <path strokeLinecap="round" d="M3.6 9h16.8M3.6 15h16.8" />
-                                <path strokeLinecap="round" d="M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9" />
-                            </svg>
-                            <span className="hidden sm:inline">
-                                {i18nLocales.find((l) => l.code === currentLocale)?.native_name ?? currentLocale.toUpperCase()}
-                            </span>
-                            {currentIsRtl && <span className="rounded bg-neutral-200 dark:bg-neutral-700 px-1 text-[10px] font-medium text-neutral-600 dark:text-neutral-300">RTL</span>}
-                            <svg className="h-4 w-4 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    </Dropdown.Trigger>
-                    <Dropdown.Content align="right" width="48">
-                        {localeEntries.map(([code, label]) => {
-                            const isRtl = i18nLocales.find((l) => l.code === code)?.is_rtl ?? false;
-                            return (
-                                <Dropdown.Item
-                                    key={code}
-                                    as="button"
-                                    onClick={() => handleLocale(code)}
-                                    className={currentLocale === code ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 font-medium' : ''}
-                                >
-                                    <span>{label}</span>
-                                    {isRtl && <span className="ms-1.5 rounded bg-neutral-200 dark:bg-neutral-700 px-1 text-[10px]">RTL</span>}
-                                </Dropdown.Item>
-                            );
-                        })}
-                    </Dropdown.Content>
-                </Dropdown>
 
             </div>
         </header>
