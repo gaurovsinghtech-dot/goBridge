@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
 
 function checkIsActive(item) {
@@ -25,30 +24,11 @@ function checkIsActive(item) {
     return false;
 }
 
-function NavGroup({ label, items, onClose, expandedItemKey, expandedContent }) {
-    const [open, setOpen] = useState(true);
-
+function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
     return (
         <div className="mb-0.5">
-            <button
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                aria-expanded={open}
-                aria-controls={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`}
-                className="flex w-full items-center gap-1 px-2 py-1.5 mt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors duration-150 select-none"
-            >
-                <ChevronDown
-                    className={[
-                        'h-3 w-3 transition-transform duration-200',
-                        open ? 'rotate-0' : '-rotate-90',
-                    ].join(' ')}
-                />
-                <span>{label}</span>
-            </button>
-
-            {open && (
-                <div id={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`} className="space-y-px">
-                    {items.filter(item => !item.locked).map((item, i) => {
+            <div className="space-y-px">
+                {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
                         const itemKey = item.key ?? item.route ?? item.href ?? i;
                         const isExpanded = expandedContent && expandedItemKey && itemKey === expandedItemKey;
@@ -87,9 +67,8 @@ function NavGroup({ label, items, onClose, expandedItemKey, expandedContent }) {
                                 )}
                             </div>
                         );
-                    })}
-                </div>
-            )}
+                })}
+            </div>
         </div>
     );
 }
@@ -176,7 +155,6 @@ export default function Sidebar({
                     navGroups.map((group, gi) => (
                         <NavGroup
                             key={`${gi}-${group.key ?? group.label ?? ''}`}
-                            label={group.label}
                             items={group.items ?? []}
                             onClose={onClose}
                             expandedItemKey={expandedItemKey}
