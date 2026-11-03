@@ -25,7 +25,6 @@ import {
     Key,
 } from 'lucide-react';
 import { ChannelBrandIcon } from '@/Components/BrandIcons';
-import SetupProgressWidget from '@/Components/SetupProgressWidget';
 
 function safeRoute(name, ...args) {
     try { return route(name, ...args); } catch { return '#'; }
@@ -125,7 +124,6 @@ export default function Dashboard({
     stats = null,
     messagesByChannel = [],
     recentActivity = [],
-    onboardingProgress = null,
 }) {
     const { t } = useTranslation();
     const { auth } = usePage().props;
@@ -251,11 +249,6 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
-
-                {/* ── ONBOARDING SETUP PROGRESS WIDGET ──────────────────── */}
-                {onboardingProgress && (
-                    <SetupProgressWidget progress={onboardingProgress} />
-                )}
 
                 {/* ── ROW 1: 6-CARD KPI GRID ────────────────────────────── */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
