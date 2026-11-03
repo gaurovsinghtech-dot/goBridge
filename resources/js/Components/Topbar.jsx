@@ -17,7 +17,6 @@ import axios from 'axios';
 export default function Topbar({
     showLogo = true,
     logoHref = route('home'),
-    userNavItems = [],
     title,
     showWorkspace = true,
     showGlobalSearch = false,
@@ -79,36 +78,6 @@ export default function Topbar({
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
-
-    // On admin routes the authenticated user lives on the `admin` guard, so logout
-    // must hit admin.logout (route('logout') only clears the web guard, leaving the
-    // admin still signed in). UI is identical — only the logout target differs.
-    const handleLogout = () => {
-        const targetRoute = isAdmin ? route('admin.logout') : route('logout');
-        router.post(targetRoute, {}, {
-            onError: () => {
-                window.location.href = route('login');
-            },
-            onSuccess: () => {
-                window.location.replace(route('home'));
-            },
-        });
-    };
-
-    const defaultUserItems = [
-        ...(user
-            ? [
-                { label: t('nav.profile'), href: route('client.profile.edit'), as: 'link' },
-                { type: 'divider' },
-                { label: t('nav.logout'), onClick: handleLogout, as: 'button' },
-            ]
-            : [
-                { label: t('nav.login'), href: route('login'), as: 'link' },
-                { label: t('nav.register'), href: route('register'), as: 'link' },
-            ]),
-    ];
-
-    const accountItems = userNavItems.length ? userNavItems : defaultUserItems;
 
     const currentWorkspace = page.props.currentWorkspace;
     const workspaces = page.props.workspaces ?? [];
@@ -341,51 +310,6 @@ export default function Topbar({
                     </Dropdown.Content>
                 </Dropdown>
 
-                {/* Account menu */}
-                {user && (
-                    <Dropdown>
-                        <Dropdown.Trigger>
-                            <button
-                                type="button"
-                                className="flex items-center gap-2 rounded-soft px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition duration-150"
-                                aria-label={t('topbar.account')}
-                            >
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-300 text-xs font-medium">
-                                    {(user.name || user.email || 'U').charAt(0).toUpperCase()}
-                                </span>
-                                <span className="hidden max-w-[120px] truncate md:inline">{user.name || user.email}</span>
-                                <svg className="h-4 w-4 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </Dropdown.Trigger>
-                        <Dropdown.Content align="right" width="56">
-                            <div className="px-4 py-2 border-b border-soft border-gray-200 dark:border-neutral-700">
-                                <p className="text-sm font-medium text-gray-900 dark:text-neutral-100 truncate">{user.name}</p>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
-                            </div>
-                            {accountItems.map((item, i) =>
-                                item.type === 'divider' ? (
-                                    <Dropdown.Divider key={i} />
-                                ) : item.as === 'link' ? (
-                                    <Link
-                                        key={i}
-                                        href={item.href}
-                                        method={item.method || 'get'}
-                                        as="button"
-                                        className="block w-full px-4 py-2.5 text-left text-sm text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800 transition duration-150"
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ) : (
-                                    <Dropdown.Item key={i} as="button" onClick={item.onClick}>
-                                        {item.label}
-                                    </Dropdown.Item>
-                                )
-                            )}
-                        </Dropdown.Content>
-                    </Dropdown>
-                )}
             </div>
         </header>
     );
