@@ -2,23 +2,13 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import InboxLayout from '@/Layouts/InboxLayout';
 import NewConversationModal from '@/Components/Inbox/NewConversationModal';
 import {
-    MessageSquare, Inbox, CheckCircle, Clock, User,
-    Search, Plus, Bot, Check, CheckCheck, X, Settings, ChevronDown,
+    MessageSquare, Search, Plus, Bot, Check, CheckCheck, X, Settings, ChevronDown,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from '@/Components/ui';
 import { ChannelBrandIcon, CHANNEL_LABELS } from '@/Components/BrandIcons';
 import { formatTimeTz } from '@/Utils/datetime';
-
-const VIEWS = [
-    { key: null,     label: 'All Conversations', icon: Inbox,         countKey: 'all' },
-    { key: 'unread', label: 'Unread',            icon: MessageSquare, countKey: 'unread' },
-    { key: 'mine',   label: 'Assigned to Me',    icon: User,          countKey: 'mine' },
-    { key: 'ai',     label: 'AI Conversations',  icon: Bot,           countKey: 'ai' },
-    { key: 'open',   label: 'Open',              icon: Clock,         countKey: 'open' },
-    { key: 'closed', label: 'Closed',            icon: CheckCircle,   countKey: 'closed' },
-];
 
 const CHANNELS = [
     { key: 'whatsapp',  label: 'WhatsApp',     icon: 'whatsapp',  countKey: 'whatsapp' },
@@ -151,7 +141,6 @@ export default function InboxIndex({
         }, 300);
     };
 
-    const activeFolder = filters.folder || null;
     const activeChannel = filters.channel || null;
     const convList = Array.isArray(conversations)
         ? conversations
@@ -164,9 +153,7 @@ export default function InboxIndex({
             : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 font-normal',
     ].join(' ');
 
-    const activeView = VIEWS.find(v => v.key === activeFolder && !activeChannel);
     const activeChannelDef = CHANNELS.find(c => c.key === activeChannel);
-    const currentFilterLabel = activeChannelDef?.label ?? activeView?.label ?? 'All Conversations';
 
     return (
         <InboxLayout>
@@ -180,31 +167,21 @@ export default function InboxIndex({
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button type="button" className="flex items-center gap-1 text-[13px] font-semibold text-neutral-900 dark:text-white">
-                                        {currentFilterLabel}
+                                        {activeChannelDef?.label ?? 'All Channels'}
                                         <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
                                     </button>
                                 </Dropdown.Trigger>
                                 <Dropdown.Content align="left" width="56">
-                                    {VIEWS.map(({ key, label, countKey }) => {
-                                        const isSelected = activeFolder === key && !activeChannel;
-                                        const count = counts[countKey] ?? 0;
-                                        return (
-                                            <button
-                                                key={label}
-                                                type="button"
-                                                onClick={() => handleFilterChange({ folder: key, channel: null })}
-                                                className={itemClass(isSelected)}
-                                            >
-                                                <span className="truncate flex-1">{label}</span>
-                                                {count > 0 && (
-                                                    <span className="text-xs text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-
-                                    <Dropdown.Divider />
-                                    <p className="px-4 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Channels</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleFilterChange({ channel: null, folder: null })}
+                                        className={itemClass(!activeChannel)}
+                                    >
+                                        <span className="truncate flex-1">All Channels</span>
+                                        {counts.all > 0 && (
+                                            <span className="text-xs text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{counts.all}</span>
+                                        )}
+                                    </button>
                                     {CHANNELS.map(ch => {
                                         const isSelected = activeChannel === ch.key;
                                         const count = counts[ch.countKey] ?? 0;
@@ -223,24 +200,6 @@ export default function InboxIndex({
                                             </button>
                                         );
                                     })}
-
-                                    {labels.length > 0 && (
-                                        <>
-                                            <Dropdown.Divider />
-                                            <p className="px-4 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Tags</p>
-                                            {labels.map(lbl => (
-                                                <button
-                                                    key={lbl.id}
-                                                    type="button"
-                                                    onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
-                                                    className={itemClass(String(filters.label) === String(lbl.id))}
-                                                >
-                                                    <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-neutral-400" />
-                                                    <span className="truncate flex-1">{lbl.name}</span>
-                                                </button>
-                                            ))}
-                                        </>
-                                    )}
                                 </Dropdown.Content>
                             </Dropdown>
                             <button
