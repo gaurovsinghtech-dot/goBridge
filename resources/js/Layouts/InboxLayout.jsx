@@ -7,7 +7,7 @@ import Topbar from '@/Components/Topbar';
 import UpgradeModal from '@/Components/UpgradeModal';
 import useClientNav from '@/Layouts/useClientNav';
 
-export default function InboxLayout({ children, title }) {
+export default function InboxLayout({ children, title, sidebarExtra }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, demo_mode } = usePage().props;
@@ -71,6 +71,7 @@ export default function InboxLayout({ children, title }) {
                             active: () => item.activePattern ? route().current(item.activePattern) : false,
                         }))
                     }))}
+                    extra={sidebarExtra}
                 />
 
                 <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64 flex-1 overflow-hidden flex flex-col">

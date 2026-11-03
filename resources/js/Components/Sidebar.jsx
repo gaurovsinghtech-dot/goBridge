@@ -95,6 +95,7 @@ export default function Sidebar({
     title,
     logo,
     showCreateButton = true,
+    extra,
 }) {
     const { t } = useTranslation();
     const { appName, logoUrl } = useBranding();
@@ -171,6 +172,8 @@ export default function Sidebar({
                             onClose={onClose}
                         />
                     ))}
+
+                {extra}
             </nav>
 
             {footer && (
