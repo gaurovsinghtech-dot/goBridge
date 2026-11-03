@@ -10,6 +10,15 @@ import { Dropdown } from '@/Components/ui';
 import { ChannelBrandIcon, CHANNEL_LABELS } from '@/Components/BrandIcons';
 import { formatTimeTz } from '@/Utils/datetime';
 
+const VIEWS = [
+    { key: null,     label: 'All Conversations', countKey: 'all' },
+    { key: 'unread', label: 'Unread',            countKey: 'unread' },
+    { key: 'mine',   label: 'Assigned to Me',    countKey: 'mine' },
+    { key: 'ai',     label: 'AI Conversations',  countKey: 'ai' },
+    { key: 'open',   label: 'Open',              countKey: 'open' },
+    { key: 'closed', label: 'Closed',            countKey: 'closed' },
+];
+
 const CHANNELS = [
     { key: 'whatsapp',  label: 'WhatsApp',     icon: 'whatsapp',  countKey: 'whatsapp' },
     { key: 'instagram', label: 'Instagram',    icon: 'instagram', countKey: 'instagram' },
@@ -141,6 +150,7 @@ export default function InboxIndex({
         }, 300);
     };
 
+    const activeFolder = filters.folder || null;
     const activeChannel = filters.channel || null;
     const convList = Array.isArray(conversations)
         ? conversations
@@ -153,10 +163,39 @@ export default function InboxIndex({
             : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 font-normal',
     ].join(' ');
 
+    const subItemClass = (isSelected) => [
+        'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+        isSelected
+            ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
+            : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+    ].join(' ');
+
     const activeChannelDef = CHANNELS.find(c => c.key === activeChannel);
 
+    const sidebarExtra = (
+        <>
+            {VIEWS.map(({ key, label, countKey }) => {
+                const isSelected = activeFolder === key && !activeChannel;
+                const count = counts[countKey] ?? 0;
+                return (
+                    <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleFilterChange({ folder: key, channel: null })}
+                        className={subItemClass(isSelected)}
+                    >
+                        <span className="truncate flex-1 text-left">{label}</span>
+                        {count > 0 && (
+                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                        )}
+                    </button>
+                );
+            })}
+        </>
+    );
+
     return (
-        <InboxLayout>
+        <InboxLayout sidebarExtra={sidebarExtra}>
             <Head title="Unified Omnichannel Inbox — Growbridge Connect" />
 
             <div className="flex h-full overflow-hidden bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
