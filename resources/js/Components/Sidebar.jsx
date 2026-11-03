@@ -57,16 +57,16 @@ function NavGroup({ label, items, onClose }) {
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] transition-colors duration-100',
+                                    'group flex items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
                                     isActive
-                                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
+                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
                                         'shrink-0 transition-colors duration-100',
-                                        isActive ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
+                                        isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
@@ -137,16 +137,16 @@ export default function Sidebar({
                                 onClick={onClose}
                                 data-tour={item.dataTour}
                                 className={[
-                                    'group flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] transition-colors duration-100',
+                                    'group flex items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
                                     isActive
-                                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
+                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
                                 ].join(' ')}
                             >
                                 {item.icon && (
                                     <span className={[
                                         'shrink-0 transition-colors duration-100',
-                                        isActive ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
+                                        isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
                                     ].join(' ')}>
                                         {item.icon}
                                     </span>
