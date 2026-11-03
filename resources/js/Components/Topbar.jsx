@@ -121,6 +121,53 @@ export default function Topbar({
                         </div>
                     </Link>
                 )}
+
+                {/* Workspace (tenant) switcher */}
+                {showWorkspace && user && (
+                    <Dropdown>
+                        <Dropdown.Trigger>
+                            <button
+                                type="button"
+                                className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-neutral-700 bg-neutral-100/80 hover:bg-neutral-200/80 dark:bg-neutral-800 dark:hover:bg-neutral-750 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700 transition shrink-0"
+                                aria-label={t('topbar.workspace')}
+                            >
+                                <Building2 className="h-3.5 w-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
+                                <span className="hidden max-w-[130px] truncate sm:inline font-semibold">
+                                    {currentWorkspace?.name ?? t('topbar.no_workspace')}
+                                </span>
+                                <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+                            </button>
+                        </Dropdown.Trigger>
+                        <Dropdown.Content align="left" width="56">
+                            {workspaces.length === 0 ? (
+                                <Link
+                                    href={route('client.workspaces.index')}
+                                    className="block px-4 py-2.5 text-sm text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-900/30"
+                                >
+                                    {t('topbar.create_workspace')}
+                                </Link>
+                            ) : (
+                                workspaces.map((w) => (
+                                    <Dropdown.Item
+                                        key={w.id}
+                                        as="button"
+                                        onClick={() => handleWorkspaceSwitch(w.id)}
+                                        className={currentWorkspace?.id === w.id ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 font-medium' : ''}
+                                    >
+                                        {w.name}
+                                    </Dropdown.Item>
+                                ))
+                            )}
+                            <Dropdown.Divider />
+                            <Link
+                                href={route('client.workspaces.index')}
+                                className="block px-4 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                            >
+                                {t('topbar.manage_workspaces')}
+                            </Link>
+                        </Dropdown.Content>
+                    </Dropdown>
+                )}
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
@@ -215,53 +262,6 @@ export default function Topbar({
                         </svg>
                     )}
                 </button>
-
-                {/* Workspace (tenant) switcher */}
-                {showWorkspace && user && (
-                    <Dropdown>
-                        <Dropdown.Trigger>
-                            <button
-                                type="button"
-                                className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-neutral-700 bg-neutral-100/80 hover:bg-neutral-200/80 dark:bg-neutral-800 dark:hover:bg-neutral-750 dark:text-neutral-200 border border-neutral-200/80 dark:border-neutral-700 transition"
-                                aria-label={t('topbar.workspace')}
-                            >
-                                <Building2 className="h-3.5 w-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
-                                <span className="hidden max-w-[130px] truncate sm:inline font-semibold">
-                                    {currentWorkspace?.name ?? t('topbar.no_workspace')}
-                                </span>
-                                <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
-                            </button>
-                        </Dropdown.Trigger>
-                        <Dropdown.Content align="right" width="56">
-                            {workspaces.length === 0 ? (
-                                <Link
-                                    href={route('client.workspaces.index')}
-                                    className="block px-4 py-2.5 text-sm text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-900/30"
-                                >
-                                    {t('topbar.create_workspace')}
-                                </Link>
-                            ) : (
-                                workspaces.map((w) => (
-                                    <Dropdown.Item
-                                        key={w.id}
-                                        as="button"
-                                        onClick={() => handleWorkspaceSwitch(w.id)}
-                                        className={currentWorkspace?.id === w.id ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 font-medium' : ''}
-                                    >
-                                        {w.name}
-                                    </Dropdown.Item>
-                                ))
-                            )}
-                            <Dropdown.Divider />
-                            <Link
-                                href={route('client.workspaces.index')}
-                                className="block px-4 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                            >
-                                {t('topbar.manage_workspaces')}
-                            </Link>
-                        </Dropdown.Content>
-                    </Dropdown>
-                )}
 
             </div>
         </header>
