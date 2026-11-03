@@ -83,7 +83,7 @@ export default function Topbar({
     };
 
     return (
-        <header className="topbar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-soft border-gray-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-neutral-900/80 px-4 shadow-soft dark:shadow-none">
+        <header className="topbar sticky top-0 z-30 flex h-14 items-center justify-between bg-white/80 dark:bg-neutral-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-neutral-900/80 px-4">
             <div className="flex min-w-0 flex-1 items-center gap-3">
                 {showLogo && (
                     <Link href={logoHref} className="shrink-0">

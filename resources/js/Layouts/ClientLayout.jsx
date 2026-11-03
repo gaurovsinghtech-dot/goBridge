@@ -310,7 +310,6 @@ footer={<ClientLayoutFooter />}
                     showLogo={false}
                     title={title}
                     unreadCount={unreadCount}
-                    showGlobalSearch
                 />
                 <UsageBanner usage={current_workspace_usage} />
 
