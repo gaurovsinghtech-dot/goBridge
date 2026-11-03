@@ -3,10 +3,11 @@ import InboxLayout from '@/Layouts/InboxLayout';
 import NewConversationModal from '@/Components/Inbox/NewConversationModal';
 import {
     MessageSquare, Inbox, CheckCircle, Clock, User,
-    Search, Plus, Bot, Check, CheckCheck, X, Settings
+    Search, Plus, Bot, Check, CheckCheck, X, Settings, ChevronDown,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Dropdown } from '@/Components/ui';
 import { ChannelBrandIcon, CHANNEL_LABELS } from '@/Components/BrandIcons';
 import { formatTimeTz } from '@/Utils/datetime';
 
@@ -156,72 +157,19 @@ export default function InboxIndex({
         ? conversations
         : (Array.isArray(conversations?.data) ? conversations.data : []);
 
-    const subItemClass = (isSelected) => [
-        'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+    const itemClass = (isSelected) => [
+        'flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition duration-150',
         isSelected
-            ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
-            : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+            ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium'
+            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 font-normal',
     ].join(' ');
 
-    const sidebarExtra = (
-        <>
-            {VIEWS.map(({ key, label, countKey }) => {
-                const isSelected = activeFolder === key && !activeChannel;
-                const count = counts[countKey] ?? 0;
-                return (
-                    <button
-                        key={label}
-                        type="button"
-                        onClick={() => handleFilterChange({ folder: key, channel: null })}
-                        className={subItemClass(isSelected)}
-                    >
-                        <span className="truncate flex-1 text-left">{label}</span>
-                        {count > 0 && (
-                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
-                        )}
-                    </button>
-                );
-            })}
-
-            <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-600 select-none">Channels</p>
-            {CHANNELS.map(ch => {
-                const isSelected = activeChannel === ch.key;
-                const count = counts[ch.countKey] ?? 0;
-                return (
-                    <button
-                        key={ch.key}
-                        type="button"
-                        onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
-                        className={subItemClass(isSelected)}
-                    >
-                        <span className="truncate flex-1 text-left">{ch.label}</span>
-                        {count > 0 && (
-                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
-                        )}
-                    </button>
-                );
-            })}
-
-            {labels.length > 0 && (
-                <>
-                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-600 select-none">Tags</p>
-                    {labels.map(lbl => (
-                        <button
-                            key={lbl.id}
-                            type="button"
-                            onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
-                            className={subItemClass(String(filters.label) === String(lbl.id))}
-                        >
-                            <span className="truncate flex-1 text-left">{lbl.name}</span>
-                        </button>
-                    ))}
-                </>
-            )}
-        </>
-    );
+    const activeView = VIEWS.find(v => v.key === activeFolder && !activeChannel);
+    const activeChannelDef = CHANNELS.find(c => c.key === activeChannel);
+    const currentFilterLabel = activeChannelDef?.label ?? activeView?.label ?? 'All Conversations';
 
     return (
-        <InboxLayout sidebarExtra={sidebarExtra}>
+        <InboxLayout>
             <Head title="Unified Omnichannel Inbox — Growbridge Connect" />
 
             <div className="flex h-full overflow-hidden bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
@@ -229,7 +177,72 @@ export default function InboxIndex({
                 <div className="w-full md:w-80 lg:w-96 flex flex-col bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 shrink-0 overflow-hidden">
                     <div className="px-3 py-2.5 border-b border-neutral-200 dark:border-neutral-800">
                         <div className="flex items-center justify-between gap-2 mb-2">
-                            <h1 className="text-[13px] font-semibold text-neutral-900 dark:text-white">Conversations</h1>
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button type="button" className="flex items-center gap-1 text-[13px] font-semibold text-neutral-900 dark:text-white">
+                                        {currentFilterLabel}
+                                        <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content align="left" width="56">
+                                    {VIEWS.map(({ key, label, countKey }) => {
+                                        const isSelected = activeFolder === key && !activeChannel;
+                                        const count = counts[countKey] ?? 0;
+                                        return (
+                                            <button
+                                                key={label}
+                                                type="button"
+                                                onClick={() => handleFilterChange({ folder: key, channel: null })}
+                                                className={itemClass(isSelected)}
+                                            >
+                                                <span className="truncate flex-1">{label}</span>
+                                                {count > 0 && (
+                                                    <span className="text-xs text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+
+                                    <Dropdown.Divider />
+                                    <p className="px-4 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Channels</p>
+                                    {CHANNELS.map(ch => {
+                                        const isSelected = activeChannel === ch.key;
+                                        const count = counts[ch.countKey] ?? 0;
+                                        return (
+                                            <button
+                                                key={ch.key}
+                                                type="button"
+                                                onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
+                                                className={itemClass(isSelected)}
+                                            >
+                                                <ChannelBrandIcon channel={ch.icon} className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="truncate flex-1">{ch.label}</span>
+                                                {count > 0 && (
+                                                    <span className="text-xs text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+
+                                    {labels.length > 0 && (
+                                        <>
+                                            <Dropdown.Divider />
+                                            <p className="px-4 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Tags</p>
+                                            {labels.map(lbl => (
+                                                <button
+                                                    key={lbl.id}
+                                                    type="button"
+                                                    onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
+                                                    className={itemClass(String(filters.label) === String(lbl.id))}
+                                                >
+                                                    <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-neutral-400" />
+                                                    <span className="truncate flex-1">{lbl.name}</span>
+                                                </button>
+                                            ))}
+                                        </>
+                                    )}
+                                </Dropdown.Content>
+                            </Dropdown>
                             <button
                                 onClick={() => setShowNewModal(true)}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 text-white text-[11px] font-semibold shadow-sm transition"
