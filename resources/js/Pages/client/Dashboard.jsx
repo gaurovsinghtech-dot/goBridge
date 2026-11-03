@@ -9,8 +9,6 @@ import {
     Megaphone,
     Workflow,
     Bot,
-    UserPlus,
-    Share2,
     Sparkles,
     PhoneCall,
     Mail,
@@ -18,14 +16,12 @@ import {
     Sun,
     Moon,
     Bell,
-    ArrowUpRight,
     ArrowUp,
     ArrowDown,
     MoreHorizontal,
     CheckCircle2,
     Calendar,
     Radio,
-    Sliders,
     Key,
 } from 'lucide-react';
 import { ChannelBrandIcon } from '@/Components/BrandIcons';
@@ -128,10 +124,7 @@ export default function Dashboard({
     currentPlan = null,
     stats = null,
     messagesByChannel = [],
-    topChannels = [],
     recentActivity = [],
-    aiAgentStatus = null,
-    automationOverview = null,
     onboardingProgress = null,
 }) {
     const { t } = useTranslation();
@@ -162,7 +155,6 @@ export default function Dashboard({
     ];
 
     const channelData = messagesByChannel && messagesByChannel.length > 0 ? messagesByChannel : defaultChannels;
-    const topChannelData = topChannels && topChannels.length > 0 ? topChannels : defaultChannels;
 
     const defaultActivity = [
         { type: 'whatsapp', title: 'New WhatsApp message from +1 234 567 890', time: '2 min ago' },
@@ -173,19 +165,6 @@ export default function Dashboard({
     ];
 
     const activityData = recentActivity && recentActivity.length > 0 ? recentActivity : defaultActivity;
-
-    const aiAgent = aiAgentStatus || {
-        name: 'Sales Assistant',
-        status: 'active',
-        conversations: 32,
-        resolution_rate: '92%',
-    };
-
-    const autoOverview = automationOverview || {
-        active: 24,
-        completed_today: 128,
-        failed_today: 6,
-    };
 
     const initials = (() => {
         if (user?.name) return user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -324,8 +303,8 @@ export default function Dashboard({
                     />
                 </div>
 
-                {/* ── ROW 2: 3-WIDGET MIDDLE SECTION ────────────────────── */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {/* ── ROW 2: MESSAGES BY CHANNEL + RECENT ACTIVITY ──────── */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     {/* Card 1: Messages by Channel */}
                     <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col">
                         <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">
@@ -410,198 +389,6 @@ export default function Dashboard({
                         </div>
                     </div>
 
-                    {/* Card 3: Top Channels */}
-                    <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                                Top Channels
-                            </h2>
-                            <Link
-                                href={safeRoute('client.reports.inbox.index')}
-                                className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
-                            >
-                                View All
-                            </Link>
-                        </div>
-
-                        <div className="space-y-4 flex-1 justify-center flex flex-col">
-                            {topChannelData.map((c) => (
-                                <div key={c.key} className="space-y-1.5">
-                                    <div className="flex items-center justify-between text-xs">
-                                        <span className="font-medium text-neutral-800 dark:text-neutral-200">{c.name}</span>
-                                        <span className="font-semibold text-neutral-900 dark:text-white">{Number(c.count).toLocaleString()}</span>
-                                    </div>
-                                    <div className="w-full h-2 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
-                                        <div
-                                            className="h-full rounded-full transition-all duration-500"
-                                            style={{
-                                                width: `${c.bar_percent || c.percent}%`,
-                                                backgroundColor: c.color,
-                                            }}
-                                        />
-                                    </div>
-                                    <p className="text-[11px] text-neutral-400 dark:text-neutral-500">{c.percent}% of total volume</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── ROW 3: 3-WIDGET BOTTOM SECTION ────────────────────── */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                    {/* Card 1: Quick Actions */}
-                    <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col">
-                        <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-3">
-                            Quick Actions
-                        </h2>
-
-                        <div className="grid grid-cols-2 gap-2.5 flex-1">
-                            <Link
-                                href={safeRoute('client.campaigns.index')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <Megaphone className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">New Campaign</span>
-                            </Link>
-
-                            <Link
-                                href={safeRoute('client.automations.index')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <Workflow className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">New Automation</span>
-                            </Link>
-
-                            <Link
-                                href={safeRoute('client.contacts.index')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <UserPlus className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">Add Contact</span>
-                            </Link>
-
-                            <Link
-                                href={safeRoute('client.inbox.setup')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <Share2 className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">Connect Channel</span>
-                            </Link>
-
-                            <Link
-                                href={safeRoute('client.ai.chatbots.index')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <Bot className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">Create AI Agent</span>
-                            </Link>
-
-                            <Link
-                                href={safeRoute('client.api-tokens.index', '/api-tokens')}
-                                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition group text-center"
-                            >
-                                <div className="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition">
-                                    <Sliders className="h-3.5 w-3.5" />
-                                </div>
-                                <span className="text-[11px] font-medium text-neutral-700 dark:text-neutral-300">API & Connections</span>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Card 2: AI Agent Status */}
-                    <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between">
-                        <div>
-                            <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">
-                                AI Agent Status
-                            </h2>
-
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/70 dark:border-neutral-700/60">
-                                <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                    <Bot className="h-6 w-6" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <h3 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
-                                            {aiAgent.name}
-                                        </h3>
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300">
-                                            Active
-                                        </span>
-                                    </div>
-                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Omnichannel Smart Responder</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-neutral-100 dark:border-neutral-800 mt-3">
-                            <div>
-                                <span className="text-[11px] text-neutral-400 dark:text-neutral-500">Conversations</span>
-                                <div className="text-lg font-bold text-neutral-900 dark:text-white mt-0.5">
-                                    {aiAgent.conversations}
-                                </div>
-                            </div>
-                            <div>
-                                <span className="text-[11px] text-neutral-400 dark:text-neutral-500">Resolution Rate</span>
-                                <div className="text-lg font-bold text-neutral-900 dark:text-white mt-0.5">
-                                    {aiAgent.resolution_rate}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Card 3: Automation Overview */}
-                    <div className="bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs flex flex-col justify-between">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                                Automation Overview
-                            </h2>
-                            <Link
-                                href={safeRoute('client.automations.index')}
-                                className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
-                            >
-                                View All
-                            </Link>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-2 text-center py-3">
-                            <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50">
-                                <div className="text-2xl font-black text-neutral-900 dark:text-white">
-                                    {autoOverview.active}
-                                </div>
-                                <div className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 mt-1 leading-tight">
-                                    Active Automations
-                                </div>
-                            </div>
-
-                            <div className="p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20">
-                                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                                    {autoOverview.completed_today}
-                                </div>
-                                <div className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 mt-1 leading-tight">
-                                    Completed Today
-                                </div>
-                            </div>
-
-                            <div className="p-2.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/20">
-                                <div className="text-2xl font-black text-rose-600 dark:text-rose-400">
-                                    {autoOverview.failed_today}
-                                </div>
-                                <div className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 mt-1 leading-tight">
-                                    Failed Today
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </ClientLayout>
