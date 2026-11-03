@@ -93,7 +93,7 @@ function DeltaPill({ value }) {
 
 function KpiCard({ icon, iconClassName, label, value, delta }) {
     return (
-        <div className="bg-amber-100/70 dark:bg-neutral-900 p-4 rounded-2xl border border-amber-200/70 dark:border-amber-500/30 shadow-xs">
+        <div className="bg-amber-50 dark:bg-neutral-900 p-4 rounded-2xl border border-amber-200/70 dark:border-amber-500/30 shadow-xs">
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${iconClassName}`}>
@@ -299,7 +299,7 @@ export default function Dashboard({
                 {/* ── ROW 2: MESSAGES BY CHANNEL + RECENT ACTIVITY ──────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     {/* Card 1: Messages by Channel */}
-                    <div className="bg-amber-100/70 dark:bg-neutral-900 p-5 rounded-2xl border border-amber-200/80 dark:border-amber-500/30 shadow-xs flex flex-col">
+                    <div className="bg-amber-50 dark:bg-neutral-900 p-5 rounded-2xl border border-amber-200/80 dark:border-amber-500/30 shadow-xs flex flex-col">
                         <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">
                             Messages by Channel
                         </h2>
@@ -336,7 +336,7 @@ export default function Dashboard({
                     </div>
 
                     {/* Card 2: Recent Activity */}
-                    <div className="bg-amber-100/70 dark:bg-neutral-900 p-5 rounded-2xl border border-amber-200/80 dark:border-amber-500/30 shadow-xs flex flex-col">
+                    <div className="bg-amber-50 dark:bg-neutral-900 p-5 rounded-2xl border border-amber-200/80 dark:border-amber-500/30 shadow-xs flex flex-col">
                         <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-3">
                             Recent Activity
                         </h2>
