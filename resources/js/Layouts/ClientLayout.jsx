@@ -220,7 +220,7 @@ function ClientLayoutFooter() {
     );
 }
 
-export default function ClientLayout({ header, children, title }) {
+export default function ClientLayout({ header, children, title, topbarRight }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, onesignal } = usePage().props;
@@ -310,6 +310,7 @@ footer={<ClientLayoutFooter />}
                     showLogo={false}
                     title={title}
                     unreadCount={unreadCount}
+                    extra={topbarRight}
                 />
                 <UsageBanner usage={current_workspace_usage} />
 

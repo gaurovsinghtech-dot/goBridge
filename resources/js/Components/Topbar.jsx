@@ -20,6 +20,7 @@ export default function Topbar({
     showWorkspace = true,
     showGlobalSearch = false,
     unreadCount: externalUnreadCount,
+    extra,
 }) {
     const { t } = useTranslation();
     const page = usePage();
@@ -122,7 +123,9 @@ export default function Topbar({
                 )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-2">
+                {extra}
+
                 {/* Notification bell */}
                 {(user || adminUser) && (
                     <div className="relative" ref={notifRef}>

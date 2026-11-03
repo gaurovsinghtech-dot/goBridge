@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ClientLayout from '@/Layouts/ClientLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import {
     Users,
@@ -177,77 +177,56 @@ export default function Dashboard({
 
     const rangeLabel = range === 7 ? 'May 20, 2025 - May 26, 2025' : range === 90 ? 'Last 90 Days' : 'May 20, 2025 - May 26, 2025';
 
+    const dateRangePicker = (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setRangeDropdownOpen(!rangeDropdownOpen)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-750 border border-neutral-200 dark:border-neutral-700 transition shadow-2xs"
+            >
+                <Calendar className="h-3.5 w-3.5 text-neutral-500" />
+                <span>{rangeLabel}</span>
+                <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+            </button>
+
+            {rangeDropdownOpen && (
+                <div className="absolute right-0 mt-1.5 w-48 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-lg py-1 z-30">
+                    <button
+                        onClick={() => handleRangeSelect(7)}
+                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                    >
+                        Last 7 Days (May 20 - May 26)
+                    </button>
+                    <button
+                        onClick={() => handleRangeSelect(30)}
+                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                    >
+                        Last 30 Days
+                    </button>
+                    <button
+                        onClick={() => handleRangeSelect(90)}
+                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                    >
+                        Last 90 Days
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <ClientLayout title="Dashboard">
+        <ClientLayout title="Dashboard" topbarRight={dateRangePicker}>
             <Head title="Dashboard - Growbridge Connect" />
 
             <div className="space-y-6 max-w-7xl mx-auto pb-8">
                 {/* ── TOP HERO HEADER BAR ────────────────────────────────── */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
-                            Welcome back, <span className="text-brand-600 dark:text-brand-400">{user?.name ? user.name.split(' ')[0] : 'User'}</span> 👋
-                        </h1>
-                        <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                            Here's what's happening with your omnichannel messaging, AI agents, and campaigns today.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-                        {/* Date Range Picker */}
-                        <div className="relative">
-                            <button
-                                type="button"
-                                onClick={() => setRangeDropdownOpen(!rangeDropdownOpen)}
-                                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-750 border border-neutral-200 dark:border-neutral-700 transition shadow-2xs"
-                            >
-                                <Calendar className="h-3.5 w-3.5 text-neutral-500" />
-                                <span>{rangeLabel}</span>
-                                <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
-                            </button>
-
-                            {rangeDropdownOpen && (
-                                <div className="absolute right-0 mt-1.5 w-48 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-lg py-1 z-30">
-                                    <button
-                                        onClick={() => handleRangeSelect(7)}
-                                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                                    >
-                                        Last 7 Days (May 20 - May 26)
-                                    </button>
-                                    <button
-                                        onClick={() => handleRangeSelect(30)}
-                                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                                    >
-                                        Last 30 Days
-                                    </button>
-                                    <button
-                                        onClick={() => handleRangeSelect(90)}
-                                        className="w-full text-left px-4 py-2 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                                    >
-                                        Last 90 Days
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Quick Action: New Campaign */}
-                        <Link
-                            href={safeRoute('client.campaigns.create')}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-xs transition"
-                        >
-                            <Megaphone className="h-3.5 w-3.5" />
-                            <span>New Campaign</span>
-                        </Link>
-
-                        {/* Quick Action: Inbox */}
-                        <Link
-                            href={safeRoute('client.inbox')}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 transition"
-                        >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            <span>Inbox</span>
-                        </Link>
-                    </div>
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
+                        Welcome back, <span className="text-brand-600 dark:text-brand-400">{user?.name ? user.name.split(' ')[0] : 'User'}</span> 👋
+                    </h1>
+                    <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                        Here's what's happening with your omnichannel messaging, AI agents, and campaigns today.
+                    </p>
                 </div>
 
                 {/* ── ROW 1: 6-CARD KPI GRID ────────────────────────────── */}
