@@ -18,7 +18,6 @@ import {
     Bell,
     ArrowUp,
     ArrowDown,
-    MoreHorizontal,
     CheckCircle2,
     Calendar,
     Radio,
@@ -94,16 +93,11 @@ function DeltaPill({ value }) {
 function KpiCard({ icon, iconClassName, label, value, delta }) {
     return (
         <div className="bg-amber-50 dark:bg-neutral-900 p-4 rounded-2xl border border-amber-200/70 dark:border-amber-500/30 shadow-xs">
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${iconClassName}`}>
-                        {icon}
-                    </div>
-                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">{label}</span>
+            <div className="flex items-center gap-2 min-w-0">
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${iconClassName}`}>
+                    {icon}
                 </div>
-                <button type="button" className="shrink-0 text-neutral-300 hover:text-neutral-500 dark:text-neutral-700 dark:hover:text-neutral-400 transition">
-                    <MoreHorizontal className="h-4 w-4" />
-                </button>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">{label}</span>
             </div>
             <div className="mt-3 flex items-end gap-2">
                 <span className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
@@ -215,7 +209,7 @@ export default function Dashboard({
     );
 
     return (
-        <ClientLayout title="Dashboard" topbarRight={dateRangePicker}>
+        <ClientLayout topbarRight={dateRangePicker}>
             <Head title="Dashboard - Growbridge Connect" />
 
             <div className="space-y-6 max-w-7xl mx-auto pb-8">
