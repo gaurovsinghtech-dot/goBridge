@@ -100,7 +100,7 @@ export default function Sidebar({
     const { appName, logoUrl } = useBranding();
 
     const content = (
-        <aside className="flex h-full w-64 flex-col bg-neutral-50/60 dark:bg-neutral-900 border-r border-neutral-200/70 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
+        <aside className="flex h-full w-64 flex-col bg-amber-50 dark:bg-neutral-900 border-r border-amber-200/60 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
             {/* Brand header */}
             <div className="flex h-14 shrink-0 items-center gap-2.5 px-3.5">
                 {logo ? (
