@@ -54,10 +54,10 @@ function ConversationListItem({ conv, isActive, userTz }) {
             href={route('client.inbox.show', conv.uuid)}
             className={`group block px-3 py-2.5 transition-colors ${
                 isActive
-                    ? 'bg-blue-50 dark:bg-blue-950/30 border-l-[3px] border-l-blue-600'
+                    ? 'bg-brand-50 dark:bg-brand-950/30 border-l-[3px] border-l-brand-600'
                     : isUnread
-                        ? 'bg-blue-50/40 dark:bg-neutral-800/50 border-l-[3px] border-l-transparent'
-                        : 'border-l-[3px] border-l-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
+                        ? 'bg-amber-50/60 dark:bg-neutral-800/50 border-l-[3px] border-l-transparent'
+                        : 'border-l-[3px] border-l-transparent hover:bg-amber-50/40 dark:hover:bg-neutral-800/40'
             }`}
         >
             <div className="flex items-center gap-2.5">
@@ -85,7 +85,7 @@ function ConversationListItem({ conv, isActive, userTz }) {
                             {lastMsg.direction === 'out' && (
                                 <span className="shrink-0 text-neutral-400">
                                     {lastMsg.status === 'read' ? (
-                                        <CheckCheck className="w-3 h-3 text-blue-500" />
+                                        <CheckCheck className="w-3 h-3 text-brand-500" />
                                     ) : (
                                         <Check className="w-3 h-3" />
                                     )}
@@ -97,12 +97,12 @@ function ConversationListItem({ conv, isActive, userTz }) {
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                             {isBot && (
-                                <span className="inline-flex items-center gap-0.5 px-1 py-px rounded text-[9px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                                    <span className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />AI
+                                <span className="inline-flex items-center gap-0.5 px-1 py-px rounded text-[9px] font-bold bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
+                                    <span className="h-1 w-1 rounded-full bg-brand-500 animate-pulse" />AI
                                 </span>
                             )}
                             {isUnread && (
-                                <span className="h-4.5 min-w-4.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center px-1">
+                                <span className="h-4.5 min-w-4.5 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center px-1">
                                     {conv.unread_count > 99 ? '99+' : conv.unread_count}
                                 </span>
                             )}
@@ -160,11 +160,11 @@ export default function InboxIndex({
         <InboxLayout>
             <Head title="Unified Omnichannel Inbox — Growbridge Connect" />
 
-            <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
+            <div className="flex h-full overflow-hidden gap-3 p-3 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
                 {/* 1. LEFT COLUMN: CHANNELS & FILTERS SIDEBAR */}
-                <div className="w-52 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden md:flex">
+                <div className="w-52 shrink-0 flex flex-col h-full bg-amber-50 dark:bg-neutral-900 border border-amber-200/70 dark:border-amber-500/30 rounded-2xl shadow-xs overflow-y-auto hidden md:flex">
                     {/* Header */}
-                    <div className="px-3 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                    <div className="px-3 py-3 border-b border-amber-200/70 dark:border-neutral-800 flex items-center justify-between">
                         <h2 className="text-[11px] font-bold text-neutral-900 dark:text-white uppercase tracking-widest">Inbox</h2>
                         <Link
                             href={route('client.inbox.setup')}
@@ -188,8 +188,8 @@ export default function InboxIndex({
                                     onClick={() => handleFilterChange({ folder: key, channel: null })}
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
-                                            ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                            ? 'bg-neutral-900 text-white font-semibold shadow-sm dark:bg-white dark:text-neutral-900'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-amber-100/60 dark:hover:bg-neutral-800 font-medium'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -198,7 +198,7 @@ export default function InboxIndex({
                                     </div>
                                     {count > 0 && (
                                         <span className={`text-[10px] font-semibold tabular-nums ${
-                                            isSelected ? 'text-blue-100' : 'text-neutral-400 dark:text-neutral-500'
+                                            isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500'
                                         }`}>
                                             {count}
                                         </span>
@@ -208,7 +208,7 @@ export default function InboxIndex({
                         })}
                     </div>
 
-                    <hr className="border-neutral-200 dark:border-neutral-800 mx-3" />
+                    <hr className="border-amber-200/70 dark:border-neutral-800 mx-3" />
 
                     {/* Channels */}
                     <div className="px-2 pt-3 pb-2 space-y-0.5">
@@ -223,8 +223,8 @@ export default function InboxIndex({
                                     onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
-                                            ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                            ? 'bg-neutral-900 text-white font-semibold shadow-sm dark:bg-white dark:text-neutral-900'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-amber-100/60 dark:hover:bg-neutral-800 font-medium'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -233,7 +233,7 @@ export default function InboxIndex({
                                     </div>
                                     {count > 0 && (
                                         <span className={`text-[10px] font-semibold tabular-nums ${
-                                            isSelected ? 'text-blue-100' : 'text-neutral-400 dark:text-neutral-500'
+                                            isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500'
                                         }`}>
                                             {count}
                                         </span>
@@ -246,7 +246,7 @@ export default function InboxIndex({
                     {/* Tags / Labels */}
                     {labels.length > 0 && (
                         <>
-                            <hr className="border-neutral-200 dark:border-neutral-800 mx-3" />
+                            <hr className="border-amber-200/70 dark:border-neutral-800 mx-3" />
                             <div className="px-2 pt-3 pb-2 space-y-0.5">
                                 <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 px-2 mb-1.5">Tags</p>
                                 {labels.map(lbl => (
@@ -255,11 +255,11 @@ export default function InboxIndex({
                                         onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
                                         className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                             String(filters.label) === String(lbl.id)
-                                                ? 'bg-blue-50 dark:bg-neutral-800 text-blue-700 dark:text-blue-300 font-semibold'
-                                                : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                                ? 'bg-brand-50 dark:bg-neutral-800 text-brand-700 dark:text-brand-300 font-semibold'
+                                                : 'text-neutral-600 dark:text-neutral-300 hover:bg-amber-100/60 dark:hover:bg-neutral-800 font-medium'
                                         }`}
                                     >
-                                        <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-blue-500" />
+                                        <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-brand-500" />
                                         <span className="truncate">{lbl.name}</span>
                                     </button>
                                 ))}
@@ -269,13 +269,13 @@ export default function InboxIndex({
                 </div>
 
                 {/* 2. CENTER COLUMN: CONVERSATION LIST */}
-                <div className="w-full md:w-80 lg:w-96 flex flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0">
-                    <div className="px-3 py-2.5 border-b border-neutral-200 dark:border-neutral-800">
+                <div className="w-full md:w-80 lg:w-96 flex flex-col bg-amber-50 dark:bg-neutral-900 border border-amber-200/70 dark:border-amber-500/30 rounded-2xl shadow-xs shrink-0 overflow-hidden">
+                    <div className="px-3 py-2.5 border-b border-amber-200/70 dark:border-neutral-800">
                         <div className="flex items-center justify-between gap-2 mb-2">
                             <h1 className="text-[13px] font-semibold text-neutral-900 dark:text-white">Conversations</h1>
                             <button
                                 onClick={() => setShowNewModal(true)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold shadow-sm transition"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-semibold shadow-sm transition"
                             >
                                 <Plus className="w-3 h-3" /> New
                             </button>
@@ -288,7 +288,7 @@ export default function InboxIndex({
                                 value={search}
                                 onChange={e => handleSearchChange(e.target.value)}
                                 placeholder="Search conversations..."
-                                className="w-full text-[12px] bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg pl-8 pr-7 py-1.5 text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-neutral-400 dark:placeholder-neutral-500 transition"
+                                className="w-full text-[12px] bg-white dark:bg-neutral-800 border border-amber-200/70 dark:border-neutral-700 rounded-lg pl-8 pr-7 py-1.5 text-neutral-900 dark:text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder-neutral-400 dark:placeholder-neutral-500 transition"
                             />
                             {search && (
                                 <button
@@ -328,8 +328,8 @@ export default function InboxIndex({
                 </div>
 
                 {/* 3. RIGHT COLUMN: EMPTY STATE */}
-                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-neutral-50 dark:bg-neutral-950">
-                    <div className="h-11 w-11 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-blue-500 flex items-center justify-center mb-3">
+                <div className="hidden md:flex flex-1 flex-col items-center justify-center p-8 text-center bg-amber-50 dark:bg-neutral-900 border border-amber-200/70 dark:border-amber-500/30 rounded-2xl shadow-xs">
+                    <div className="h-11 w-11 rounded-xl bg-white dark:bg-neutral-900 border border-amber-200/70 dark:border-neutral-800 text-brand-500 flex items-center justify-center mb-3">
                         <MessageSquare className="w-5 h-5" />
                     </div>
                     <h2 className="text-sm font-semibold text-neutral-800 dark:text-white">Select a conversation</h2>
@@ -338,7 +338,7 @@ export default function InboxIndex({
                     </p>
                     <button
                         onClick={() => setShowNewModal(true)}
-                        className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold shadow-sm transition"
+                        className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-[12px] font-semibold shadow-sm transition"
                     >
                         <Plus className="w-3.5 h-3.5" /> New Conversation
                     </button>

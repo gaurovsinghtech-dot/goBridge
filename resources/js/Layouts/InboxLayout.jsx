@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster, toast } from 'sonner';
 import Sidebar from '@/Components/Sidebar';
+import Topbar from '@/Components/Topbar';
 import UpgradeModal from '@/Components/UpgradeModal';
 import useClientNav from '@/Layouts/useClientNav';
 
-export default function InboxLayout({ children }) {
+export default function InboxLayout({ children, title }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, demo_mode } = usePage().props;
@@ -45,7 +46,7 @@ export default function InboxLayout({ children }) {
     };
 
     return (
-        <div className="h-screen overflow-hidden bg-neutral-50 dark:bg-neutral-950 flex flex-col">
+        <div className="h-screen overflow-hidden bg-white dark:bg-neutral-950 flex flex-col">
             {impersonation?.active && (
                 <div className="flex items-center justify-between gap-4 bg-amber-500/90 text-white px-4 py-2 text-sm font-medium shrink-0">
                     <span>{t('impersonation.impersonating', { name: impersonation.clientName })}</span>
@@ -73,7 +74,10 @@ export default function InboxLayout({ children }) {
                 />
 
                 <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64 flex-1 overflow-hidden flex flex-col">
-                    {children}
+                    <Topbar showLogo={false} title={title} unreadCount={unreadCount} />
+                    <div className="flex-1 overflow-hidden flex flex-col">
+                        {children}
+                    </div>
                 </div>
             </div>
 
