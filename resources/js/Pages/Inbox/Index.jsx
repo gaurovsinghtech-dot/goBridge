@@ -156,104 +156,62 @@ export default function InboxIndex({
         ? conversations
         : (Array.isArray(conversations?.data) ? conversations.data : []);
 
+    const subItemClass = (isSelected) => [
+        'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+        isSelected
+            ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
+            : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+    ].join(' ');
+
     const sidebarExtra = (
-        <div className="mt-2">
-            <div className="mb-0.5">
-                <p className="flex w-full items-center gap-1 px-2 py-1.5 mt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 select-none">Views</p>
-                <div className="space-y-px">
-                    {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
-                        const isSelected = activeFolder === key && !activeChannel;
-                        const count = counts[countKey] ?? 0;
+        <>
+            {VIEWS.map(({ key, label, countKey }) => {
+                const isSelected = activeFolder === key && !activeChannel;
+                const count = counts[countKey] ?? 0;
+                return (
+                    <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleFilterChange({ folder: key, channel: null })}
+                        className={subItemClass(isSelected)}
+                    >
+                        <span className="truncate flex-1 text-left">{label}</span>
+                        {count > 0 && (
+                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                        )}
+                    </button>
+                );
+            })}
 
-                        return (
-                            <button
-                                key={label}
-                                type="button"
-                                onClick={() => handleFilterChange({ folder: key, channel: null })}
-                                className={[
-                                    'group flex w-full items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
-                                    isSelected
-                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
-                                ].join(' ')}
-                            >
-                                <Icon className={[
-                                    'h-4 w-4 shrink-0 transition-colors duration-100',
-                                    isSelected ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
-                                ].join(' ')} />
-                                <span className="truncate flex-1 text-left">{label}</span>
-                                {count > 0 && (
-                                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500'}`}>
-                                        {count}
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+            {CHANNELS.map(ch => {
+                const isSelected = activeChannel === ch.key;
+                const count = counts[ch.countKey] ?? 0;
+                return (
+                    <button
+                        key={ch.key}
+                        type="button"
+                        onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
+                        className={subItemClass(isSelected)}
+                    >
+                        <span className="truncate flex-1 text-left">{ch.label}</span>
+                        {count > 0 && (
+                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                        )}
+                    </button>
+                );
+            })}
 
-            <div className="mb-0.5">
-                <p className="flex w-full items-center gap-1 px-2 py-1.5 mt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 select-none">Channels</p>
-                <div className="space-y-px">
-                    {CHANNELS.map(ch => {
-                        const isSelected = activeChannel === ch.key;
-                        const count = counts[ch.countKey] ?? 0;
-
-                        return (
-                            <button
-                                key={ch.key}
-                                type="button"
-                                onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
-                                className={[
-                                    'group flex w-full items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
-                                    isSelected
-                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
-                                ].join(' ')}
-                            >
-                                <span className={[
-                                    'shrink-0 transition-colors duration-100',
-                                    isSelected ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
-                                ].join(' ')}>
-                                    <ChannelBrandIcon channel={ch.icon} className="h-4 w-4" />
-                                </span>
-                                <span className="truncate flex-1 text-left">{ch.label}</span>
-                                {count > 0 && (
-                                    <span className={`text-[11px] font-medium shrink-0 ${isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500'}`}>
-                                        {count}
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {labels.length > 0 && (
-                <div className="mb-0.5">
-                    <p className="flex w-full items-center gap-1 px-2 py-1.5 mt-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 select-none">Tags</p>
-                    <div className="space-y-px">
-                        {labels.map(lbl => (
-                            <button
-                                key={lbl.id}
-                                type="button"
-                                onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
-                                className={[
-                                    'group flex w-full items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
-                                    String(filters.label) === String(lbl.id)
-                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
-                                ].join(' ')}
-                            >
-                                <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-neutral-400" />
-                                <span className="truncate">{lbl.name}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
+            {labels.map(lbl => (
+                <button
+                    key={lbl.id}
+                    type="button"
+                    onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
+                    className={subItemClass(String(filters.label) === String(lbl.id))}
+                >
+                    <span className="truncate flex-1 text-left">{lbl.name}</span>
+                </button>
+            ))}
+        </>
     );
 
     return (

@@ -71,7 +71,8 @@ export default function InboxLayout({ children, title, sidebarExtra }) {
                             active: () => item.activePattern ? route().current(item.activePattern) : false,
                         }))
                     }))}
-                    extra={sidebarExtra}
+                    expandedItemKey="client.inbox.*"
+                    expandedContent={sidebarExtra}
                 />
 
                 <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64 flex-1 overflow-hidden flex flex-col">

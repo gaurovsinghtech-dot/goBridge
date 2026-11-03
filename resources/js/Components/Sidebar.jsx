@@ -25,7 +25,7 @@ function checkIsActive(item) {
     return false;
 }
 
-function NavGroup({ label, items, onClose }) {
+function NavGroup({ label, items, onClose, expandedItemKey, expandedContent }) {
     const [open, setOpen] = useState(true);
 
     return (
@@ -50,34 +50,42 @@ function NavGroup({ label, items, onClose }) {
                 <div id={`nav-group-${label.replace(/\s+/g, '-').toLowerCase()}`} className="space-y-px">
                     {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
+                        const itemKey = item.key ?? item.route ?? item.href ?? i;
+                        const isExpanded = expandedContent && expandedItemKey && itemKey === expandedItemKey;
                         return (
-                            <Link
-                                key={item.key ?? item.route ?? item.href ?? i}
-                                href={item.href ?? (item.route ? route(item.route) : '#')}
-                                onClick={onClose}
-                                data-tour={item.dataTour}
-                                className={[
-                                    'group flex items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
-                                    isActive
-                                        ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                        : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
-                                ].join(' ')}
-                            >
-                                {item.icon && (
-                                    <span className={[
-                                        'shrink-0 transition-colors duration-100',
-                                        isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
-                                    ].join(' ')}>
-                                        {item.icon}
-                                    </span>
+                            <div key={itemKey}>
+                                <Link
+                                    href={item.href ?? (item.route ? route(item.route) : '#')}
+                                    onClick={onClose}
+                                    data-tour={item.dataTour}
+                                    className={[
+                                        'group flex items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
+                                        isActive
+                                            ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
+                                            : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                    ].join(' ')}
+                                >
+                                    {item.icon && (
+                                        <span className={[
+                                            'shrink-0 transition-colors duration-100',
+                                            isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
+                                        ].join(' ')}>
+                                            {item.icon}
+                                        </span>
+                                    )}
+                                    <span className="truncate">{item.label}</span>
+                                    {item.badge ? (
+                                        <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
+                                            {item.badge}
+                                        </span>
+                                    ) : null}
+                                </Link>
+                                {isExpanded && (
+                                    <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
+                                        {expandedContent}
+                                    </div>
                                 )}
-                                <span className="truncate">{item.label}</span>
-                                {item.badge ? (
-                                    <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
-                                        {item.badge}
-                                    </span>
-                                ) : null}
-                            </Link>
+                            </div>
                         );
                     })}
                 </div>
@@ -95,7 +103,8 @@ export default function Sidebar({
     title,
     logo,
     showCreateButton = true,
-    extra,
+    expandedItemKey,
+    expandedContent,
 }) {
     const { t } = useTranslation();
     const { appName, logoUrl } = useBranding();
@@ -170,10 +179,10 @@ export default function Sidebar({
                             label={group.label}
                             items={group.items ?? []}
                             onClose={onClose}
+                            expandedItemKey={expandedItemKey}
+                            expandedContent={expandedContent}
                         />
                     ))}
-
-                {extra}
             </nav>
 
             {footer && (
