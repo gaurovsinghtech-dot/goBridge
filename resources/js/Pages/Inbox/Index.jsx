@@ -189,7 +189,7 @@ export default function InboxIndex({
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
                                             ? 'bg-neutral-900 text-white font-semibold shadow-sm dark:bg-white dark:text-neutral-900'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 font-medium'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -224,7 +224,7 @@ export default function InboxIndex({
                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                         isSelected
                                             ? 'bg-neutral-900 text-white font-semibold shadow-sm dark:bg-white dark:text-neutral-900'
-                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                            : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 font-medium'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
@@ -256,7 +256,7 @@ export default function InboxIndex({
                                         className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] transition ${
                                             String(filters.label) === String(lbl.id)
                                                 ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold'
-                                                : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium'
+                                                : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 font-medium'
                                         }`}
                                     >
                                         <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-neutral-400" />
