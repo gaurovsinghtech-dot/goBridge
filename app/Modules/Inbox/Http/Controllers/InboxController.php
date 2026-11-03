@@ -45,6 +45,31 @@ class InboxController extends Controller
         $this->llmGateway = $llmGateway ?? app(LlmGateway::class);
     }
 
+    /**
+     * Apply the same channel-matching logic used by the conversation list query
+     * to a count query, so view counts (All/Unread/Assigned to Me/etc.) reflect
+     * the currently selected channel filter instead of always showing totals.
+     */
+    private function scopeByChannel($query, ?string $channel)
+    {
+        if (! $channel || $channel === 'all') {
+            return $query;
+        }
+
+        if (in_array($channel, ['calls', 'voice', 'phone'], true)) {
+            return $query->where(function ($sq) {
+                $sq->whereIn('channel', ['phone', 'voice', 'calls'])
+                   ->orWhereHas('channelAccount', fn ($ca) => $ca->whereIn('channel', ['phone', 'voice', 'calls']))
+                   ->orWhereHas('contact.voiceCalls');
+            });
+        }
+
+        return $query->where(function ($sq) use ($channel) {
+            $sq->where('channel', $channel)
+               ->orWhereHas('channelAccount', fn ($ca) => $ca->where('channel', $channel));
+        });
+    }
+
     public function index(Request $request): Response
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
@@ -97,12 +122,12 @@ class InboxController extends Controller
         $channelAccounts = $this->getActiveChannelAccounts((int) $workspaceId);
 
         $counts = [
-            'all' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
-            'unread' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('unread_count', '>', 0)->count(),
-            'mine' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('assigned_user_id', $userId)->count(),
-            'ai' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->whereIn('assigned_to', ['bot', 'ai'])->count(),
-            'open' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
-            'closed' => Conversation::where('workspace_id', $workspaceId)->where('status', 'resolved')->count(),
+            'all' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open'), $channel)->count(),
+            'unread' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('unread_count', '>', 0), $channel)->count(),
+            'mine' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('assigned_user_id', $userId), $channel)->count(),
+            'ai' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->whereIn('assigned_to', ['bot', 'ai']), $channel)->count(),
+            'open' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open'), $channel)->count(),
+            'closed' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'resolved'), $channel)->count(),
             'whatsapp' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'whatsapp')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'whatsapp')))->count(),
             'instagram' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'instagram')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'instagram')))->count(),
             'messenger' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'messenger')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'messenger')))->count(),
@@ -228,12 +253,12 @@ class InboxController extends Controller
             ->get();
 
         $counts = [
-            'all' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
-            'unread' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('unread_count', '>', 0)->count(),
-            'mine' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('assigned_user_id', $userId)->count(),
-            'ai' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->whereIn('assigned_to', ['bot', 'ai'])->count(),
-            'open' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
-            'closed' => Conversation::where('workspace_id', $workspaceId)->where('status', 'resolved')->count(),
+            'all' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open'), $channel)->count(),
+            'unread' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('unread_count', '>', 0), $channel)->count(),
+            'mine' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('assigned_user_id', $userId), $channel)->count(),
+            'ai' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->whereIn('assigned_to', ['bot', 'ai']), $channel)->count(),
+            'open' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'open'), $channel)->count(),
+            'closed' => $this->scopeByChannel(Conversation::where('workspace_id', $workspaceId)->where('status', 'resolved'), $channel)->count(),
             'whatsapp' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'whatsapp')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'whatsapp')))->count(),
             'instagram' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'instagram')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'instagram')))->count(),
             'messenger' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where(fn ($q) => $q->where('channel', 'messenger')->orWhereHas('channelAccount', fn ($q) => $q->where('channel', 'messenger')))->count(),
