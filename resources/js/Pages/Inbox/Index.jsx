@@ -183,6 +183,7 @@ export default function InboxIndex({
                 );
             })}
 
+            <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-600 select-none">Channels</p>
             {CHANNELS.map(ch => {
                 const isSelected = activeChannel === ch.key;
                 const count = counts[ch.countKey] ?? 0;
@@ -201,16 +202,21 @@ export default function InboxIndex({
                 );
             })}
 
-            {labels.map(lbl => (
-                <button
-                    key={lbl.id}
-                    type="button"
-                    onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
-                    className={subItemClass(String(filters.label) === String(lbl.id))}
-                >
-                    <span className="truncate flex-1 text-left">{lbl.name}</span>
-                </button>
-            ))}
+            {labels.length > 0 && (
+                <>
+                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-600 select-none">Tags</p>
+                    {labels.map(lbl => (
+                        <button
+                            key={lbl.id}
+                            type="button"
+                            onClick={() => handleFilterChange({ label: filters.label === String(lbl.id) ? null : lbl.id })}
+                            className={subItemClass(String(filters.label) === String(lbl.id))}
+                        >
+                            <span className="truncate flex-1 text-left">{lbl.name}</span>
+                        </button>
+                    ))}
+                </>
+            )}
         </>
     );
 
