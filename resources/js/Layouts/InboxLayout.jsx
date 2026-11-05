@@ -30,7 +30,18 @@ export default function InboxLayout({ children, title }) {
     const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, demo_mode, filters, counts, conversation } = usePage().props;
     const logoUrl = branding?.logo_url;
     const [unreadCount, setUnreadCount] = useState(unreadNotificationsCount ?? 0);
+    const [navigating, setNavigating] = useState(false);
     const clientNavGroups = useClientNav();
+
+    useEffect(() => {
+        const stop = router.on('start', (event) => {
+            if (event.detail.visit.method === 'get') setNavigating(true);
+        });
+        const finish = router.on('finish', (event) => {
+            if (event.detail.visit.method === 'get') setNavigating(false);
+        });
+        return () => { stop(); finish(); };
+    }, []);
 
     const hasInboxFilters = filters !== undefined;
     const activeFolder = filters?.folder || null;
@@ -130,7 +141,12 @@ export default function InboxLayout({ children, title }) {
                     expandedContent={sidebarExtra}
                 />
 
-                <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64 flex-1 overflow-hidden flex flex-col">
+                <div className="lg:pl-64 rtl:lg:pl-0 rtl:lg:pr-64 flex-1 overflow-hidden flex flex-col relative">
+                    {navigating && (
+                        <div className="absolute top-0 left-0 right-0 h-0.5 z-50 overflow-hidden bg-transparent">
+                            <div className="h-full w-full bg-amber-500 dark:bg-amber-400 animate-inbox-progress" />
+                        </div>
+                    )}
                     <Topbar showLogo={false} title={title} unreadCount={unreadCount} />
                     <div className="flex-1 overflow-hidden flex flex-col">
                         {children}

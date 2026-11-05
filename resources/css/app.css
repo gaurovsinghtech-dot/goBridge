@@ -276,6 +276,16 @@ body {
     animation: pulse-logo 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Thin top progress bar for in-app inbox navigations */
+@keyframes inbox-progress {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+}
+.animate-inbox-progress {
+    animation: inbox-progress 1s ease-in-out infinite;
+}
+
 /* RTL: logical spacing where needed (Tailwind rtl: variant used in components) */
 [dir="rtl"] .text-left {
     text-align: right;

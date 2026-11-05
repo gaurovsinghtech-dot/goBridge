@@ -51,8 +51,14 @@ router.on('invalid', (event) => {
 // (clicking a <Link>, a sidebar item, etc). POST/PUT/PATCH/DELETE visits are almost
 // always in-place actions (sync, delete, verify, save) that already show their own
 // local button/spinner feedback; covering those too would just add flicker.
+//
+// Inbox navigations (opening a conversation, switching folders) stay inside the
+// persistent InboxLayout — the sidebar/topbar never unmount — so a full-screen
+// white/blurred overlay there reads as a page reload rather than a fast in-app
+// transition. Skip the overlay for anything under /app/inbox.
 router.on('start', (event) => {
-    if (event.detail.visit.method === 'get') {
+    const isInboxVisit = event.detail.visit.url.pathname.startsWith('/app/inbox');
+    if (event.detail.visit.method === 'get' && !isInboxVisit) {
         setNavigationLoading(true);
     }
 });
