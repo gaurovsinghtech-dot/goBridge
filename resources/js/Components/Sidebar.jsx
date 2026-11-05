@@ -65,7 +65,8 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                     <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-300 dark:text-neutral-600 transition-transform duration-150 ${open ? 'rotate-180' : '-rotate-90'}`} />
                 </button>
             )}
-            {open && (
+            <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
             <div className={['space-y-0.5', type === 'group' ? 'ml-[23px] pl-3 border-l border-neutral-200/80 dark:border-neutral-800 py-0.5' : ''].join(' ')}>
                 {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
@@ -117,16 +118,21 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                         </button>
                                     )}
                                 </div>
-                                {isExpanded && !expandedCollapsed && (
-                                    <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
-                                        {expandedContent}
+                                {isExpanded && (
+                                    <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${expandedCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'}`}>
+                                        <div className="overflow-hidden">
+                                            <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
+                                                {expandedContent}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         );
                 })}
             </div>
-            )}
+            </div>
+            </div>
 
             {flyout && createPortal(
                 <div
