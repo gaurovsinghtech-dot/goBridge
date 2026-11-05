@@ -6,6 +6,7 @@ import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
 import UpgradeModal from '@/Components/UpgradeModal';
 import useClientNav from '@/Layouts/useClientNav';
+import { ClientLayoutFooter } from '@/Layouts/ClientLayout';
 
 const VIEWS = [
     { key: null,     label: 'All Conversations', countKey: 'all' },
@@ -116,6 +117,7 @@ export default function InboxLayout({ children, title }) {
                     title={t('client.panel') || 'Client Panel'}
                     logo={logoUrl ? <img src={logoUrl} alt="Logo" className="h-8 max-w-[160px] object-contain" /> : null}
                     showCreateButton={false}
+                    footer={<ClientLayoutFooter />}
                     navGroups={clientNavGroups.map(group => ({
                         ...group,
                         items: group.items.map(item => ({

@@ -83,7 +83,7 @@ function UsageBanner({ usage }) {
     );
 }
 
-function ClientLayoutFooter() {
+export function ClientLayoutFooter() {
     const { t } = useTranslation();
     const { auth } = usePage().props;
     const user = auth?.user;
