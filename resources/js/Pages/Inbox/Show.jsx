@@ -752,88 +752,40 @@ export default function InboxShow({
         : (Array.isArray(conversations?.data) ? conversations.data : []);
     const assignedUser = teamMembers.find(m => m.id === assignedUserId);
 
+    const subItemClass = (isSelected) => [
+        'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+        isSelected
+            ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
+            : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+    ].join(' ');
+
+    const sidebarExtra = (
+        <>
+            {VIEWS.map(({ key, label, countKey }) => {
+                const isSelected = (filters.folder || null) === key && !filters.channel;
+                const count = counts[countKey] ?? 0;
+                return (
+                    <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleFilterChange({ folder: key, channel: null })}
+                        className={subItemClass(isSelected)}
+                    >
+                        <span className="truncate flex-1 text-left">{label}</span>
+                        {count > 0 && (
+                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                        )}
+                    </button>
+                );
+            })}
+        </>
+    );
+
     return (
-        <InboxLayout>
+        <InboxLayout sidebarExtra={sidebarExtra}>
             <Head title={`${contactName} — Unified Inbox`} />
 
             <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
-                {/* ──────────────────────────────────────────────────────────
-                    COLUMN 1: CHANNELS & VIEWS SIDEBAR (LEFT)
-                ─────────────────────────────────────────────────────────── */}
-                <div className="w-48 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 overflow-y-auto hidden xl:flex">
-                    <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black font-black text-xs flex items-center justify-center shadow-xs">
-                            GC
-                        </div>
-                        <div>
-                            <h2 className="text-xs font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">CHANNELS</h2>
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Omnichannel Hub</p>
-                        </div>
-                    </div>
-
-                    {/* Views */}
-                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 px-2 py-0.5">Views</p>
-                        {VIEWS.map(({ key, label, icon: Icon, countKey }) => {
-                            const isSelected = (filters.folder || null) === key && !filters.channel;
-                            const count = counts[countKey] ?? 0;
-
-                            return (
-                                <button
-                                    key={label}
-                                    onClick={() => handleFilterChange({ folder: key, channel: null })}
-                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
-                                        isSelected
-                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <Icon className="h-3.5 w-3.5 shrink-0" />
-                                        <span className="truncate">{label}</span>
-                                    </div>
-                                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
-                                    }`}>
-                                        {count}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Channels */}
-                    <div className="p-2 space-y-1 border-b border-neutral-200 dark:border-neutral-800">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 px-2 py-0.5">Channels</p>
-                        {CHANNELS.map(ch => {
-                            const isSelected = filters.channel === ch.key;
-                            const count = counts[ch.countKey] ?? 0;
-
-                            return (
-                                <button
-                                    key={ch.key}
-                                    onClick={() => handleFilterChange({ channel: ch.key, folder: null })}
-                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
-                                        isSelected
-                                            ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-neutral-100'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <ChannelBrandIcon channel={ch.icon} className="h-3.5 w-3.5 shrink-0" />
-                                        <span className="truncate">{ch.label}</span>
-                                    </div>
-                                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                                        isSelected ? 'bg-white/20 text-white' : 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300'
-                                    }`}>
-                                        {count}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
                 {/* ──────────────────────────────────────────────────────────
                     COLUMN 2: CONVERSATION LIST (CENTER-LEFT)
                 ─────────────────────────────────────────────────────────── */}
