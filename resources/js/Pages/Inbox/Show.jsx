@@ -20,23 +20,6 @@ import { toast } from 'sonner';
 
 /* ─── Constants & Filter Definitions ─────────────────── */
 
-const VIEWS = [
-    { key: null,     label: 'All Conversations', icon: Inbox,         countKey: 'all' },
-    { key: 'unread', label: 'Unread',            icon: MessageSquare, countKey: 'unread' },
-    { key: 'mine',   label: 'Assigned to Me',    icon: User,          countKey: 'mine' },
-    { key: 'ai',     label: 'AI Conversations',  icon: Bot,           countKey: 'ai' },
-    { key: 'open',   label: 'Open',              icon: Clock,         countKey: 'open' },
-    { key: 'closed', label: 'Closed',            icon: CheckCircle,   countKey: 'closed' },
-];
-
-const CHANNELS = [
-    { key: 'whatsapp',  label: 'WhatsApp',     icon: 'whatsapp',  countKey: 'whatsapp' },
-    { key: 'instagram', label: 'Instagram',    icon: 'instagram', countKey: 'instagram' },
-    { key: 'messenger', label: 'Messenger',    icon: 'messenger', countKey: 'messenger' },
-    { key: 'email',     label: 'Email',        icon: 'email',     countKey: 'email' },
-    { key: 'phone',     label: 'Phone / Calls', icon: 'voice',     countKey: 'calls' },
-];
-
 const EMOJI_LIST = [
     '😀','😂','😊','😍','🤔','👍','👎','❤️','🎉','✅',
     '❌','🔥','⭐','💡','📌','🚀','💬','📞','✉️','📎',
@@ -752,37 +735,8 @@ export default function InboxShow({
         : (Array.isArray(conversations?.data) ? conversations.data : []);
     const assignedUser = teamMembers.find(m => m.id === assignedUserId);
 
-    const subItemClass = (isSelected) => [
-        'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
-        isSelected
-            ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
-            : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
-    ].join(' ');
-
-    const sidebarExtra = (
-        <>
-            {VIEWS.map(({ key, label, countKey }) => {
-                const isSelected = (filters.folder || null) === key && !filters.channel;
-                const count = counts[countKey] ?? 0;
-                return (
-                    <button
-                        key={label}
-                        type="button"
-                        onClick={() => handleFilterChange({ folder: key, channel: null })}
-                        className={subItemClass(isSelected)}
-                    >
-                        <span className="truncate flex-1 text-left">{label}</span>
-                        {count > 0 && (
-                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
-                        )}
-                    </button>
-                );
-            })}
-        </>
-    );
-
     return (
-        <InboxLayout sidebarExtra={sidebarExtra}>
+        <>
             <Head title={`${contactName} — Unified Inbox`} />
 
             <div className="flex h-full overflow-hidden bg-[#FAFAF9] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
@@ -1478,6 +1432,8 @@ export default function InboxShow({
                     onAssigned={(userId) => setAssignedUserId(userId)}
                 />
             )}
-        </InboxLayout>
+        </>
     );
 }
+
+InboxShow.layout = (page) => <InboxLayout>{page}</InboxLayout>;

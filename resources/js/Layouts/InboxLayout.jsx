@@ -7,13 +7,66 @@ import Topbar from '@/Components/Topbar';
 import UpgradeModal from '@/Components/UpgradeModal';
 import useClientNav from '@/Layouts/useClientNav';
 
-export default function InboxLayout({ children, title, sidebarExtra }) {
+const VIEWS = [
+    { key: null,     label: 'All Conversations', countKey: 'all' },
+    { key: 'unread', label: 'Unread',            countKey: 'unread' },
+    { key: 'mine',   label: 'Assigned to Me',    countKey: 'mine' },
+    { key: 'ai',     label: 'AI Conversations',  countKey: 'ai' },
+    { key: 'open',   label: 'Open',              countKey: 'open' },
+    { key: 'closed', label: 'Closed',            countKey: 'closed' },
+];
+
+const subItemClass = (isSelected) => [
+    'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+    isSelected
+        ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
+        : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+].join(' ');
+
+export default function InboxLayout({ children, title }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, demo_mode } = usePage().props;
+    const { auth, impersonation, current_workspace_usage, unreadNotificationsCount, branding, demo_mode, filters, counts, conversation } = usePage().props;
     const logoUrl = branding?.logo_url;
     const [unreadCount, setUnreadCount] = useState(unreadNotificationsCount ?? 0);
     const clientNavGroups = useClientNav();
+
+    const hasInboxFilters = filters !== undefined;
+    const activeFolder = filters?.folder || null;
+    const activeChannel = filters?.channel || null;
+
+    const handleViewFilterChange = (newFilters) => {
+        const targetRoute = conversation?.uuid
+            ? route('client.inbox.show', conversation.uuid)
+            : route('client.inbox.index');
+        router.get(
+            targetRoute,
+            { ...filters, ...newFilters, page: 1 },
+            { preserveState: true, preserveScroll: true }
+        );
+    };
+
+    const sidebarExtra = hasInboxFilters ? (
+        <>
+            {VIEWS.map(({ key, label, countKey }) => {
+                const isSelected = activeFolder === key && !activeChannel;
+                const count = counts?.[countKey] ?? 0;
+                return (
+                    <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleViewFilterChange({ folder: key, channel: null })}
+                        className={subItemClass(isSelected)}
+                    >
+                        <span className="truncate flex-1 text-left">{label}</span>
+                        {count > 0 && (
+                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                        )}
+                    </button>
+                );
+            })}
+        </>
+    ) : null;
 
     useEffect(() => {
         setUnreadCount(unreadNotificationsCount ?? 0);
