@@ -44,6 +44,14 @@ export default function useClientNav() {
             icon: <Inbox className={iconClass} />,
             activePattern: 'client.inbox.*',
             dataTour: 'nav-inbox',
+            children: [
+                { label: t('inbox.view_all', 'All Conversations'), href: safeRoute('client.inbox.index') },
+                { label: t('inbox.view_unread', 'Unread'), href: `${safeRoute('client.inbox.index')}?folder=unread` },
+                { label: t('inbox.view_mine', 'Assigned to Me'), href: `${safeRoute('client.inbox.index')}?folder=mine` },
+                { label: t('inbox.view_ai', 'AI Conversations'), href: `${safeRoute('client.inbox.index')}?folder=ai` },
+                { label: t('inbox.view_open', 'Open'), href: `${safeRoute('client.inbox.index')}?folder=open` },
+                { label: t('inbox.view_closed', 'Closed'), href: `${safeRoute('client.inbox.index')}?folder=closed` },
+            ],
         },
         {
             label: t('nav.contacts', 'Contacts & Leads'),

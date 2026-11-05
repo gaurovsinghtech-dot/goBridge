@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
@@ -25,6 +27,19 @@ function checkIsActive(item) {
 }
 
 function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
+    const [flyout, setFlyout] = useState(null); // { key, top, left, children }
+    const closeTimer = useRef(null);
+
+    const openFlyout = (itemKey, el, children) => {
+        if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+        const rect = el.getBoundingClientRect();
+        setFlyout({ key: itemKey, top: rect.top, left: rect.right, children });
+    };
+
+    const scheduleClose = () => {
+        closeTimer.current = setTimeout(() => setFlyout(null), 120);
+    };
+
     return (
         <div className="mb-0.5">
             <div className="space-y-px">
@@ -32,8 +47,13 @@ function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
                         const isActive = checkIsActive(item);
                         const itemKey = item.key ?? item.route ?? item.href ?? i;
                         const isExpanded = expandedContent && expandedItemKey && itemKey === expandedItemKey;
+                        const hasChildren = item.children?.length > 0;
                         return (
-                            <div key={itemKey}>
+                            <div
+                                key={itemKey}
+                                onMouseEnter={(e) => hasChildren && !isExpanded && openFlyout(itemKey, e.currentTarget, item.children)}
+                                onMouseLeave={() => hasChildren && scheduleClose()}
+                            >
                                 <Link
                                     href={item.href ?? (item.route ? route(item.route) : '#')}
                                     onClick={onClose}
@@ -69,6 +89,27 @@ function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
                         );
                 })}
             </div>
+
+            {flyout && createPortal(
+                <div
+                    style={{ position: 'fixed', top: flyout.top, left: flyout.left }}
+                    className="z-50 w-52 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xl p-1.5"
+                    onMouseEnter={() => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } }}
+                    onMouseLeave={scheduleClose}
+                >
+                    {flyout.children.map((child) => (
+                        <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={onClose}
+                            className="block px-2.5 py-1.5 rounded-lg text-[12.5px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                        >
+                            {child.label}
+                        </Link>
+                    ))}
+                </div>,
+                document.body
+            )}
         </div>
     );
 }
