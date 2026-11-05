@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, X } from 'lucide-react';
+import { ChevronDown, Plus, X } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
 
 function checkIsActive(item) {
@@ -26,9 +26,11 @@ function checkIsActive(item) {
     return false;
 }
 
-function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
+function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey, expandedContent }) {
     const [flyout, setFlyout] = useState(null); // { key, top, left, children }
     const closeTimer = useRef(null);
+    const hasActiveChild = items.some(checkIsActive);
+    const [open, setOpen] = useState(true);
 
     const openFlyout = (itemKey, el, children) => {
         if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
@@ -42,7 +44,24 @@ function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
 
     return (
         <div className="mb-0.5">
-            <div className="space-y-px">
+            {type === 'group' && (
+                <button
+                    type="button"
+                    onClick={() => setOpen((o) => !o)}
+                    className={[
+                        'group flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold uppercase tracking-wide transition-colors duration-100',
+                        hasActiveChild
+                            ? 'text-neutral-900 dark:text-neutral-100'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200',
+                    ].join(' ')}
+                >
+                    {icon && <span className="shrink-0 text-neutral-400 dark:text-neutral-500">{icon}</span>}
+                    <span className="truncate flex-1 text-left normal-case">{label}</span>
+                    <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                </button>
+            )}
+            {open && (
+            <div className={['space-y-px', type === 'group' ? 'ml-[13px] pl-3 border-l border-neutral-200 dark:border-neutral-800 mt-0.5' : ''].join(' ')}>
                 {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
                         const itemKey = item.key ?? item.route ?? item.href ?? i;
@@ -89,6 +108,7 @@ function NavGroup({ items, onClose, expandedItemKey, expandedContent }) {
                         );
                 })}
             </div>
+            )}
 
             {flyout && createPortal(
                 <div
@@ -194,13 +214,20 @@ export default function Sidebar({
                 {/* Collapsible Nav Groups */}
                 {navGroups.length > 0 &&
                     navGroups.map((group, gi) => (
-                        <NavGroup
-                            key={`${gi}-${group.key ?? group.label ?? ''}`}
-                            items={group.items ?? []}
-                            onClose={onClose}
-                            expandedItemKey={expandedItemKey}
-                            expandedContent={expandedContent}
-                        />
+                        <div key={`${gi}-${group.key ?? group.label ?? ''}`}>
+                            {group.type === 'group' && navGroups[gi - 1]?.type !== 'group' && (
+                                <hr className="my-2 border-neutral-200/70 dark:border-neutral-800" />
+                            )}
+                            <NavGroup
+                                type={group.type}
+                                label={group.label}
+                                icon={group.icon}
+                                items={group.items ?? []}
+                                onClose={onClose}
+                                expandedItemKey={expandedItemKey}
+                                expandedContent={expandedContent}
+                            />
+                        </div>
                     ))}
             </nav>
 

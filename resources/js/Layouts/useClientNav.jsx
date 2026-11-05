@@ -4,6 +4,7 @@ import {
     LayoutDashboard, Users, Megaphone, Inbox, Bot,
     Workflow, PhoneCall, BarChart3, Sliders, Settings,
     Share2, FileText, BookOpen, FlaskConical, Mic, Zap, Headset, ListTodo, Lock, CreditCard,
+    Sparkles, PhoneForwarded, Radio, Wallet,
 } from 'lucide-react';
 
 const iconClass = 'h-4 w-4';
@@ -30,7 +31,7 @@ export default function useClientNav() {
     // Voice Entitlement
     const hasVoice = Boolean(entitlements.voice_calling);
 
-    const primaryItems = [
+    const topItems = [
         {
             label: t('nav.dashboard', 'Dashboard'),
             href: safeRoute('client.dashboard'),
@@ -67,6 +68,9 @@ export default function useClientNav() {
             activePattern: 'client.campaigns.*',
             dataTour: 'nav-campaigns',
         },
+    ];
+
+    const aiItems = [
         {
             label: t('nav.automations', 'Automations'),
             href: safeRoute('client.automations.index'),
@@ -99,7 +103,10 @@ export default function useClientNav() {
             icon: <BarChart3 className={iconClass} />,
             activePattern: 'client.ai.analytics.*',
         },
-        // Voice & Telephony Modules (Unlocked or Pro Badge)
+    ];
+
+    // Voice & Telephony Modules (Unlocked or Pro Badge)
+    const voiceItems = [
         {
             label: t('nav.voice_studio', 'Voice Studio'),
             href: hasVoice ? safeRoute('client.ai.voice-studio.index') : safeRoute('client.pricing'),
@@ -159,6 +166,9 @@ export default function useClientNav() {
             badge: !hasVoice ? '🔒' : null,
             dataTour: 'nav-phone-numbers',
         },
+    ];
+
+    const channelItems = [
         {
             label: t('nav.channels', 'WhatsApp & Channels'),
             href: safeRoute('client.inbox.setup'),
@@ -180,6 +190,9 @@ export default function useClientNav() {
             activePattern: 'client.reports.*',
             dataTour: 'nav-analytics',
         },
+    ];
+
+    const accountItems = [
         {
             label: t('nav.api_connections', 'Integrations & CRM'),
             href: safeRoute('client.crm.integrations.index', '/app/crm/integrations'),
@@ -211,10 +224,10 @@ export default function useClientNav() {
     ];
 
     return [
-        {
-            type: 'group',
-            label: t('nav.main_menu', 'Menu'),
-            items: primaryItems,
-        },
+        { type: 'flat', key: 'top', items: topItems },
+        { type: 'group', key: 'ai', label: t('nav.group_ai', 'AI & Automation'), icon: <Sparkles className={iconClass} />, items: aiItems },
+        { type: 'group', key: 'voice', label: t('nav.group_voice', 'Voice & Calling'), icon: <PhoneForwarded className={iconClass} />, items: voiceItems },
+        { type: 'group', key: 'channels', label: t('nav.group_channels', 'Channels'), icon: <Radio className={iconClass} />, items: channelItems },
+        { type: 'group', key: 'account', label: t('nav.group_account', 'Account'), icon: <Wallet className={iconClass} />, items: accountItems },
     ];
 }
