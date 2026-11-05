@@ -43,25 +43,29 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
     };
 
     return (
-        <div className="mb-0.5">
+        <div className="mb-1">
             {type === 'group' && (
                 <button
                     type="button"
                     onClick={() => setOpen((o) => !o)}
                     className={[
-                        'group flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold uppercase tracking-wide transition-colors duration-100',
+                        'group flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 mb-0.5 text-[11px] font-semibold uppercase tracking-wider transition-colors duration-100',
                         hasActiveChild
-                            ? 'text-neutral-900 dark:text-neutral-100'
-                            : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200',
+                            ? 'text-neutral-700 dark:text-neutral-200'
+                            : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200',
                     ].join(' ')}
                 >
-                    {icon && <span className="shrink-0 text-neutral-400 dark:text-neutral-500">{icon}</span>}
-                    <span className="truncate flex-1 text-left normal-case">{label}</span>
-                    <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                    {icon && (
+                        <span className="shrink-0 flex h-5 w-5 items-center justify-center text-neutral-400 dark:text-neutral-500">
+                            {icon}
+                        </span>
+                    )}
+                    <span className="truncate flex-1 text-left">{label}</span>
+                    <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-300 dark:text-neutral-600 transition-transform duration-150 ${open ? 'rotate-180' : '-rotate-90'}`} />
                 </button>
             )}
             {open && (
-            <div className={['space-y-px', type === 'group' ? 'ml-[13px] pl-3 border-l border-neutral-200 dark:border-neutral-800 mt-0.5' : ''].join(' ')}>
+            <div className={['space-y-0.5', type === 'group' ? 'ml-[23px] pl-3 border-l border-neutral-200/80 dark:border-neutral-800 py-0.5' : ''].join(' ')}>
                 {items.filter(item => !item.locked).map((item, i) => {
                         const isActive = checkIsActive(item);
                         const itemKey = item.key ?? item.route ?? item.href ?? i;
@@ -78,7 +82,8 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                     onClick={onClose}
                                     data-tour={item.dataTour}
                                     className={[
-                                        'group flex items-center gap-2.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-100',
+                                        'group flex items-center gap-2.5 rounded-full transition-colors duration-100',
+                                        type === 'group' ? 'px-2.5 py-1.5 text-[12.5px]' : 'px-3 py-1.5 text-[13px]',
                                         isActive
                                             ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
                                             : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
@@ -172,7 +177,7 @@ export default function Sidebar({
                 )}
             </div>
 
-            <nav className="flex-1 min-h-0 overflow-y-auto px-2 py-1 space-y-px scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
+            <nav className="flex-1 min-h-0 overflow-y-auto px-2.5 py-2 space-y-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
                 {/* Standalone Nav Items (e.g. Dashboard, Clients) */}
                 {navItems.length > 0 &&
                     navItems.filter(item => !item.locked).map((item, i) => {
@@ -216,7 +221,7 @@ export default function Sidebar({
                     navGroups.map((group, gi) => (
                         <div key={`${gi}-${group.key ?? group.label ?? ''}`}>
                             {group.type === 'group' && navGroups[gi - 1]?.type !== 'group' && (
-                                <hr className="my-2 border-neutral-200/70 dark:border-neutral-800" />
+                                <hr className="my-2.5 border-neutral-200/70 dark:border-neutral-800" />
                             )}
                             <NavGroup
                                 type={group.type}
