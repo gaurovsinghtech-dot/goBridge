@@ -31,6 +31,7 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
     const closeTimer = useRef(null);
     const hasActiveChild = items.some(checkIsActive);
     const [open, setOpen] = useState(true);
+    const [expandedCollapsed, setExpandedCollapsed] = useState(false);
 
     const openFlyout = (itemKey, el, children) => {
         if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
@@ -77,34 +78,46 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                 onMouseEnter={(e) => hasChildren && !isExpanded && openFlyout(itemKey, e.currentTarget, item.children)}
                                 onMouseLeave={() => hasChildren && scheduleClose()}
                             >
-                                <Link
-                                    href={item.href ?? (item.route ? route(item.route) : '#')}
-                                    onClick={onClose}
-                                    data-tour={item.dataTour}
-                                    className={[
-                                        'group flex items-center gap-2.5 rounded-full transition-colors duration-100',
-                                        type === 'group' ? 'px-2.5 py-1.5 text-[12.5px]' : 'px-3 py-1.5 text-[13px]',
-                                        isActive
-                                            ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                            : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
-                                    ].join(' ')}
-                                >
-                                    {item.icon && (
-                                        <span className={[
-                                            'shrink-0 transition-colors duration-100',
-                                            isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
-                                        ].join(' ')}>
-                                            {item.icon}
-                                        </span>
+                                <div className="flex items-center gap-0.5">
+                                    <Link
+                                        href={item.href ?? (item.route ? route(item.route) : '#')}
+                                        onClick={onClose}
+                                        data-tour={item.dataTour}
+                                        className={[
+                                            'group flex flex-1 min-w-0 items-center gap-2.5 rounded-full transition-colors duration-100',
+                                            type === 'group' ? 'px-2.5 py-1.5 text-[12.5px]' : 'px-3 py-1.5 text-[13px]',
+                                            isActive
+                                                ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
+                                                : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                        ].join(' ')}
+                                    >
+                                        {item.icon && (
+                                            <span className={[
+                                                'shrink-0 transition-colors duration-100',
+                                                isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
+                                            ].join(' ')}>
+                                                {item.icon}
+                                            </span>
+                                        )}
+                                        <span className="truncate">{item.label}</span>
+                                        {item.badge ? (
+                                            <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
+                                                {item.badge}
+                                            </span>
+                                        ) : null}
+                                    </Link>
+                                    {isExpanded && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setExpandedCollapsed((c) => !c)}
+                                            aria-label={expandedCollapsed ? 'Expand' : 'Collapse'}
+                                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors duration-100"
+                                        >
+                                            <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${expandedCollapsed ? '-rotate-90' : ''}`} />
+                                        </button>
                                     )}
-                                    <span className="truncate">{item.label}</span>
-                                    {item.badge ? (
-                                        <span className="ml-auto text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
-                                            {item.badge}
-                                        </span>
-                                    ) : null}
-                                </Link>
-                                {isExpanded && (
+                                </div>
+                                {isExpanded && !expandedCollapsed && (
                                     <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
                                         {expandedContent}
                                     </div>
