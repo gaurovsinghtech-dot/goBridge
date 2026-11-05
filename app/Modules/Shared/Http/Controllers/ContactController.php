@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -46,6 +47,8 @@ class ContactController extends Controller
         }
 
         $contacts = $query
+            ->withCount('messages')
+            ->withMax('conversations as latest_message_at', 'last_message_at')
             ->when($request->search, fn ($q) => $q->where(function ($q) use ($request) {
                 $q->where('first_name', 'like', '%'.$request->search.'%')
                     ->orWhere('last_name', 'like', '%'.$request->search.'%')
@@ -55,7 +58,19 @@ class ContactController extends Controller
             ->when($request->tag, fn ($q) => $q->whereHas('tags', fn ($q) => $q->where('name', $request->tag)))
             ->latest()
             ->paginate(50)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function (Contact $contact) {
+                $lastActive = collect([$contact->last_seen_at, $contact->latest_message_at])
+                    ->filter()
+                    ->map(fn ($date) => Carbon::parse($date))
+                    ->max() ?? $contact->updated_at;
+
+                $contact->setAttribute('last_active_at', $lastActive);
+                $contact->setAttribute('total_messages', (int) $contact->messages_count);
+                $contact->makeHidden(['messages_count', 'latest_message_at']);
+
+                return $contact;
+            });
 
         $tags = Schema::hasTable('contact_tags') ? ContactTag::where('workspace_id', $workspaceId)->orderBy('name')->get() : collect();
         $segments = Schema::hasTable('segments') ? Segment::where('workspace_id', $workspaceId)->orderBy('name')->get(['id', 'name', 'type']) : collect();

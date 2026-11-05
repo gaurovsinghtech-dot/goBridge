@@ -2,8 +2,9 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import ClientLayout from '@/Layouts/ClientLayout';
 import EmptyState from '@/Components/EmptyState';
 import ImportCsvModal from './ImportCsvModal';
-import { useState, useCallback } from 'react';
-import { UserPlus, Upload, Search, Tag, Trash2, Eye, Users, Table2, Download, CheckSquare, Square, X, Layers, Plus, Minus } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { UserPlus, Upload, Search, Tag, Trash2, Eye, Users, Table2, Download, CheckSquare, Square, X, Layers, Plus, Minus, Clock, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 function ContactAvatar({ contact, size = 8 }) {
@@ -30,10 +31,126 @@ function ContactAvatar({ contact, size = 8 }) {
     );
 }
 
+/** "3 minutes ago" without pulling in a date library. */
+function useRelativeTime() {
+    const { i18n, t } = useTranslation();
+
+    return (iso) => {
+        if (!iso) return '';
+        const seconds = Math.round((new Date(iso) - new Date()) / 1000);
+        const units = [
+            ['year', 31536000], ['month', 2592000], ['week', 604800],
+            ['day', 86400], ['hour', 3600], ['minute', 60],
+        ];
+
+        for (const [unit, secs] of units) {
+            if (Math.abs(seconds) >= secs) {
+                return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' })
+                    .format(Math.round(seconds / secs), unit);
+            }
+        }
+
+        return t('contacts_page.active_now');
+    };
+}
+
+function ContactHoverCard({ contact, position }) {
+    const { t, i18n } = useTranslation();
+    const relative = useRelativeTime();
+    const name = `${contact.first_name ?? ''} ${contact.last_name ?? ''}`.trim();
+    const lastActive = contact.last_active_at;
+    const tags = contact.tags ?? [];
+
+    const exact = lastActive
+        ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lastActive))
+        : '';
+
+    return createPortal(
+        <div
+            role="tooltip"
+            className="pointer-events-none fixed z-[60] w-72 rounded-xl border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
+            style={{ top: position.top, left: position.left }}
+        >
+            <div className="flex items-center gap-3">
+                <ContactAvatar contact={contact} size={8} />
+                <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                        {name || t('contacts_page.unknown_contact')}
+                    </div>
+                    {contact.phone_e164 && <div className="truncate text-xs text-neutral-500 dark:text-neutral-400">{contact.phone_e164}</div>}
+                    {contact.email && <div className="truncate text-xs text-neutral-500 dark:text-neutral-400">{contact.email}</div>}
+                </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                <div>
+                    <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                        <Clock className="h-3 w-3" /> {t('contacts_page.last_active')}
+                    </div>
+                    <div className="mt-0.5 text-sm font-semibold text-neutral-900 dark:text-white">
+                        {lastActive ? relative(lastActive) : '—'}
+                    </div>
+                    {exact && <div className="truncate text-[11px] text-neutral-400">{exact}</div>}
+                </div>
+                <div>
+                    <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                        <MessageSquare className="h-3 w-3" /> {t('contacts_page.total_messages')}
+                    </div>
+                    <div className="mt-0.5 text-sm font-semibold text-neutral-900 dark:text-white">{contact.total_messages ?? 0}</div>
+                </div>
+            </div>
+
+            {tags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                    {tags.slice(0, 4).map(tag => (
+                        <span key={tag.id} className="rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ backgroundColor: tag.color + '33', color: tag.color }}>
+                            {tag.name}
+                        </span>
+                    ))}
+                    {tags.length > 4 && <span className="px-1 py-0.5 text-[11px] text-neutral-400">+{tags.length - 4}</span>}
+                </div>
+            )}
+        </div>,
+        document.body,
+    );
+}
+
 function ContactRow({ contact, selected, onToggle, onDelete }) {
     const { t } = useTranslation();
+    const anchorRef = useRef(null);
+    const showTimer = useRef(null);
+    const [cardPosition, setCardPosition] = useState(null);
+
+    useEffect(() => () => clearTimeout(showTimer.current), []);
+
+    const showCard = () => {
+        clearTimeout(showTimer.current);
+        showTimer.current = setTimeout(() => {
+            const rect = anchorRef.current?.getBoundingClientRect();
+            if (!rect) return;
+
+            const width = 288;
+            const height = 180;
+            const left = Math.min(rect.left, Math.max(12, window.innerWidth - width - 12));
+            const top = rect.bottom + height + 8 > window.innerHeight
+                ? Math.max(12, rect.top - height - 8)
+                : rect.bottom + 8;
+
+            setCardPosition({ top, left });
+        }, 180);
+    };
+
+    const hideCard = () => {
+        clearTimeout(showTimer.current);
+        setCardPosition(null);
+    };
+
     return (
-        <tr className={`hover:bg-neutral-50 dark:hover:bg-neutral-800/50 ${selected ? 'bg-brand-50 dark:bg-brand-900/10' : ''}`}>
+        <tr
+            onMouseEnter={showCard}
+            onMouseLeave={hideCard}
+            className={`hover:bg-neutral-50 dark:hover:bg-neutral-800/50 ${selected ? 'bg-brand-50 dark:bg-brand-900/10' : ''}`}
+        >
             <td className="px-4 py-3">
                 <button type="button" onClick={() => onToggle(contact.uuid)} className="text-neutral-400 hover:text-brand-600 transition">
                     {selected
@@ -43,7 +160,8 @@ function ContactRow({ contact, selected, onToggle, onDelete }) {
                 </button>
             </td>
             <td className="px-4 py-3 text-sm text-neutral-900 dark:text-neutral-100">
-                <div className="flex items-center gap-2.5">
+                {cardPosition && <ContactHoverCard contact={contact} position={cardPosition} />}
+                <div ref={anchorRef} className="flex items-center gap-2.5">
                     <ContactAvatar contact={contact} size={8} />
                     <span>
                         {contact.first_name || contact.last_name
