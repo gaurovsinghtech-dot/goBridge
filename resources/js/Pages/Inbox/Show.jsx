@@ -36,6 +36,20 @@ const HANDOFF_REASONS = [
     'Unsupported custom inquiry',
 ];
 
+const AVATAR_COLORS = [
+    'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500',
+    'bg-violet-500', 'bg-cyan-500', 'bg-orange-500', 'bg-pink-500',
+];
+
+// Matches Index.jsx's per-contact avatar color so the same conversation shows
+// the same colored initials whether it's viewed from the list or (here) from
+// the sidebar list on the conversation detail page.
+function getAvatarColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 // Carries the active folder/channel filter along when switching to another
 // conversation from this page's own list, so the sidebar keeps highlighting
 // the tab you were on instead of resetting to "All Conversations".
@@ -808,8 +822,8 @@ export default function InboxShow({
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="relative shrink-0">
-                                            <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-xs font-bold text-neutral-900 dark:text-neutral-100 shadow-xs">
-                                                {convName[0]?.toUpperCase()}
+                                            <div className={`h-9 w-9 rounded-full ${getAvatarColor(convName)} text-white flex items-center justify-center text-xs font-bold shadow-xs`}>
+                                                {convName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'}
                                             </div>
                                             <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow-xs">
                                                 <ChannelBrandIcon channel={conv.channel || conv.channel_account?.channel || 'whatsapp'} className="h-2.5 w-2.5" />
