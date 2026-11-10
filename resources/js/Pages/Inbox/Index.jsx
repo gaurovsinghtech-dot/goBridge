@@ -29,7 +29,19 @@ function getAvatarColor(name) {
     return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function ConversationListItem({ conv, isActive, userTz }) {
+// Carries the active folder/channel filter along to the Show page so the
+// sidebar keeps highlighting the tab you were on, instead of silently
+// resetting to "All Conversations" when you open a conversation.
+function conversationShowHref(uuid, filters) {
+    const params = new URLSearchParams();
+    ['folder', 'channel', 'label', 'account_id'].forEach((key) => {
+        if (filters?.[key]) params.set(key, filters[key]);
+    });
+    const qs = params.toString();
+    return route('client.inbox.show', uuid) + (qs ? `?${qs}` : '');
+}
+
+function ConversationListItem({ conv, isActive, userTz, filters }) {
     const channel = conv.channel || conv.channel_account?.channel || 'whatsapp';
     const lastMsg = conv.last_message ?? {};
     const name = conv.contact?.first_name || conv.contact?.last_name
@@ -42,7 +54,7 @@ function ConversationListItem({ conv, isActive, userTz }) {
 
     return (
         <Link
-            href={route('client.inbox.show', conv.uuid)}
+            href={conversationShowHref(conv.uuid, filters)}
             className={`group block px-3 py-2.5 transition-colors ${
                 isActive
                     ? 'bg-neutral-100 dark:bg-neutral-800 border-l-[3px] border-l-neutral-900 dark:border-l-white'
@@ -251,6 +263,7 @@ export default function InboxIndex({
                                     conv={conv}
                                     isActive={false}
                                     userTz={userTz}
+                                    filters={filters}
                                 />
                             ))
                         )}

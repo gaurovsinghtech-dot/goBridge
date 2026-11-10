@@ -36,6 +36,18 @@ const HANDOFF_REASONS = [
     'Unsupported custom inquiry',
 ];
 
+// Carries the active folder/channel filter along when switching to another
+// conversation from this page's own list, so the sidebar keeps highlighting
+// the tab you were on instead of resetting to "All Conversations".
+function conversationShowHref(uuid, filters) {
+    const params = new URLSearchParams();
+    ['folder', 'channel', 'label', 'account_id'].forEach((key) => {
+        if (filters?.[key]) params.set(key, filters[key]);
+    });
+    const qs = params.toString();
+    return route('client.inbox.show', uuid) + (qs ? `?${qs}` : '');
+}
+
 function extractVars(components) {
     const body = components?.find(c => c.type === 'BODY');
     const text = body?.text ?? '';
@@ -786,7 +798,7 @@ export default function InboxShow({
                             return (
                                 <Link
                                     key={conv.id}
-                                    href={route('client.inbox.show', conv.uuid)}
+                                    href={conversationShowHref(conv.uuid, filters)}
                                     onClick={() => setMobileTab('chat')}
                                     className={`block px-3.5 py-3 transition-colors ${
                                         isSelected
