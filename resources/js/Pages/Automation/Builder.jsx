@@ -78,7 +78,7 @@ const NODE_DEFS = {
     run_subflow:         { labelKey: 'automation.node_run_subflow',         defaultLabel: 'Run Sub-flow',        color: '#64748b', bg: '#1e293b', icon: Workflow,          category: 'logic' },
     // ── AI ────────────────────────────────────────────────────────────────
     ai_reply:            { labelKey: 'automation.node_ai_reply',            defaultLabel: 'AI Auto-Reply',       color: '#c084fc', bg: '#581c87', icon: Sparkles,          category: 'ai' },
-    ai_detect_intent:    { labelKey: 'automation.node_ai_detect_intent',    defaultLabel: 'AI Intent Classifier',color: '#e879f9', bg: '#701a75', icon: Sparkles,          category: 'ai' },
+    ai_detect_intent:    { labelKey: 'automation.node_ai_detect_intent',    defaultLabel: 'AI Intent Classifier',color: '#e879f9', bg: '#701a75', icon: Sparkles,          category: 'ai', isCondition: true },
     voice_call:          { labelKey: 'automation.node_voice_call',          defaultLabel: 'Trigger AI Voice Call',color: '#3b82f6', bg: '#1e3a8a', icon: Phone,            category: 'ai' },
     // ── CONTACT ───────────────────────────────────────────────────────────
     add_tag:             { labelKey: 'automation.node_add_tag',             defaultLabel: 'Add Tag',             color: '#10b981', bg: '#064e3b', icon: Tag,               category: 'contact' },
@@ -89,6 +89,7 @@ const NODE_DEFS = {
     create_task:         { labelKey: 'automation.node_create_task',         defaultLabel: 'Create CRM Task',     color: '#38bdf8', bg: '#0c4a6e', icon: ClipboardCheck,    category: 'contact' },
     add_note:            { labelKey: 'automation.node_add_note',            defaultLabel: 'Add Contact Note',    color: '#64748b', bg: '#1e293b', icon: FileText,          category: 'contact' },
     add_to_campaign:     { labelKey: 'automation.node_add_to_campaign',     defaultLabel: 'Add to Campaign',     color: '#f97316', bg: '#7c2d12', icon: Megaphone,         category: 'contact' },
+    move_pipeline_stage: { labelKey: 'automation.node_move_pipeline_stage', defaultLabel: 'Move Pipeline Stage', color: '#0ea5e9', bg: '#0c4a6e', icon: Workflow,          category: 'contact' },
     // ── ENGAGE ────────────────────────────────────────────────────────────
     cta_button:          { labelKey: 'automation.node_cta_button',          defaultLabel: 'CTA Link Button',     color: '#f43f5e', bg: '#881337', icon: ExternalLink,      category: 'engage' },
     send_location:       { labelKey: 'automation.node_send_location',       defaultLabel: 'Send Location',       color: '#ef4444', bg: '#7f1d1d', icon: MapPin,            category: 'engage' },
@@ -194,7 +195,7 @@ function BaseNode({ id, data, selected }) {
     const { nodeType, label, configured } = data;
     const def = NODE_DEFS[nodeType];
     const defLabel = getNodeDefLabel(nodeType, t);
-    const isCondition = nodeType === 'condition';
+    const isCondition = nodeType === 'condition' || def?.isCondition === true;
 
     const hasLabel = label && label !== defLabel;
     const summary = hasLabel ? label : (configured ? summarizeConfig(data, t) : '');
@@ -349,6 +350,8 @@ function summarizeConfig(data, t) {
     switch (nodeType) {
         case 'wait': return data.amount ? `${data.amount} ${data.unit ?? 'minutes'}` : '';
         case 'condition': return data.field ? `${data.field} ${data.operator ?? '='} ${data.value ?? ''}` : '';
+        case 'ai_detect_intent': return clip(data.intent, 40);
+        case 'move_pipeline_stage': return data.stage_name ?? (data.stage_id ? `stage #${data.stage_id}` : '');
         case 'add_tag':
         case 'remove_tag': return data.tag ?? '';
         case 'send_whatsapp':
@@ -401,6 +404,8 @@ const FIELD_COMPONENTS = {
     ask_question: AskQuestionFields,
     wait: WaitFields,
     condition: ConditionFields,
+    ai_detect_intent: AiDetectIntentFields,
+    move_pipeline_stage: MovePipelineStageFields,
     webhook: WebhookFields,
     run_subflow: SubflowFields,
     ai_reply: AIReplyFields,
@@ -999,6 +1004,39 @@ function ConditionFields({ d, set }) {
                 <strong>✗ {t('common.no')}</strong> — {t('automation.condition_no_hint')}
             </div>
         </>
+    );
+}
+
+function AiDetectIntentFields({ d, set }) {
+    const { t } = useTranslation();
+    return (
+        <>
+            <Field label="What should the AI detect? (required)">
+                <textarea
+                    className={textareaCls}
+                    rows={3}
+                    value={d.intent ?? ''}
+                    onChange={e => set('intent', e.target.value)}
+                    placeholder='e.g. "the customer confirms they completed a purchase or payment"'
+                />
+            </Field>
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 10px', fontSize: 10, color: '#166534' }}>
+                <strong>✓ {t('common.yes')}</strong> — {t('automation.condition_yes_hint')}<br />
+                <strong>✗ {t('common.no')}</strong> — {t('automation.condition_no_hint')}
+            </div>
+        </>
+    );
+}
+
+function MovePipelineStageFields({ d, set }) {
+    const { stages = [] } = useResources();
+    return (
+        <Field label="Move contact to stage (required)">
+            <select className={selectCls} value={d.stage_id ?? ''} onChange={e => set('stage_id', Number(e.target.value) || '')}>
+                <option value="">Select a stage</option>
+                {stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+        </Field>
     );
 }
 

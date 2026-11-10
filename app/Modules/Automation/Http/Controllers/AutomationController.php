@@ -10,6 +10,7 @@ use App\Modules\Automation\Models\Automation;
 use App\Modules\Automation\Models\AutomationRun;
 use App\Modules\Automation\Services\AutomationEngine;
 use App\Modules\Automation\Services\AutomationTemplateRegistry;
+use App\Modules\Automation\Services\ContactJourneyService;
 use App\Modules\Broadcasting\Models\Campaign;
 use App\Modules\Ecommerce\Models\EcommerceStore;
 use App\Modules\Integrations\Models\IntegrationConfig;
@@ -31,6 +32,7 @@ class AutomationController extends Controller
     public function __construct(
         protected WorkflowExecutionService $workflowExecutionService,
         protected WorkflowAiBuilderService $workflowAiBuilderService,
+        protected ContactJourneyService $contactJourneyService,
     ) {}
 
     private function workspaceId(Request $request): int
@@ -67,7 +69,32 @@ class AutomationController extends Controller
             'automations' => $automations,
             'stats' => $stats,
             'templates' => AutomationTemplateRegistry::all(),
+            'whatsappTemplates' => WhatsappTemplate::where('workspace_id', $wid)
+                ->where('status', 'APPROVED')
+                ->orderBy('name')
+                ->get(['name', 'language'])
+                ->values(),
+            'contactJourneySetUp' => Automation::where('workspace_id', $wid)
+                ->where('name', 'Contact Journey: Welcome New Contact')
+                ->exists(),
         ]);
+    }
+
+    public function setupContactJourney(Request $request): RedirectResponse
+    {
+        $wid = $this->workspaceId($request);
+        $validated = $request->validate([
+            'welcome_template_name' => ['required', 'string', 'max:191'],
+        ]);
+
+        $result = $this->contactJourneyService->setup($wid, $validated['welcome_template_name']);
+
+        $createdCount = collect($result['automations'])->where('created', true)->count();
+        $message = $createdCount > 0
+            ? "Contact Journey set up: {$createdCount} new automation(s) created. Edit them from the list below to adjust the welcome template or keywords."
+            : 'Contact Journey is already set up — nothing new to create.';
+
+        return back()->with('success', $message);
     }
 
     public function store(Request $request): RedirectResponse

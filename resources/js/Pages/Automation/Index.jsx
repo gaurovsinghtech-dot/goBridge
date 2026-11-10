@@ -5,7 +5,7 @@ import {
     Plus, Zap, Play, Pause, Trash2, BarChart2, Pencil, Clock,
     UserRound, Tag, MessageCircle, Megaphone, FileText, Link2,
     ShoppingBag, PackageCheck, XCircle, ShoppingCart, UserPlus,
-    Sparkles, Loader2, AlertTriangle,
+    Sparkles, Loader2, AlertTriangle, Workflow, X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -45,7 +45,7 @@ const formatDate = (iso) => {
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
-export default function AutomationIndex({ automations }) {
+export default function AutomationIndex({ automations, whatsappTemplates = [], contactJourneySetUp = false }) {
     const { t } = useTranslation();
     const { props } = usePage();
     const flash = props.flash ?? {};
@@ -54,12 +54,22 @@ export default function AutomationIndex({ automations }) {
     const [aiPrompt, setAiPrompt] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
     const [aiError, setAiError] = useState(null);
+    const [showContactJourney, setShowContactJourney] = useState(false);
 
     const { data, setData, post, processing, reset } = useForm({ name: '' });
+    const journeyForm = useForm({ welcome_template_name: whatsappTemplates[0]?.name ?? '' });
 
     const handleCreate = (e) => {
         e.preventDefault();
         post(route('client.automations.store'), { onSuccess: () => { reset(); setShowCreate(false); } });
+    };
+
+    const handleContactJourneySetup = (e) => {
+        e.preventDefault();
+        journeyForm.post(route('client.automations.contact-journey.setup'), {
+            preserveScroll: true,
+            onSuccess: () => setShowContactJourney(false),
+        });
     };
 
     // Generate a full automation from a prompt, persist it, then open the new builder.
@@ -103,6 +113,11 @@ export default function AutomationIndex({ automations }) {
                     </div>
                     {(
                         <div className="flex items-center gap-2">
+                            {!contactJourneySetUp && (
+                                <button onClick={() => setShowContactJourney(true)} className="flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+                                    <Workflow className="h-4 w-4" /> Set Up Contact Journey
+                                </button>
+                            )}
                             <button onClick={() => { setAiError(null); setShowAi(true); }} className="ai-glow flex items-center gap-1.5 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/30 px-3 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition">
                                 <Sparkles className="h-4 w-4" /> {t('automation.ai_generate')}
                             </button>
@@ -266,6 +281,68 @@ export default function AutomationIndex({ automations }) {
                                 {t('common.cancel')}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {showContactJourney && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-xl bg-white dark:bg-neutral-900 p-6 shadow-xl space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2.5">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-900/30"><Workflow className="h-4 w-4" /></span>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Set Up Contact Journey</h3>
+                                    <p className="text-xs text-neutral-500">Creates 4 pipeline stages and 3 automations that move contacts through them.</p>
+                                </div>
+                            </div>
+                            <button type="button" onClick={() => setShowContactJourney(false)} className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        <ul className="space-y-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+                            <li>• <strong>Fresh Contacts</strong> — every new contact starts here</li>
+                            <li>• <strong>Product Section</strong> — moved here once the welcome message sends</li>
+                            <li>• <strong>Completed</strong> — moved here when AI detects a confirmed purchase</li>
+                            <li>• <strong>Query</strong> — moved here on a complaint/question keyword, back to Completed once you resolve the chat</li>
+                        </ul>
+
+                        <form onSubmit={handleContactJourneySetup} className="space-y-3">
+                            <div>
+                                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Welcome WhatsApp template</label>
+                                {whatsappTemplates.length > 0 ? (
+                                    <select
+                                        value={journeyForm.data.welcome_template_name}
+                                        onChange={e => journeyForm.setData('welcome_template_name', e.target.value)}
+                                        required
+                                        className="mt-1 w-full rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"
+                                    >
+                                        {whatsappTemplates.map(tpl => (
+                                            <option key={tpl.name} value={tpl.name}>{tpl.name}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={journeyForm.data.welcome_template_name}
+                                        onChange={e => journeyForm.setData('welcome_template_name', e.target.value)}
+                                        required
+                                        placeholder="e.g. tesst_3"
+                                        className="mt-1 w-full rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"
+                                    />
+                                )}
+                                <p className="mt-1 text-[11px] text-neutral-400">You can change this later from the automation's edit page.</p>
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                                <button type="submit" disabled={journeyForm.processing} className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 transition">
+                                    {journeyForm.processing ? 'Setting up…' : 'Set Up'}
+                                </button>
+                                <button type="button" onClick={() => setShowContactJourney(false)} className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+                                    {t('common.cancel')}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

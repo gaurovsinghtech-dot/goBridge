@@ -8,6 +8,7 @@ Route::middleware(['web', 'client-app'])->prefix('app/automations')->name('clien
     Route::get('/templates', [\App\Modules\Automation\Http\Controllers\AutomationTemplateController::class, 'index'])->name('templates.index');
     Route::post('/templates/{key}/install', [\App\Modules\Automation\Http\Controllers\AutomationTemplateController::class, 'install'])->name('templates.install');
     Route::post('/', [AutomationController::class, 'store'])->name('store');
+    Route::post('/contact-journey/setup', [AutomationController::class, 'setupContactJourney'])->name('contact-journey.setup');
     Route::post('/generate', [AutomationController::class, 'generate'])->name('generate');
     Route::get('/{automation}/edit', [AutomationController::class, 'edit'])->name('edit');
     Route::get('/{automation}/builder', [AutomationController::class, 'edit'])->name('builder');

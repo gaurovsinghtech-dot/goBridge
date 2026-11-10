@@ -351,6 +351,14 @@ class AutomationEngine
                 $passed = $this->evaluateCondition($data, $contact, $context);
                 $branch = $passed ? 'true' : 'false';
                 $result = $this->conditionResult($passed, $data['field'] ?? null, $data['operator'] ?? 'equals', $data['value'] ?? null);
+            } elseif ($type === 'ai_detect_intent') {
+                // Simulated only — testRun spends no AI tokens, so this always previews
+                // as a match rather than calling the LLM.
+                $intent = trim((string) ($data['intent'] ?? ''));
+                $branch = $intent === '' ? 'false' : 'true';
+                $result = $intent === ''
+                    ? ['status' => 'error', 'message' => 'No intent description configured.']
+                    : ['status' => 'ok', 'message' => "AI intent check (\"{$intent}\") → simulated yes (no AI call made in test mode)."];
             } else {
                 $result = $this->previewNode($type, $data, $contact, $context);
             }
@@ -499,6 +507,7 @@ class AutomationEngine
                 'update_contact' => $this->executeUpdateContact($data, $run, $context),
                 'webhook' => $this->executeWebhook($data, $run, $context),
                 'condition' => $this->executeCondition($data, $run, $context),
+                'ai_detect_intent' => $this->executeAiDetectIntent($data, $run, $context),
                 'send_whatsapp' => $this->executeSendWhatsapp($data, $run, $context),
                 'send_sms' => $this->executeSendSms($data, $run, $context),
                 'send_email' => $this->executeSendEmail($data, $run, $context),
@@ -1095,6 +1104,44 @@ class AutomationEngine
             'status' => 'ok',
             'branch' => $passed ? 'true' : 'false',
             'message' => "Condition: {$field} {$operator} {$value} → ".($passed ? 'true' : 'false'),
+        ];
+    }
+
+    /**
+     * AI Intent Classifier node: asks the workspace's configured LLM whether the
+     * triggering inbound message matches a free-text intent description (e.g.
+     * "the customer confirms they completed a purchase or payment"), then
+     * branches true/false exactly like a condition node.
+     */
+    private function executeAiDetectIntent(array $data, AutomationRun $run, array $context): array
+    {
+        $intent = trim((string) ($data['intent'] ?? ''));
+        if ($intent === '') {
+            return ['status' => 'error', 'message' => 'No intent description configured.'];
+        }
+
+        $messageBody = trim((string) ($context['message_body'] ?? ''));
+        if ($messageBody === '') {
+            return ['status' => 'ok', 'branch' => 'false', 'message' => 'No message to classify.'];
+        }
+
+        $workspaceId = (int) $run->automation->workspace_id;
+
+        try {
+            $response = $this->llmGateway->chat($workspaceId, [
+                ['role' => 'system', 'content' => 'You classify a single customer message against one yes/no question. Reply with exactly one word: YES or NO. No punctuation, no explanation.'],
+                ['role' => 'user', 'content' => "Question: Does this message mean that {$intent}\n\nMessage: \"{$messageBody}\""],
+            ], ['max_tokens' => 5, 'temperature' => 0]);
+        } catch (\Throwable $e) {
+            return ['status' => 'error', 'message' => 'AI intent classification failed: '.$e->getMessage()];
+        }
+
+        $matched = str_starts_with(mb_strtoupper(trim($response->content)), 'YES');
+
+        return [
+            'status' => 'ok',
+            'branch' => $matched ? 'true' : 'false',
+            'message' => "AI intent check (\"{$intent}\") → ".($matched ? 'yes' : 'no'),
         ];
     }
 
