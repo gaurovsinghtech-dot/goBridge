@@ -567,6 +567,10 @@ export default function InboxShow({
     }, [conversation.id]);
 
     useEffect(() => {
+        setConversations(initialConversations);
+    }, [initialConversations]);
+
+    useEffect(() => {
         scrollToBottom();
     }, [messages, voiceCalls]);
 
