@@ -734,9 +734,17 @@ export default function InboxShow({
         ? `${conversation.contact.first_name ?? ''} ${conversation.contact.last_name ?? ''}`.trim()
         : conversation.contact?.phone_e164 ?? conversation.contact?.email ?? 'Customer';
 
-    const convList = Array.isArray(conversations)
+    const filteredConvList = Array.isArray(conversations)
         ? conversations
         : (Array.isArray(conversations?.data) ? conversations.data : []);
+    // Keep the conversation you're actively viewing pinned at the top of the
+    // list even if a folder switch (e.g. to "Unread") would otherwise filter
+    // it out — opening a conversation marks it read, so clicking "Unread"
+    // right after would make it vanish from the list while you're still
+    // looking at it, which read as the chat itself closing.
+    const convList = filteredConvList.some(c => c.id === conversation.id)
+        ? filteredConvList
+        : [conversation, ...filteredConvList];
     const assignedUser = teamMembers.find(m => m.id === assignedUserId);
 
     return (
