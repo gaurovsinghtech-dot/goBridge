@@ -47,14 +47,15 @@ export default function InboxLayout({ children, title }) {
     const activeFolder = filters?.folder || null;
     const activeChannel = filters?.channel || null;
 
+    // Switching a sub-tab (Unread, Assigned to Me, ...) always goes to the
+    // conversation list filtered by that view — including away from an open
+    // chat, if one is open — rather than keeping the current conversation
+    // open with just the list behind it filtered.
     const handleViewFilterChange = (newFilters) => {
-        const targetRoute = conversation?.uuid
-            ? route('client.inbox.show', conversation.uuid)
-            : route('client.inbox.index');
         router.get(
-            targetRoute,
+            route('client.inbox.index'),
             { ...filters, ...newFilters, page: 1 },
-            { preserveState: true, preserveScroll: true }
+            { preserveScroll: true }
         );
     };
 
