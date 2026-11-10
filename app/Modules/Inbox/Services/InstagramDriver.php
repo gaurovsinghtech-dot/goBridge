@@ -2,7 +2,6 @@
 
 namespace App\Modules\Inbox\Services;
 
-use App\Events\ContactCreated;
 use App\Events\MessageReceived;
 use App\Modules\Shared\Contracts\ChannelDriverInterface;
 use App\Modules\Shared\Models\ChannelAccount;
@@ -385,6 +384,9 @@ class InstagramDriver implements ChannelDriverInterface
             ->first();
 
         if (! $contact) {
+            // Contact::create() already fires ContactCreated via the model's own
+            // boot() created hook — dispatching it again here double-fired every
+            // contact.created automation for new Instagram contacts.
             $contact = Contact::create([
                 'workspace_id' => $workspaceId,
                 'source' => 'instagram',
@@ -395,8 +397,6 @@ class InstagramDriver implements ChannelDriverInterface
                     'instagram_username' => $profile['username'] ?? null,
                 ]),
             ]);
-
-            ContactCreated::dispatch($contact);
         } else {
             // Backfill name/username only when we learned something and the contact
             // doesn't already have a name (never clobber a manually edited contact).

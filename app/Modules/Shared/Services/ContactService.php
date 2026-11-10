@@ -2,7 +2,6 @@
 
 namespace App\Modules\Shared\Services;
 
-use App\Events\ContactCreated;
 use App\Modules\Shared\Models\Contact;
 use App\Modules\Shared\Models\ContactTag;
 use App\Modules\Shared\Models\Segment;
@@ -18,9 +17,12 @@ class ContactService
      * Upsert a contact by phone (E.164) within a workspace.
      * Falls back to email lookup if phone is absent.
      *
-     * @param  bool  $dispatchCreatedEvent  Set false for bulk imports/syncs to avoid
-     *                                      firing contact.created automations + outbound
-     *                                      webhooks for thousands of historical records.
+     * @param  bool  $dispatchCreatedEvent  Unused — kept for call-site compatibility.
+     *                                      ContactCreated is always fired by the Contact
+     *                                      model's own boot() hook on every creation (bulk
+     *                                      imports included), so this flag currently has no
+     *                                      effect; it used to double-dispatch the event when
+     *                                      true, which is what this fixes.
      */
     public function upsert(int $workspaceId, array $data, bool $dispatchCreatedEvent = true): Contact
     {
@@ -36,12 +38,10 @@ class ContactService
         }
 
         if (empty($lookup)) {
-            $contact = Contact::create(array_merge($data, ['workspace_id' => $workspaceId]));
-            if ($dispatchCreatedEvent) {
-                ContactCreated::dispatch($contact);
-            }
-
-            return $contact;
+            // Contact::create() already fires ContactCreated via the model's own
+            // boot() created hook — dispatching it again here was double-firing
+            // every contact.created automation (e.g. two welcome messages sent).
+            return Contact::create(array_merge($data, ['workspace_id' => $workspaceId]));
         }
 
         $exists = Contact::withTrashed()->where($lookup)->exists();
@@ -50,10 +50,6 @@ class ContactService
         // Restore soft-deleted contact so it appears in normal queries again.
         if ($contact->trashed()) {
             $contact->restore();
-        }
-
-        if (! $exists && $dispatchCreatedEvent) {
-            ContactCreated::dispatch($contact);
         }
 
         return $contact;
