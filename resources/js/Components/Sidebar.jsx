@@ -149,14 +149,20 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isHoverOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                                         <div className="overflow-hidden">
                                             <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
-                                                {item.children.map((child) => {
+                                                {item.children.map((child, ci) => {
                                                     const count = child.countKey ? hoverCounts[itemKey]?.[child.countKey] : undefined;
+                                                    const isDefault = ci === 0;
                                                     return (
                                                         <Link
                                                             key={child.href}
                                                             href={child.href}
                                                             onClick={onClose}
-                                                            className="flex items-center gap-2 px-2.5 py-1 rounded-md text-[12.5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-100"
+                                                            className={[
+                                                                'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
+                                                                isDefault
+                                                                    ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
+                                                                    : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+                                                            ].join(' ')}
                                                         >
                                                             <span className="truncate flex-1 text-left">{child.label}</span>
                                                             {count > 0 && (
