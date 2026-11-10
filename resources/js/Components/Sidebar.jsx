@@ -223,7 +223,7 @@ export default function Sidebar({
                 )}
             </div>
 
-            <nav className="flex-1 min-h-0 overflow-y-auto px-2.5 py-2 space-y-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800">
+            <nav className="flex-1 min-h-0 overflow-y-auto px-2.5 py-2 space-y-0.5 scrollbar-hide">
                 {/* Standalone Nav Items (e.g. Dashboard, Clients) */}
                 {navItems.length > 0 &&
                     navItems.filter(item => !item.locked).map((item, i) => {

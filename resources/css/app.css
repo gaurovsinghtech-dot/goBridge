@@ -186,6 +186,17 @@ body {
 .scrollbar-thin::-webkit-scrollbar { width: 4px; }
 .scrollbar-track-transparent::-webkit-scrollbar-track { background: transparent; }
 
+/* Keeps the element scrollable but hides the scrollbar track/thumb entirely */
+.scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
 /* Sidebar hover utility */
 .hover\:bg-white\/8:hover { background-color: rgba(255,255,255,0.08); }
 .border-white\/8 { border-color: rgba(255,255,255,0.08); }
