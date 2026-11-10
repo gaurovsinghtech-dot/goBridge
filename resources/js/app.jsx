@@ -115,18 +115,25 @@ createInertiaApp({
         ).then((module) => {
             const Page = module.default;
             if (!wrappedPages.has(Page)) {
-                // Just a passthrough now — kept only to preserve the deliberate
-                // remount-on-every-navigation identity described above. Theme/
-                // locale/favicon live at the app root (see setup()) so they cover
-                // persistent layouts too: a page using Page.layout = (page) =>
-                // <SomeLayout>{page}</SomeLayout> renders that layout OUTSIDE this
-                // wrapper, so anything mounted only in here (e.g. ThemeProvider)
-                // wouldn't reach components the layout itself renders, like a
-                // Topbar's theme toggle.
                 const Wrapped = function Wrapped(props) {
                     return <Page {...props} />;
                 };
-                Wrapped.layout = Page.layout;
+                // ThemeProvider wraps the LAYOUT's output (not Page itself) so it
+                // covers persistent layouts too: a page using Page.layout =
+                // (page) => <SomeLayout>{page}</SomeLayout> renders that layout
+                // around `page`, so anything mounted only inside Page/Wrapped
+                // (e.g. the old per-page ThemeProvider) never reached components
+                // the layout itself renders, like a Topbar's theme toggle. This
+                // still runs inside Inertia's <App>, so usePage() works — unlike
+                // wrapping ThemeProvider around <App> itself at the root.
+                const originalLayout = Page.layout;
+                Wrapped.layout = (child) => (
+                    <ThemeProvider>
+                        <LocaleSync />
+                        <BrandingFavicon />
+                        {typeof originalLayout === 'function' ? originalLayout(child) : child}
+                    </ThemeProvider>
+                );
                 wrappedPages.set(Page, Wrapped);
             }
             return wrappedPages.get(Page);
@@ -143,18 +150,15 @@ createInertiaApp({
         // Wrap the whole app so a render error in ANY page or layout shows a
         // recoverable fallback instead of a blank white screen (full SPA unmount).
         // LoadingScreen sits outside the boundary so it keeps working even if a
-        // page render throws. ThemeProvider/LocaleSync/BrandingFavicon live here
-        // (not per-page) so they cover persistent layouts like InboxLayout, which
-        // render outside the per-page wrapper — see resolve() above.
+        // page render throws. ThemeProvider/LocaleSync/BrandingFavicon are wired
+        // in via Wrapped.layout in resolve() above — they need to render inside
+        // <App> (where Inertia's PageContext lives, for usePage()) but outside
+        // each page's own layout.
         root.render(
             <>
                 <LoadingScreen />
                 <ErrorBoundary>
-                    <ThemeProvider>
-                        <LocaleSync />
-                        <BrandingFavicon />
-                        <App {...props} />
-                    </ThemeProvider>
+                    <App {...props} />
                 </ErrorBoundary>
             </>
         );
