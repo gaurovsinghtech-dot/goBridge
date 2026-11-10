@@ -115,14 +115,16 @@ createInertiaApp({
         ).then((module) => {
             const Page = module.default;
             if (!wrappedPages.has(Page)) {
-                const Wrapped = function WrappedWithThemeAndLocale(props) {
-                    return (
-                        <ThemeProvider>
-                            <LocaleSync />
-                            <BrandingFavicon />
-                            <Page {...props} />
-                        </ThemeProvider>
-                    );
+                // Just a passthrough now — kept only to preserve the deliberate
+                // remount-on-every-navigation identity described above. Theme/
+                // locale/favicon live at the app root (see setup()) so they cover
+                // persistent layouts too: a page using Page.layout = (page) =>
+                // <SomeLayout>{page}</SomeLayout> renders that layout OUTSIDE this
+                // wrapper, so anything mounted only in here (e.g. ThemeProvider)
+                // wouldn't reach components the layout itself renders, like a
+                // Topbar's theme toggle.
+                const Wrapped = function Wrapped(props) {
+                    return <Page {...props} />;
                 };
                 Wrapped.layout = Page.layout;
                 wrappedPages.set(Page, Wrapped);
@@ -141,12 +143,18 @@ createInertiaApp({
         // Wrap the whole app so a render error in ANY page or layout shows a
         // recoverable fallback instead of a blank white screen (full SPA unmount).
         // LoadingScreen sits outside the boundary so it keeps working even if a
-        // page render throws.
+        // page render throws. ThemeProvider/LocaleSync/BrandingFavicon live here
+        // (not per-page) so they cover persistent layouts like InboxLayout, which
+        // render outside the per-page wrapper — see resolve() above.
         root.render(
             <>
                 <LoadingScreen />
                 <ErrorBoundary>
-                    <App {...props} />
+                    <ThemeProvider>
+                        <LocaleSync />
+                        <BrandingFavicon />
+                        <App {...props} />
+                    </ThemeProvider>
                 </ErrorBoundary>
             </>
         );
