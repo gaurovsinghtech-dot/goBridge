@@ -588,7 +588,7 @@ export default function InboxShow({
             try {
                 const lastId = messages.length > 0 ? messages[messages.length - 1].id : 0;
                 const res = await axios.get(route('client.inbox.poll', conversation.uuid), {
-                    params: { after_id: lastId }
+                    params: { after_id: lastId, ...filters }
                 });
 
                 if (res.data?.messages && Array.isArray(res.data.messages) && res.data.messages.length > 0) {
@@ -623,7 +623,7 @@ export default function InboxShow({
                 window.Echo.leave(`conversation.${conversation.id}`);
             }
         };
-    }, [conversation.uuid, conversation.id, messages]);
+    }, [conversation.uuid, conversation.id, messages, filters]);
 
     const handleFilterChange = (newFilters) => {
         router.get(

@@ -70,15 +70,20 @@ class InboxController extends Controller
         });
     }
 
-    public function index(Request $request): Response
+    /**
+     * Shared conversation-list filter chain for index()/show()/poll(), so the
+     * background poll (Show.jsx's 3s interval) respects the same folder/channel/
+     * search/account_id/label filters as the page itself — otherwise polling
+     * would periodically overwrite a filtered list (e.g. "Unread") with the
+     * unfiltered default list a few seconds after switching folders.
+     */
+    private function filteredConversationsQuery(Request $request, int $workspaceId, int $userId)
     {
-        $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
-        $userId = $request->user()->id;
         $channel = $request->channel;
         $folder = $request->folder;
         $search = $request->input('search', $request->input('q'));
 
-        $query = Conversation::where('workspace_id', $workspaceId)
+        return Conversation::where('workspace_id', $workspaceId)
             ->with(['contact.tags', 'channelAccount', 'lastMessage', 'labels'])
             ->when($search, function ($q, $term) {
                 $q->where(function ($sub) use ($term) {
@@ -115,8 +120,18 @@ class InboxController extends Controller
             ->when($folder === 'snoozed', fn ($q) => $q->where('status', 'snoozed'))
             ->when($request->label, fn ($q) => $q->whereHas('labels', fn ($q) => $q->where('inbox_labels.id', $request->label)))
             ->orderByDesc('last_message_at');
+    }
 
-        $conversations = $query->paginate(30)->withQueryString();
+    public function index(Request $request): Response
+    {
+        $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
+        $userId = $request->user()->id;
+        $channel = $request->channel;
+        $folder = $request->folder;
+
+        $conversations = $this->filteredConversationsQuery($request, (int) $workspaceId, (int) $userId)
+            ->paginate(30)
+            ->withQueryString();
 
         $labels = InboxLabel::where('workspace_id', $workspaceId)->orderBy('name')->get(['id', 'name', 'color']);
         $channelAccounts = $this->getActiveChannelAccounts((int) $workspaceId);
@@ -314,10 +329,9 @@ class InboxController extends Controller
         }
 
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
+        $userId = $request->user()->id;
 
-        $conversations = Conversation::where('workspace_id', $workspaceId)
-            ->with(['contact.tags', 'channelAccount', 'lastMessage', 'labels'])
-            ->orderByDesc('last_message_at')
+        $conversations = $this->filteredConversationsQuery($request, (int) $workspaceId, (int) $userId)
             ->take(30)
             ->get();
 
