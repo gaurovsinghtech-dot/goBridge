@@ -46,12 +46,17 @@ export default function useClientNav() {
             activePattern: 'client.inbox.*',
             dataTour: 'nav-inbox',
             children: [
-                { label: t('inbox.view_all', 'All Conversations'), href: safeRoute('client.inbox.index'), countKey: 'all' },
-                { label: t('inbox.view_unread', 'Unread'), href: `${safeRoute('client.inbox.index')}?folder=unread`, countKey: 'unread' },
-                { label: t('inbox.view_mine', 'Assigned to Me'), href: `${safeRoute('client.inbox.index')}?folder=mine`, countKey: 'mine' },
-                { label: t('inbox.view_ai', 'AI Conversations'), href: `${safeRoute('client.inbox.index')}?folder=ai`, countKey: 'ai' },
-                { label: t('inbox.view_open', 'Open'), href: `${safeRoute('client.inbox.index')}?folder=open`, countKey: 'open' },
-                { label: t('inbox.view_closed', 'Closed'), href: `${safeRoute('client.inbox.index')}?folder=closed`, countKey: 'closed' },
+                // Matches InboxLayout.jsx's VIEWS labels exactly, hardcoded rather
+                // than translated — a stored translation override for these keys
+                // (e.g. inbox.view_all -> "View All") would otherwise hijack this
+                // list while the real Inbox page's own copy of these labels (which
+                // isn't run through t()) stays unaffected.
+                { label: 'All Conversations', href: safeRoute('client.inbox.index'), countKey: 'all' },
+                { label: 'Unread', href: `${safeRoute('client.inbox.index')}?folder=unread`, countKey: 'unread' },
+                { label: 'Assigned to Me', href: `${safeRoute('client.inbox.index')}?folder=mine`, countKey: 'mine' },
+                { label: 'AI Conversations', href: `${safeRoute('client.inbox.index')}?folder=ai`, countKey: 'ai' },
+                { label: 'Open', href: `${safeRoute('client.inbox.index')}?folder=open`, countKey: 'open' },
+                { label: 'Closed', href: `${safeRoute('client.inbox.index')}?folder=closed`, countKey: 'closed' },
             ],
             countsRoute: 'client.inbox.nav-counts',
         },
