@@ -20,6 +20,15 @@ class SegmentController extends Controller
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
         $segments = Segment::where('workspace_id', $workspaceId)->latest()->get();
 
+        // contact_count is a cached column that only updates when a segment is
+        // saved or a static member is added/removed — stale for dynamic segments
+        // whose matching contacts change on their own (e.g. a lead score crossing
+        // a threshold). Recompute it live here so the count on screen is always
+        // current, not just "as of the last edit".
+        $segments->each(function (Segment $segment) {
+            $segment->contact_count = $this->resolver->query($segment)->count();
+        });
+
         return Inertia::render('Contacts/Segments', ['segments' => $segments]);
     }
 

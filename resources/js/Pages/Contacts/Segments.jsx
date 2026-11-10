@@ -1,7 +1,7 @@
 import { Head, useForm, router } from '@inertiajs/react';
 import ClientLayout from '@/Layouts/ClientLayout';
 import EmptyState from '@/Components/EmptyState';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Filter, UserPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -61,6 +61,20 @@ export default function ContactsSegments({ segments }) {
             router.delete(route('client.segments.destroy', id), { preserveScroll: true });
         }
     };
+
+    // Keep contact counts current without the admin needing to manually refresh —
+    // dynamic segments can gain/lose members from events outside this page (tags,
+    // lead score, automations), so the count shown here would otherwise go stale.
+    const createOpenRef = useRef(showCreate);
+    createOpenRef.current = showCreate;
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (!createOpenRef.current) {
+                router.reload({ only: ['segments'], preserveScroll: true, preserveState: true });
+            }
+        }, 8000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <ClientLayout title={t('contacts_page.segments')}>

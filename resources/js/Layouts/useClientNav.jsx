@@ -66,6 +66,11 @@ export default function useClientNav() {
             icon: <Users className={iconClass} />,
             activePattern: 'client.contacts.*',
             dataTour: 'nav-contacts',
+            children: [
+                { label: t('nav.contacts_all', 'All Contacts'), href: safeRoute('client.contacts.index') },
+                { label: t('nav.contacts_pipelines', 'Pipeline Stages'), href: safeRoute('client.crm.pipelines.index') },
+                { label: t('nav.contacts_segments', 'Segments'), href: safeRoute('client.segments.index') },
+            ],
         },
         {
             label: t('nav.campaigns', 'Campaigns'),
