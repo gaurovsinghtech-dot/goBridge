@@ -90,9 +90,21 @@ export default function CrmDashboard({ board, pipelines, kpis, teamMembers, team
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                                {board.pipeline?.name || 'CRM Sales Pipeline'}
-                            </h1>
+                            {pipelines?.length > 1 ? (
+                                <select
+                                    value={board.pipeline?.id ?? ''}
+                                    onChange={(e) => router.get(route('client.crm.dashboard'), { pipeline_id: e.target.value }, { preserveState: true })}
+                                    className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white bg-transparent border-none focus:outline-none focus:ring-0 cursor-pointer -ml-1"
+                                >
+                                    {pipelines.map(p => (
+                                        <option key={p.id} value={p.id} className="text-base font-medium">{p.name}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+                                    {board.pipeline?.name || 'CRM Sales Pipeline'}
+                                </h1>
+                            )}
                             <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-300 border border-brand-200/50 dark:border-brand-800/50">
                                 {board.summary?.total_leads || 0} Leads
                             </span>

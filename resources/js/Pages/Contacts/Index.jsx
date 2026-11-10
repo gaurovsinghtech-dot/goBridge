@@ -348,7 +348,7 @@ function BulkManageModal({ mode, count, tags, segments, processing, onClose, onA
     );
 }
 
-export default function ContactsIndex({ contacts, filters, tags = [], segments = [], activeSegment = null }) {
+export default function ContactsIndex({ contacts, filters, tags = [], segments = [], activeSegment = null, activeStage = null }) {
     const { t } = useTranslation();
     const { props } = usePage();
     const flash = props.flash ?? {};
@@ -500,6 +500,20 @@ export default function ContactsIndex({ contacts, filters, tags = [], segments =
                         </div>
                         <Link href={route('client.contacts.index')} className="flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-900 dark:text-brand-300 dark:hover:text-white transition">
                             <X className="h-4 w-4" /> Clear segment filter
+                        </Link>
+                    </div>
+                )}
+
+                {activeStage && (
+                    <div className="flex items-center justify-between rounded-lg bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-800 px-4 py-2.5 text-sm text-sky-800 dark:text-sky-200">
+                        <div className="flex items-center gap-2">
+                            <Layers className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                            <span>
+                                Pipeline stage: <strong>{activeStage.name}</strong> ({contacts.total ?? contacts.data?.length ?? 0} contacts)
+                            </span>
+                        </div>
+                        <Link href={route('client.contacts.index')} className="flex items-center gap-1 text-xs font-medium text-sky-700 hover:text-sky-900 dark:text-sky-300 dark:hover:text-white transition">
+                            <X className="h-4 w-4" /> Clear stage filter
                         </Link>
                     </div>
                 )}

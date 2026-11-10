@@ -68,6 +68,7 @@ export default function useClientNav() {
             dataTour: 'nav-contacts',
             children: [
                 { label: t('nav.contacts_all', 'All Contacts'), href: safeRoute('client.contacts.index') },
+                { label: t('nav.contacts_board', 'Pipeline Board'), href: safeRoute('client.crm.dashboard') },
                 { label: t('nav.contacts_pipelines', 'Pipeline Stages'), href: safeRoute('client.crm.pipelines.index') },
                 { label: t('nav.contacts_segments', 'Segments'), href: safeRoute('client.segments.index') },
             ],

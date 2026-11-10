@@ -34,10 +34,16 @@ class ContactController extends Controller
     {
         $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
         $segmentId = $request->query('segment') ?? $request->query('segment_id');
+        $stageId = $request->query('stage_id');
 
         $segment = null;
         if ($segmentId) {
             $segment = Segment::where('workspace_id', $workspaceId)->where('id', $segmentId)->first();
+        }
+
+        $stage = null;
+        if ($stageId) {
+            $stage = \App\Models\Crm\CrmPipelineStage::where('workspace_id', $workspaceId)->where('id', $stageId)->first();
         }
 
         if ($segment) {
@@ -56,6 +62,7 @@ class ContactController extends Controller
                     ->orWhere('email', 'like', '%'.$request->search.'%');
             }))
             ->when($request->tag, fn ($q) => $q->whereHas('tags', fn ($q) => $q->where('name', $request->tag)))
+            ->when($stage, fn ($q) => $q->where('stage_id', $stage->id))
             ->latest()
             ->paginate(50)
             ->withQueryString()
@@ -80,7 +87,8 @@ class ContactController extends Controller
             'tags' => $tags,
             'segments' => $segments,
             'activeSegment' => $segment ? ['id' => $segment->id, 'name' => $segment->name, 'type' => $segment->type] : null,
-            'filters' => $request->only('search', 'tag', 'segment', 'segment_id'),
+            'activeStage' => $stage ? ['id' => $stage->id, 'name' => $stage->name] : null,
+            'filters' => $request->only('search', 'tag', 'segment', 'segment_id', 'stage_id'),
         ]);
     }
 
