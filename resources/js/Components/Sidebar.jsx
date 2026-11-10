@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
+import axios from 'axios';
 
 function checkIsActive(item) {
     if (typeof item.active === 'function') {
@@ -31,10 +32,20 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
     const hasActiveChild = items.some(checkIsActive);
     const [open, setOpen] = useState(true);
     const [expandedCollapsed, setExpandedCollapsed] = useState(false);
+    const [hoverCounts, setHoverCounts] = useState({});
+    const fetchedCountsFor = useRef(new Set());
 
-    const openHover = (itemKey) => {
+    const openHover = (itemKey, countsRoute) => {
         if (hoverCloseTimer.current) { clearTimeout(hoverCloseTimer.current); hoverCloseTimer.current = null; }
         setHoverKey(itemKey);
+        if (countsRoute && !fetchedCountsFor.current.has(itemKey)) {
+            fetchedCountsFor.current.add(itemKey);
+            try {
+                axios.get(route(countsRoute)).then((res) => {
+                    setHoverCounts((prev) => ({ ...prev, [itemKey]: res.data }));
+                }).catch(() => { fetchedCountsFor.current.delete(itemKey); });
+            } catch { fetchedCountsFor.current.delete(itemKey); }
+        }
     };
 
     const scheduleHoverClose = () => {
@@ -75,7 +86,7 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                         return (
                             <div
                                 key={itemKey}
-                                onMouseEnter={() => hasChildren && !isExpanded && openHover(itemKey)}
+                                onMouseEnter={() => hasChildren && !isExpanded && openHover(itemKey, item.countsRoute)}
                                 onMouseLeave={() => hasChildren && !isExpanded && scheduleHoverClose()}
                             >
                                 <div className="flex items-center gap-0.5">
@@ -138,16 +149,22 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                     <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isHoverOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                                         <div className="overflow-hidden">
                                             <div className="ml-[22px] pl-3 border-l border-neutral-300/70 dark:border-neutral-700 my-0.5 space-y-px">
-                                                {item.children.map((child) => (
-                                                    <Link
-                                                        key={child.href}
-                                                        href={child.href}
-                                                        onClick={onClose}
-                                                        className="block px-2.5 py-1 rounded-md text-[12.5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-100"
-                                                    >
-                                                        {child.label}
-                                                    </Link>
-                                                ))}
+                                                {item.children.map((child) => {
+                                                    const count = child.countKey ? hoverCounts[itemKey]?.[child.countKey] : undefined;
+                                                    return (
+                                                        <Link
+                                                            key={child.href}
+                                                            href={child.href}
+                                                            onClick={onClose}
+                                                            className="flex items-center gap-2 px-2.5 py-1 rounded-md text-[12.5px] text-neutral-500 dark:text-neutral-400 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-100"
+                                                        >
+                                                            <span className="truncate flex-1 text-left">{child.label}</span>
+                                                            {count > 0 && (
+                                                                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                                                            )}
+                                                        </Link>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </div>

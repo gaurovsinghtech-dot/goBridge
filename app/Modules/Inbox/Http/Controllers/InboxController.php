@@ -1035,6 +1035,26 @@ class InboxController extends Controller
     }
 
     /**
+     * Lightweight counts for the sidebar nav's Inbox views dropdown, shown when
+     * hovering the Inbox item from a non-Inbox page (the Inbox pages themselves
+     * already get these via the index()/show() `counts` prop).
+     */
+    public function navCounts(Request $request): JsonResponse
+    {
+        $workspaceId = $request->user()->current_workspace_id ?? $request->user()->workspace_id;
+        $userId = $request->user()->id;
+
+        return response()->json([
+            'all' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
+            'unread' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('unread_count', '>', 0)->count(),
+            'mine' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->where('assigned_user_id', $userId)->count(),
+            'ai' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->whereIn('assigned_to', ['bot', 'ai'])->count(),
+            'open' => Conversation::where('workspace_id', $workspaceId)->where('status', 'open')->count(),
+            'closed' => Conversation::where('workspace_id', $workspaceId)->where('status', 'resolved')->count(),
+        ]);
+    }
+
+    /**
      * Channel Accounts
      */
     public function channelAccounts(Request $request): JsonResponse
