@@ -149,7 +149,7 @@ export default function InboxLayout({ children, title }) {
                         </div>
                     )}
                     <Topbar showLogo={false} title={title} unreadCount={unreadCount} />
-                    <div className="flex-1 overflow-hidden flex flex-col">
+                    <div className={`flex-1 overflow-hidden flex flex-col transition-opacity duration-200 ease-in-out ${navigating ? 'opacity-40' : 'opacity-100'}`}>
                         {children}
                     </div>
                 </div>
