@@ -21,6 +21,38 @@ function safeRoute(name, fallback = '#') {
 }
 
 /**
+ * Adds live unread/folder counts (as a badge) and correct active-state
+ * highlighting to the 'inbox' nav group's items. Route-based active checks
+ * can't tell these apart (they're all the same route with different query
+ * strings), so this matches on the actual current folder/counts instead.
+ * Used by both InboxLayout (where filters/counts already come from page
+ * props) and ClientLayout (which fetches counts once via nav-counts).
+ */
+export function enrichInboxNavGroups(groups, { filters, counts, channel } = {}) {
+    // filters is only present when actually on an Inbox page (InboxLayout
+    // passes its page props through). Elsewhere (ClientLayout), there's no
+    // active folder to speak of — leave each item's own activePattern-based
+    // check alone rather than overriding it to "folder === null" (which
+    // would wrongly mark "All Conversations" active on every other page).
+    const hasFilters = filters !== undefined;
+    const activeFolder = filters?.folder ?? null;
+    const activeChannel = channel ?? filters?.channel ?? null;
+
+    return groups.map((group) => {
+        if (group.key !== 'inbox') return group;
+
+        return {
+            ...group,
+            items: group.items.map((item) => ({
+                ...item,
+                ...(hasFilters ? { active: () => item.folder === activeFolder && !activeChannel } : {}),
+                badge: counts?.[item.countKey] > 0 ? counts[item.countKey] : null,
+            })),
+        };
+    });
+}
+
+/**
  * Growbridge Connect — Main Navigation (Plan & Entitlement aware)
  */
 export default function useClientNav() {
@@ -40,46 +72,33 @@ export default function useClientNav() {
             dataTour: 'nav-dashboard',
         },
         {
-            label: t('nav.inbox', 'Inbox'),
-            href: safeRoute('client.inbox.index'),
-            icon: <Inbox className={iconClass} />,
-            activePattern: 'client.inbox.*',
-            dataTour: 'nav-inbox',
-            children: [
-                // Matches InboxLayout.jsx's VIEWS labels exactly, hardcoded rather
-                // than translated — a stored translation override for these keys
-                // (e.g. inbox.view_all -> "View All") would otherwise hijack this
-                // list while the real Inbox page's own copy of these labels (which
-                // isn't run through t()) stays unaffected.
-                { label: 'All Conversations', href: safeRoute('client.inbox.index'), countKey: 'all' },
-                { label: 'Unread', href: `${safeRoute('client.inbox.index')}?folder=unread`, countKey: 'unread' },
-                { label: 'Assigned to Me', href: `${safeRoute('client.inbox.index')}?folder=mine`, countKey: 'mine' },
-                { label: 'AI Conversations', href: `${safeRoute('client.inbox.index')}?folder=ai`, countKey: 'ai' },
-                { label: 'Open', href: `${safeRoute('client.inbox.index')}?folder=open`, countKey: 'open' },
-                { label: 'Closed', href: `${safeRoute('client.inbox.index')}?folder=closed`, countKey: 'closed' },
-            ],
-            countsRoute: 'client.inbox.nav-counts',
-        },
-        {
-            label: t('nav.contacts', 'Contacts & Leads'),
-            href: safeRoute('client.contacts.index'),
-            icon: <Users className={iconClass} />,
-            activePattern: 'client.contacts.*',
-            dataTour: 'nav-contacts',
-            children: [
-                { label: t('nav.contacts_all', 'All Contacts'), href: safeRoute('client.contacts.index') },
-                { label: t('nav.contacts_board', 'Pipeline Board'), href: safeRoute('client.crm.dashboard') },
-                { label: t('nav.contacts_pipelines', 'Pipeline Stages'), href: safeRoute('client.crm.pipelines.index') },
-                { label: t('nav.contacts_segments', 'Segments'), href: safeRoute('client.segments.index') },
-            ],
-        },
-        {
             label: t('nav.campaigns', 'Campaigns'),
             href: safeRoute('client.campaigns.index'),
             icon: <Megaphone className={iconClass} />,
             activePattern: 'client.campaigns.*',
             dataTour: 'nav-campaigns',
         },
+    ];
+
+    // Matches InboxLayout.jsx's VIEWS labels exactly, hardcoded rather than
+    // translated — a stored translation override for these keys (e.g.
+    // inbox.view_all -> "View All") would otherwise hijack this list while the
+    // real Inbox page's own copy of these labels (which isn't run through
+    // t()) stays unaffected.
+    const inboxItems = [
+        { label: 'All Conversations', href: safeRoute('client.inbox.index'), activePattern: 'client.inbox.index', folder: null, countKey: 'all', icon: <Inbox className={iconClass} /> },
+        { label: 'Unread', href: `${safeRoute('client.inbox.index')}?folder=unread`, folder: 'unread', countKey: 'unread' },
+        { label: 'Assigned to Me', href: `${safeRoute('client.inbox.index')}?folder=mine`, folder: 'mine', countKey: 'mine' },
+        { label: 'AI Conversations', href: `${safeRoute('client.inbox.index')}?folder=ai`, folder: 'ai', countKey: 'ai' },
+        { label: 'Open', href: `${safeRoute('client.inbox.index')}?folder=open`, folder: 'open', countKey: 'open' },
+        { label: 'Closed', href: `${safeRoute('client.inbox.index')}?folder=closed`, folder: 'closed', countKey: 'closed' },
+    ];
+
+    const contactsItems = [
+        { label: t('nav.contacts_all', 'All Contacts'), href: safeRoute('client.contacts.index'), icon: <Users className={iconClass} />, activePattern: 'client.contacts.*', dataTour: 'nav-contacts' },
+        { label: t('nav.contacts_board', 'Pipeline Board'), href: safeRoute('client.crm.dashboard'), activePattern: 'client.crm.dashboard' },
+        { label: t('nav.contacts_pipelines', 'Pipeline Stages'), href: safeRoute('client.crm.pipelines.index'), activePattern: 'client.crm.pipelines.*' },
+        { label: t('nav.contacts_segments', 'Segments'), href: safeRoute('client.segments.index'), activePattern: 'client.segments.*' },
     ];
 
     const aiItems = [
@@ -237,6 +256,8 @@ export default function useClientNav() {
 
     return [
         { type: 'flat', key: 'top', items: topItems },
+        { type: 'group', key: 'inbox', label: t('nav.inbox', 'Inbox'), icon: <Inbox className={iconClass} />, items: inboxItems, countsRoute: 'client.inbox.nav-counts' },
+        { type: 'group', key: 'contacts', label: t('nav.contacts', 'Contacts & Leads'), icon: <Users className={iconClass} />, items: contactsItems },
         { type: 'group', key: 'ai', label: t('nav.group_ai', 'AI & Automation'), icon: <Sparkles className={iconClass} />, items: aiItems },
         { type: 'group', key: 'voice', label: t('nav.group_voice', 'Voice & Calling'), icon: <PhoneForwarded className={iconClass} />, items: voiceItems },
         { type: 'group', key: 'channels', label: t('nav.group_channels', 'Channels'), icon: <Radio className={iconClass} />, items: channelItems },

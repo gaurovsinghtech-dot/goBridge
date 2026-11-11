@@ -8,7 +8,8 @@ import Topbar from '@/Components/Topbar';
 import Sidebar from '@/Components/Sidebar';
 import UpgradeModal from '@/Components/UpgradeModal';
 import DashboardTour from '@/Components/ProductTour/DashboardTour';
-import useClientNav from '@/Layouts/useClientNav';
+import useClientNav, { enrichInboxNavGroups } from '@/Layouts/useClientNav';
+import axios from 'axios';
 import { ChannelBrandIcon } from '@/Components/BrandIcons';
 import {
     LayoutDashboard,
@@ -227,6 +228,21 @@ export default function ClientLayout({ header, children, title, topbarRight }) {
     const logoUrl = branding?.logo_url;
     const [unreadCount, setUnreadCount] = useState(unreadNotificationsCount ?? 0);
     const clientNavGroups = useClientNav();
+    const [inboxCounts, setInboxCounts] = useState(null);
+
+    // The Inbox group is always visible in the sidebar now (not just while on
+    // an Inbox page), so fetch its counts once here too — InboxLayout gets
+    // them for free via page props, this is the only other place that needs
+    // them fetched directly.
+    useEffect(() => {
+        let cancelled = false;
+        try {
+            axios.get(route('client.inbox.nav-counts')).then((res) => {
+                if (!cancelled) setInboxCounts(res.data);
+            }).catch(() => {});
+        } catch {}
+        return () => { cancelled = true; };
+    }, []);
 
     // Initialise OneSignal SDK (registers SW, requests push permission)
     useOneSignal({ appId: onesignal?.app_id, enabled: onesignal?.enabled });
@@ -294,14 +310,17 @@ export default function ClientLayout({ header, children, title, topbarRight }) {
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
                 showCreateButton={false}
-                navGroups={clientNavGroups.map(group => ({
-                    ...group,
-                    items: group.items.map(item => ({
-                        ...item,
-                        key: item.activePattern || item.label,
-                        active: () => item.activePattern ? route().current(item.activePattern) : false,
-                    }))
-                }))}
+                navGroups={enrichInboxNavGroups(
+                    clientNavGroups.map(group => ({
+                        ...group,
+                        items: group.items.map(item => ({
+                            ...item,
+                            key: item.activePattern || item.label,
+                            active: () => item.activePattern ? route().current(item.activePattern) : false,
+                        }))
+                    })),
+                    { counts: inboxCounts }
+                )}
 footer={<ClientLayoutFooter />}
             />
 
