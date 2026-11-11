@@ -103,7 +103,6 @@ class CrmPipelineService
         $firstStageId = $stages->first()?->id;
         $columns = [];
         $totalPipelineValue = 0.0;
-        $totalWeightedValue = 0.0;
         $totalDealsCount = 0;
 
         foreach ($stages as $stage) {
@@ -115,25 +114,21 @@ class CrmPipelineService
             })->values();
 
             $stageValue = $stageContacts->sum('deal_value');
-            $stageWeighted = round($stageValue * ($stage->probability / 100), 2);
             $stageDealsCount = $stageContacts->sum(fn ($c) => $c->deals->count() ?: 1);
 
             $totalPipelineValue += $stageValue;
-            $totalWeightedValue += $stageWeighted;
             $totalDealsCount += $stageContacts->count();
 
             $columns[] = [
                 'id' => $stage->id,
                 'name' => $stage->name,
                 'color' => $stage->color,
-                'probability' => $stage->probability,
                 'position' => $stage->position,
                 'is_won' => $stage->is_won,
                 'is_lost' => $stage->is_lost,
                 'stats' => [
                     'count' => $stageContacts->count(),
                     'total_value' => $stageValue,
-                    'weighted_value' => $stageWeighted,
                 ],
                 'leads' => $stageContacts->map(fn ($c) => [
                     'id' => $c->id,
@@ -167,7 +162,6 @@ class CrmPipelineService
             'summary' => [
                 'total_leads' => $totalDealsCount,
                 'total_pipeline_value' => round($totalPipelineValue, 2),
-                'total_weighted_value' => round($totalWeightedValue, 2),
             ],
             'columns' => $columns,
         ];

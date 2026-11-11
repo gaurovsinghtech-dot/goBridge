@@ -11,7 +11,6 @@ export default function CrmPipelines({ pipelines, colors }) {
     const [stageForm, setStageForm] = useState({
         name: '',
         color: 'blue',
-        probability: 50,
         is_won: false,
         is_lost: false,
     });
@@ -22,13 +21,12 @@ export default function CrmPipelines({ pipelines, colors }) {
             setStageForm({
                 name: stage.name,
                 color: stage.color,
-                probability: stage.probability,
                 is_won: stage.is_won,
                 is_lost: stage.is_lost,
             });
         } else {
             setEditingStage(null);
-            setStageForm({ name: '', color: 'blue', probability: 50, is_won: false, is_lost: false });
+            setStageForm({ name: '', color: 'blue', is_won: false, is_lost: false });
         }
         setShowStageModal(true);
     };
@@ -60,7 +58,7 @@ export default function CrmPipelines({ pipelines, colors }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Pipeline Stages & Funnel Settings</h1>
-                        <p className="text-sm text-neutral-500 mt-1">Configure customized stages, colors, and win probabilities.</p>
+                        <p className="text-sm text-neutral-500 mt-1">Configure customized stages and colors.</p>
                     </div>
 
                     <button
@@ -80,7 +78,6 @@ export default function CrmPipelines({ pipelines, colors }) {
                                 <span className="h-3 w-3 rounded-full bg-brand-500" />
                                 <div>
                                     <h4 className="font-semibold text-sm text-neutral-900 dark:text-white">{stage.name}</h4>
-                                    <span className="text-xs text-neutral-500">{stage.probability}% win probability</span>
                                 </div>
                             </div>
 
@@ -120,17 +117,6 @@ export default function CrmPipelines({ pipelines, colors }) {
                                     type="text"
                                     value={stageForm.name}
                                     onChange={(e) => setStageForm({ ...stageForm, name: e.target.value })}
-                                    className="w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold mb-1">Win Probability (%)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={stageForm.probability}
-                                    onChange={(e) => setStageForm({ ...stageForm, probability: parseInt(e.target.value) || 0 })}
                                     className="w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800"
                                 />
                             </div>

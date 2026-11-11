@@ -154,7 +154,6 @@ class CrmPipelineController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:128'],
             'color' => ['required', 'string', 'max:32'],
-            'probability' => ['required', 'integer', 'between:0,100'],
             'is_won' => ['nullable', 'boolean'],
             'is_lost' => ['nullable', 'boolean'],
         ]);
@@ -188,7 +187,6 @@ class CrmPipelineController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:128'],
             'color' => ['sometimes', 'string', 'max:32'],
-            'probability' => ['sometimes', 'integer', 'between:0,100'],
             'position' => ['sometimes', 'integer', 'min:0'],
             'is_won' => ['nullable', 'boolean'],
             'is_lost' => ['nullable', 'boolean'],

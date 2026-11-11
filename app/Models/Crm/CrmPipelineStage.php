@@ -16,13 +16,13 @@ class CrmPipelineStage extends Model
     protected $table = 'crm_pipeline_stages';
 
     public const DEFAULTS = [
-        ['name' => 'New Lead', 'color' => 'neutral', 'probability' => 10, 'is_won' => false, 'is_lost' => false],
-        ['name' => 'Contacted', 'color' => 'blue', 'probability' => 20, 'is_won' => false, 'is_lost' => false],
-        ['name' => 'Qualified', 'color' => 'indigo', 'probability' => 50, 'is_won' => false, 'is_lost' => false],
-        ['name' => 'Proposal', 'color' => 'purple', 'probability' => 70, 'is_won' => false, 'is_lost' => false],
-        ['name' => 'Negotiation', 'color' => 'amber', 'probability' => 85, 'is_won' => false, 'is_lost' => false],
-        ['name' => 'Won', 'color' => 'emerald', 'probability' => 100, 'is_won' => true, 'is_lost' => false],
-        ['name' => 'Lost', 'color' => 'rose', 'probability' => 0, 'is_won' => false, 'is_lost' => true],
+        ['name' => 'New Lead', 'color' => 'neutral', 'is_won' => false, 'is_lost' => false],
+        ['name' => 'Contacted', 'color' => 'blue', 'is_won' => false, 'is_lost' => false],
+        ['name' => 'Qualified', 'color' => 'indigo', 'is_won' => false, 'is_lost' => false],
+        ['name' => 'Proposal', 'color' => 'purple', 'is_won' => false, 'is_lost' => false],
+        ['name' => 'Negotiation', 'color' => 'amber', 'is_won' => false, 'is_lost' => false],
+        ['name' => 'Won', 'color' => 'emerald', 'is_won' => true, 'is_lost' => false],
+        ['name' => 'Lost', 'color' => 'rose', 'is_won' => false, 'is_lost' => true],
     ];
 
     public const COLORS = ['neutral', 'blue', 'indigo', 'purple', 'amber', 'emerald', 'rose', 'cyan'];
@@ -32,7 +32,6 @@ class CrmPipelineStage extends Model
         'pipeline_id',
         'name',
         'color',
-        'probability',
         'position',
         'is_won',
         'is_lost',
@@ -41,7 +40,6 @@ class CrmPipelineStage extends Model
     protected function casts(): array
     {
         return [
-            'probability' => 'integer',
             'position' => 'integer',
             'is_won' => 'boolean',
             'is_lost' => 'boolean',

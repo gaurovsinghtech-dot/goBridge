@@ -148,12 +148,6 @@ export default function CrmDashboard({ board, pipelines, kpis, teamMembers, team
                         </p>
                     </div>
                     <div className="p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 shadow-xs">
-                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Weighted Forecast</span>
-                        <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                            {formatCurrency(kpis?.weighted_value)}
-                        </p>
-                    </div>
-                    <div className="p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 shadow-xs">
                         <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Qualified Leads</span>
                         <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
                             {kpis?.qualified_leads || 0}
@@ -246,7 +240,7 @@ export default function CrmDashboard({ board, pipelines, kpis, teamMembers, team
                                         </span>
                                     </div>
                                     <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                                        {formatCurrency(col.stats.total_value)} • {col.probability}% prob
+                                        {formatCurrency(col.stats.total_value)}
                                     </p>
                                 </div>
                             </div>

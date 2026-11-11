@@ -19,10 +19,11 @@ class ContactJourneyService
     public const PIPELINE_NAME = 'Contact Journey';
 
     public const STAGES = [
-        ['name' => 'Fresh Contacts', 'color' => 'neutral', 'probability' => 10],
-        ['name' => 'Product Section', 'color' => 'blue', 'probability' => 40],
-        ['name' => 'Completed', 'color' => 'emerald', 'probability' => 100],
-        ['name' => 'Query', 'color' => 'rose', 'probability' => 20],
+        ['name' => 'Fresh Contacts', 'color' => 'neutral'],
+        ['name' => 'Product Section', 'color' => 'blue'],
+        ['name' => 'Completed', 'color' => 'emerald'],
+        ['name' => 'Query', 'color' => 'rose'],
+        ['name' => 'Query Solved', 'color' => 'cyan'],
     ];
 
     public const DEFAULT_QUERY_KEYWORDS = [
@@ -42,7 +43,6 @@ class ContactJourneyService
                 ['workspace_id' => $workspaceId, 'pipeline_id' => $pipeline->id, 'name' => $stageData['name']],
                 [
                     'color' => $stageData['color'],
-                    'probability' => $stageData['probability'],
                     'position' => $i,
                     'is_won' => $stageData['name'] === 'Completed',
                     'is_lost' => false,

@@ -359,7 +359,7 @@ export default function LeadDetail({ lead, pipelines, teamMembers, teams }) {
                                 className="w-full p-2.5 text-sm font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white"
                             >
                                 {pipelines?.[0]?.stages?.map((s) => (
-                                    <option key={s.id} value={s.id}>{s.name} ({s.probability}%)</option>
+                                    <option key={s.id} value={s.id}>{s.name}</option>
                                 ))}
                             </select>
 

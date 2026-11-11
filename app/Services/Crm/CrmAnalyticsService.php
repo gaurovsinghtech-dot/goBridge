@@ -68,16 +68,6 @@ class CrmAnalyticsService
             $totalPipelineValue = $dealsPipelineValue;
         }
 
-        // Weighted value calculation
-        $contactsWithStages = Contact::where('workspace_id', $workspaceId)
-            ->with('stage')
-            ->get();
-
-        $weightedValue = $contactsWithStages->sum(function ($c) {
-            $prob = $c->stage?->probability ?? 10;
-            return ($c->deal_value * ($prob / 100));
-        });
-
         $conversionRate = $totalLeads > 0 ? round(($wonCount / $totalLeads) * 100, 1) : 0.0;
 
         $followUpsToday = CrmTask::where('workspace_id', $workspaceId)
@@ -92,7 +82,6 @@ class CrmAnalyticsService
             'won_deals' => $wonCountTotal,
             'lost_deals' => $lostCount,
             'pipeline_value' => round($totalPipelineValue, 2),
-            'weighted_value' => round($weightedValue, 2),
             'won_revenue' => round($wonRevenue, 2),
             'average_deal_value' => $avgDealValue,
             'sales_cycle_days' => $avgSalesCycleDays,

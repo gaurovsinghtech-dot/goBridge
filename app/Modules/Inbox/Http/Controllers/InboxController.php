@@ -830,15 +830,15 @@ class InboxController extends Controller
         $conversation->update($updates);
 
         // Contact Journey: resolving a conversation for a contact currently
-        // sitting in the "Query" stage moves them back to "Completed".
+        // sitting in the "Query" stage moves them to "Query Solved".
         if ($request->status === 'resolved' && $conversation->contact_id) {
-            $this->moveResolvedQueryContactToCompleted($conversation);
+            $this->moveResolvedQueryContact($conversation);
         }
 
         return back()->with('success', 'Status updated.');
     }
 
-    private function moveResolvedQueryContactToCompleted(Conversation $conversation): void
+    private function moveResolvedQueryContact(Conversation $conversation): void
     {
         $contact = Contact::find($conversation->contact_id);
         if (! $contact || ! $contact->stage_id) {
@@ -850,27 +850,27 @@ class InboxController extends Controller
             return;
         }
 
-        $completedStage = \App\Models\Crm\CrmPipelineStage::where('workspace_id', $currentStage->workspace_id)
+        $targetStage = \App\Models\Crm\CrmPipelineStage::where('workspace_id', $currentStage->workspace_id)
             ->where('pipeline_id', $currentStage->pipeline_id)
-            ->where('name', 'Completed')
+            ->where('name', 'Query Solved')
             ->first();
 
-        if (! $completedStage) {
+        if (! $targetStage) {
             return;
         }
 
         $oldStageId = $contact->stage_id;
-        $contact->update(['stage_id' => $completedStage->id]);
+        $contact->update(['stage_id' => $targetStage->id]);
 
         ContactTimelineEvent::create([
             'workspace_id' => $currentStage->workspace_id,
             'contact_id' => $contact->id,
             'event_type' => 'stage_changed',
-            'title' => 'Stage moved to Completed',
+            'title' => 'Stage moved to Query Solved',
             'metadata_json' => [
                 'old_stage_id' => $oldStageId,
-                'new_stage_id' => $completedStage->id,
-                'stage_name' => 'Completed',
+                'new_stage_id' => $targetStage->id,
+                'stage_name' => 'Query Solved',
                 'reason' => 'query_conversation_resolved',
             ],
             'occurred_at' => now(),

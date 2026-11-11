@@ -457,7 +457,7 @@ class CampaignController extends Controller
 
         $crmStages = CrmPipelineStage::where('workspace_id', $workspaceId)
             ->orderBy('position')
-            ->get(['id', 'name', 'color', 'probability']);
+            ->get(['id', 'name', 'color']);
 
         $whatsappPhoneNumbers = WhatsappBusinessAccount::where('workspace_id', $workspaceId)
             ->where('status', 'active')

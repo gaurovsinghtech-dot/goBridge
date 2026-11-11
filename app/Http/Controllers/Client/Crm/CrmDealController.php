@@ -260,7 +260,6 @@ class CrmDealController extends Controller
         $deal->update([
             'stage_id' => $stage->id,
             'status' => $status,
-            'probability' => $stage->probability,
             'loss_reason' => $stage->is_lost ? ($validated['loss_reason'] ?? null) : null,
         ]);
 
@@ -275,7 +274,7 @@ class CrmDealController extends Controller
                 eventType: 'crm_deal_stage_changed',
                 channel: 'crm',
                 title: "Deal {$deal->name} moved to {$stage->name}",
-                description: "Stage changed with probability {$stage->probability}%",
+                description: "Stage changed to {$stage->name}",
                 metadata: ['deal_id' => $deal->id, 'stage_id' => $stage->id, 'status' => $status]
             );
         }
