@@ -61,17 +61,17 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                     className={[
                         'group flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 mb-0.5 text-[11px] font-semibold uppercase tracking-wider transition-colors duration-100',
                         hasActiveChild
-                            ? 'text-neutral-700 dark:text-neutral-200'
-                            : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200',
+                            ? 'text-neutral-800 dark:text-neutral-200'
+                            : 'text-neutral-600 dark:text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200',
                     ].join(' ')}
                 >
                     {icon && (
-                        <span className="shrink-0 flex h-5 w-5 items-center justify-center text-neutral-400 dark:text-neutral-500">
+                        <span className="shrink-0 flex h-5 w-5 items-center justify-center text-neutral-500 dark:text-neutral-500">
                             {icon}
                         </span>
                     )}
                     <span className="truncate flex-1 text-left">{label}</span>
-                    <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-300 dark:text-neutral-600 transition-transform duration-150 ${open ? 'rotate-180' : '-rotate-90'}`} />
+                    <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-500 dark:text-neutral-600 transition-transform duration-150 ${open ? 'rotate-180' : '-rotate-90'}`} />
                 </button>
             )}
             <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
@@ -99,13 +99,13 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                             type === 'group' ? 'px-2.5 py-1.5 text-[12.5px]' : 'px-3 py-1.5 text-[13px]',
                                             isActive
                                                 ? 'bg-neutral-900 text-white font-semibold dark:bg-white dark:text-neutral-900'
-                                                : 'text-neutral-600 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
+                                                : 'text-neutral-700 dark:text-neutral-400 font-normal hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-neutral-100',
                                         ].join(' ')}
                                     >
                                         {item.icon && (
                                             <span className={[
                                                 'shrink-0 transition-colors duration-100',
-                                                isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300',
+                                                isActive ? 'text-white dark:text-neutral-900' : 'text-neutral-500 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300',
                                             ].join(' ')}>
                                                 {item.icon}
                                             </span>
@@ -121,7 +121,7 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                                 'h-3.5 w-3.5 shrink-0 transition-transform duration-150',
                                                 item.badge ? '' : 'ml-auto',
                                                 isHoverOpen ? 'rotate-180' : '',
-                                                isActive ? 'text-white/70 dark:text-neutral-900/60' : 'text-neutral-400 dark:text-neutral-500',
+                                                isActive ? 'text-white/70 dark:text-neutral-900/60' : 'text-neutral-500 dark:text-neutral-500',
                                             ].join(' ')} />
                                         )}
                                     </Link>
@@ -130,7 +130,7 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                             type="button"
                                             onClick={() => setExpandedCollapsed((c) => !c)}
                                             aria-label={expandedCollapsed ? 'Expand' : 'Collapse'}
-                                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors duration-100"
+                                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-900/5 dark:hover:bg-white/10 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors duration-100"
                                         >
                                             <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${expandedCollapsed ? '-rotate-90' : ''}`} />
                                         </button>
@@ -161,12 +161,12 @@ function NavGroup({ type = 'flat', label, icon, items, onClose, expandedItemKey,
                                                                 'flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-[12.5px] transition-colors duration-100',
                                                                 isDefault
                                                                     ? 'bg-neutral-900/[0.07] dark:bg-white/10 text-neutral-900 dark:text-white font-medium'
-                                                                    : 'text-neutral-500 dark:text-neutral-400 font-normal hover:text-neutral-800 dark:hover:text-neutral-100',
+                                                                    : 'text-neutral-700 dark:text-neutral-400 font-normal hover:text-neutral-900 dark:hover:text-neutral-100',
                                                             ].join(' ')}
                                                         >
                                                             <span className="truncate flex-1 text-left">{child.label}</span>
                                                             {count > 0 && (
-                                                                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
+                                                                <span className="text-[10px] text-neutral-500 dark:text-neutral-500 shrink-0 tabular-nums">{count}</span>
                                                             )}
                                                         </Link>
                                                     );

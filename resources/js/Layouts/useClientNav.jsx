@@ -94,11 +94,14 @@ export default function useClientNav() {
         { label: 'Closed', href: `${safeRoute('client.inbox.index')}?folder=closed`, folder: 'closed', countKey: 'closed' },
     ];
 
+    // Hardcoded rather than translated — same reason as inboxItems above: a
+    // stored translation override for nav.contacts_* keys was hijacking these
+    // into generic "Contacts X" labels.
     const contactsItems = [
-        { label: t('nav.contacts_all', 'All Contacts'), href: safeRoute('client.contacts.index'), icon: <Users className={iconClass} />, activePattern: 'client.contacts.*', dataTour: 'nav-contacts' },
-        { label: t('nav.contacts_board', 'Pipeline Board'), href: safeRoute('client.crm.dashboard'), activePattern: 'client.crm.dashboard' },
-        { label: t('nav.contacts_pipelines', 'Pipeline Stages'), href: safeRoute('client.crm.pipelines.index'), activePattern: 'client.crm.pipelines.*' },
-        { label: t('nav.contacts_segments', 'Segments'), href: safeRoute('client.segments.index'), activePattern: 'client.segments.*' },
+        { label: 'All Contacts', href: safeRoute('client.contacts.index'), icon: <Users className={iconClass} />, activePattern: 'client.contacts.*', dataTour: 'nav-contacts' },
+        { label: 'Pipeline Board', href: safeRoute('client.crm.dashboard'), activePattern: 'client.crm.dashboard' },
+        { label: 'Pipeline Stages', href: safeRoute('client.crm.pipelines.index'), activePattern: 'client.crm.pipelines.*' },
+        { label: 'Segments', href: safeRoute('client.segments.index'), activePattern: 'client.segments.*' },
     ];
 
     const aiItems = [
